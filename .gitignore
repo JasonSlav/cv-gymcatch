@@ -1,0 +1,26 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Outputs & Logs
+output/
+output_poc/
+streamlit_out.log
+streamlit_err.log
+streamlit_landing.png
+
+# Data (Video privat/penelitian)
+data/
+
+# Model (File besar, 9MB)
+models/*.task
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
