@@ -76,6 +76,7 @@ C:\Projects\cv\gymcatch\
 ├─ .venv\                      # virtual environment
 ├─ requirements.txt            # dependensi terkunci
 ├─ PROJECT.md                  # dokumen ini
+├─ README.md                   # panduan instalasi & penggunaan (penguji)
 ├─ app.py                      # Streamlit UI tipis (entry point, logika di pipeline.py)
 ├─ run_squat.py                # CLI wrapper tipis di atas src/pipeline.py
 │
@@ -184,10 +185,10 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 - [x] Modularisasi `src/` (geometry, video_io, pose_estimator, metrics, visualize, report, pipeline) — 127/127 test passed
 - [x] Pipeline end-to-end terbukti konsisten (selisih 0.000000° antar run)
 - [x] Streamlit UI + fallback 3 sampel frame (mengatasi codec video yang tidak didukung browser) + tombol download
+- [x] Dokumentasi akhir: README.md (panduan penguji) + PROJECT.md (asumsi, keterbatasan, log keputusan)
 
 ### 📋 Berikutnya
 - [ ] Testing dengan video nyata kondisi buruk (goyang, oklusi, durasi ekstrem)
-- [ ] Dokumentasi akhir (README, asumsi, keterbatasan)
 - [ ] Uji coba push-up (Future Work)
 
 ---
