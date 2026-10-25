@@ -221,6 +221,11 @@
             height: 100%;
         }
 
+        .upload-box.drag-over {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.06);
+        }
+
         .icon-circle {
             width: 60px;
             height: 60px;
@@ -581,18 +586,64 @@
             font-size: 0.7rem;
         }
 
+        /* --- Progress bar (analisis) --- */
+        .progress-wrapper {
+            text-align: center;
+            padding: 30px 20px 10px;
+        }
+
+        .progress-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 14px;
+        }
+
+        .progress-bar-container {
+            width: min(420px, 90%);
+            height: 8px;
+            margin: 0 auto;
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 40%;
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan));
+            animation: progress-slide 1.2s ease-in-out infinite;
+        }
+
+        @keyframes progress-slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             nav {
                 flex-direction: column;
                 gap: 20px;
-                padding: 20px;
+                padding: 44px 20px 20px;
             }
             .lang-toggle {
-                right: 20px;
+                top: 12px;
+                right: 12px;
+                transform: none;
+                padding: 3px;
+                gap: 3px;
+            }
+            .lang-btn {
+                padding: 3px 10px;
+                font-size: 12px;
             }
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+            }
+            .btn-select {
+                width: 100%;
             }
             .upload-grid, .features-grid, .footer-grid {
                 grid-template-columns: 1fr;
@@ -665,7 +716,7 @@
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
                 <h3 data-id="Tambahkan file untuk diunggah" data-en="Add files to upload">Tambahkan file untuk diunggah</h3>
-                <p data-id="Atau Telusuri File" data-en="Or Browse Files">Atau Telusuri File</p>
+                <p data-id="Seret & jatuhkan file ke sini, atau klik tombol" data-en="Drag & drop your file here, or click the button">Seret & jatuhkan file ke sini, atau klik tombol</p>
                 <input type="file" id="videoInput" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 <button type="button" class="btn-select" id="btnSelect" data-id="Pilih File" data-en="Select files">Pilih File</button>
             </div>
@@ -683,6 +734,12 @@
             </div>
         </div>
     </section>
+
+    <!-- Progress analisis (ditampilkan saat fetch berjalan) -->
+    <div id="progress-wrapper" class="container progress-wrapper" style="display:none;">
+        <p class="progress-text" data-id="Menganalisis video…" data-en="Analyzing video…">Menganalisis video…</p>
+        <div class="progress-bar-container"><div class="progress-bar-fill"></div></div>
+    </div>
 
     <!-- Hasil Analisis (diisi oleh JavaScript) -->
     <div id="hasil-analisis" class="container results-wrap"></div>
@@ -776,6 +833,7 @@
             id: {
                 loading: "Menganalisis video… (±15–60 detik, mohon tunggu)",
                 errPrefix: "Gagal menganalisis: ",
+                dropInvalid: "Format file tidak didukung (hanya .mp4/.mov)",
                 na: "N/A",
                 labels: {
                     "Baik": "Baik",
@@ -802,6 +860,7 @@
             en: {
                 loading: "Analyzing video… (about 15–60 s, please wait)",
                 errPrefix: "Analysis failed: ",
+                dropInvalid: "Unsupported file type (.mp4/.mov only)",
                 na: "N/A",
                 labels: {
                     "Baik": "Good",
@@ -925,15 +984,13 @@
             const input = document.getElementById("videoInput");
             const btnSelect = document.getElementById("btnSelect");
             const hasil = document.getElementById("hasil-analisis");
+            const dropBox = document.querySelector(".upload-box");
+            const progressWrapper = document.getElementById("progress-wrapper");
 
-            btnSelect.addEventListener("click", () => input.click());
-
-            input.addEventListener("change", async () => {
-                const file = input.files && input.files[0];
-                if (!file) return;
-
+            async function analyzeFile(file) {
                 const t = T[currentLang];
-                hasil.innerHTML = `<p class="loading-text">⏳ ${t.loading}</p>`;
+                hasil.innerHTML = "";
+                progressWrapper.style.display = "block";
 
                 const fd = new FormData();
                 fd.append("video", file);
@@ -956,8 +1013,52 @@
                     hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${err.message}</p>`;
                 } finally {
                     input.value = ""; // izinkan pilih file yang sama lagi
+                    progressWrapper.style.display = "none";
                 }
+            }
+
+            btnSelect.addEventListener("click", () => input.click());
+
+            input.addEventListener("change", () => {
+                const file = input.files && input.files[0];
+                if (file) analyzeFile(file);
             });
+
+            /* ===== Drag & drop ===== */
+            let dragDepth = 0;
+            const validExt = /\.(mp4|mov)$/i;
+
+            dropBox.addEventListener("dragenter", e => {
+                e.preventDefault();
+                dragDepth++;
+                dropBox.classList.add("drag-over");
+            });
+
+            dropBox.addEventListener("dragover", e => e.preventDefault());
+
+            dropBox.addEventListener("dragleave", e => {
+                e.preventDefault();
+                dragDepth = Math.max(0, dragDepth - 1);
+                if (dragDepth === 0) dropBox.classList.remove("drag-over");
+            });
+
+            dropBox.addEventListener("drop", e => {
+                e.preventDefault();
+                dragDepth = 0;
+                dropBox.classList.remove("drag-over");
+
+                const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+                if (!file) return;
+                if (!validExt.test(file.name)) {
+                    hasil.innerHTML = `<p class="error-text">⚠️ ${T[currentLang].dropInvalid}</p>`;
+                    return;
+                }
+                analyzeFile(file);
+            });
+
+            /* cegah browser men-open file bila jatuh di luar zona upload */
+            window.addEventListener("dragover", e => e.preventDefault());
+            window.addEventListener("drop", e => e.preventDefault());
         });
     </script>
 </body>
