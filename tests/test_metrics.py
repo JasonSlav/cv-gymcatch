@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -20,8 +21,10 @@ from src.metrics import (  # noqa: E402
     RepInfo,
     compute_consistency,
     compute_rom,
+    compute_stability_proxy,
     count_reps,
     extract_rep_curves,
+    generate_rule_based_feedback,
     resample_curve,
     smooth_angles,
     to_array,
@@ -237,3 +240,81 @@ def test_consistency_clipped_to_zero_one():
     c = compute_consistency([r1, r2, r3], n_points=5)
     assert c is not None
     assert 0.0 <= c <= 1.0
+
+
+# --- compute_stability_proxy & generate_rule_based_feedback ---
+
+def _landmark(x: float, y: float = 0.5) -> SimpleNamespace:
+    return SimpleNamespace(x=x, y=y, z=0.0, visibility=1.0)
+
+
+def _frame(x_left: float, x_right: float) -> list:
+    """Dummy 33 landmark; hip kiri (23) & kanan (24) diberi nilai x."""
+    lm = [_landmark(0.0) for _ in range(33)]
+    lm[23] = _landmark(x_left)
+    lm[24] = _landmark(x_right)
+    return lm
+
+
+def test_stability_stationary_and_none_frames_ignored():
+    history = [
+        _frame(0.4, 0.5),
+        None,  # frame tanpa pose diabaikan
+        _frame(0.4, 0.5),
+        _frame(0.4, 0.5),
+    ]
+    s = compute_stability_proxy(history, width=1280, height=720)
+    assert s == pytest.approx(100.0)
+
+
+def test_stability_large_sway_and_no_data_is_zero():
+    # Goyangan jauh > 50 px (mean hip: 320px vs 960px) → 0
+    sway = [
+        _frame(0.2, 0.3),
+        _frame(0.7, 0.8),
+        _frame(0.2, 0.3),
+        _frame(0.7, 0.8),
+    ]
+    assert compute_stability_proxy(sway, 1280, 720) == pytest.approx(0.0)
+    # Tidak ada data valid → 0.0 (bukan angkar karangan)
+    assert compute_stability_proxy([None, None], 1280, 720) == pytest.approx(0.0)
+    assert compute_stability_proxy([], 1280, 720) == pytest.approx(0.0)
+
+
+def test_rule_based_score_formula_and_labels():
+    # 40 + 27 + 24 = 91.0 → "Baik"
+    r = generate_rule_based_feedback(135.0, 0.9, 80.0)
+    assert r["score"] == pytest.approx(91.0)
+    assert r["label"] == "Baik"
+    assert r["stability"] == 80.0
+
+    # 40 + 15 + 21 = 76.0 → "Cukup"
+    r2 = generate_rule_based_feedback(135.0, 0.5, 70.0)
+    assert 60.0 <= r2["score"] < 80.0
+    assert r2["label"] == "Cukup"
+
+    # 29.63 + 15 + 15 = 59.63 → "Perlu Perbaikan" (tepi bawah)
+    r3 = generate_rule_based_feedback(100.0, 0.5, 50.0)
+    assert r3["score"] < 60.0
+    assert r3["label"] == "Perlu Perbaikan"
+
+
+def test_rule_based_feedback_messages_and_none_inputs():
+    # Semua kondisi bermasalah → semua pesan terkumpul
+    r = generate_rule_based_feedback(80.0, 0.5, 50.0)
+    fb = r["feedback_list"]
+    assert any("Kedalaman squat kurang" in m for m in fb)
+    assert any("kurang konsisten" in m for m in fb)
+    assert any("bergoyang" in m for m in fb)
+
+    # Semua param aman (rom di [90,120]) → daftar kosong
+    # (UI menampilkan pesan positif default)
+    r2 = generate_rule_based_feedback(100.0, 0.9, 90.0)
+    assert r2["feedback_list"] == []
+    assert r2["label"] == "Baik"
+
+    # None tidak crash, dianggap 0 → skor 0 + pesan terkait
+    r3 = generate_rule_based_feedback(None, None, 0.0)
+    assert r3["score"] == pytest.approx(0.0)
+    assert r3["label"] == "Perlu Perbaikan"
+    assert len(r3["feedback_list"]) >= 2

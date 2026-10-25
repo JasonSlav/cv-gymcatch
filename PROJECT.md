@@ -25,13 +25,14 @@ jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian.
 ## 3. Scope
 
 ### ✅ Masuk Scope (MVP)
-- Input: video 5–10 detik, 1 orang, seluruh tubuh terlihat
+- Input: video 10–15 detik, 1 orang, seluruh tubuh terlihat
 - Gerakan prioritas: **squat** → lalu **push-up**
 - Deteksi pose per frame + visualisasi landmark
 - Sudut sendi per frame: lutut (squat), siku (push-up)
 - ROM per repetisi
 - Jumlah repetisi (state machine + smoothing)
 - Consistency sederhana (jika ≥3 repetisi)
+- Skor kualitas, stabilitas & feedback teknis (rule-based prototype, disclaimer di UI)
 - Grafik sudut vs waktu
 - Ekspor CSV + video berlandmark + grafik PNG
 - UI Streamlit lokal dengan disclaimer & error handling
@@ -39,9 +40,8 @@ jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian.
 
 ### ❌ Di Luar Scope (Future Work)
 - Lari / gait analysis
-- Skor kualitas 0–100 (butuh rubrik ahli)
-- Feedback teknik otomatis
-- Stability (definisi operasional belum disepakati)
+- Feedback teknik otomatis berbasis AI (kini baru aturan sederhana)
+- Validasi klinis skor/stabilitas terhadap rubrik ahli (skor masih rule-based)
 - Real-time camera, mobile native, cloud, login, database
 - Validasi ilmiah terhadap penilai ahli
 
@@ -169,8 +169,9 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 | ROM per repetisi | ✅ Wajib | |
 | Jumlah repetisi | ✅ Wajib | State machine |
 | Consistency | ⚠️ Opsional | Jika ≥3 repetisi |
-| Stability | ❌ Tidak | Definisi belum disepakati |
-| Skor kualitas 0–100 | ❌ Tidak | Butuh rubrik ahli |
+| Stability | ⚠️ Proxy | Goyangan pinggul (px), rule-based |
+| Skor kualitas 0–100 | ⚠️ Rule-based | Aturan sederhana, bukan validasi klinis |
+| Feedback teknis | ⚠️ Rule-based | Saran otomatis dari ambang metrik |
 
 ---
 
@@ -198,7 +199,7 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 Ditampilkan sebagai disclaimer di UI Streamlit:
 
 > ⚠️ **Panduan Perekaman Optimal**
-> - Durasi 5–10 detik, seluruh tubuh terlihat dalam frame
+> - Durasi 10–15 detik, seluruh tubuh terlihat dalam frame
 > - Kamera statis (tripod), 2–3 m dari subjek, setinggi pinggul
 > - Sudut pengambilan 60°–90° terhadap bidang gerak
 > - Untuk squat/push-up: **dari samping** lebih baik
@@ -275,3 +276,8 @@ Ditampilkan sebagai disclaimer di UI Streamlit:
 | 2026-10-16 | Sudut dihitung di ruang piksel, bukan ruang ternormalisasi | Ruang ternormalisasi anisotropik (beda ~10°/frame pada video 16:9) |
 | 2026-10-17 | `streamlit` ditambahkan ke requirements | Dibutuhkan untuk UI Web Dashboard |
 | 2026-10-17 | Fallback 3 sampel frame JPG menggantikan `st.video` | Browser modern tidak mendukung codec mp4v secara native |
+| 2026-10-23 | Menambahkan skor kualitas (0–100), stabilitas (%) & feedback teknis **rule-based** + disclaimer di UI | Permintaan mockup UI klien; aturan matematika transparan — bukan AI maupun validasi klinis |
+| 2026-10-23 | Reset total (hasil + file uploader) via pola flag `_clear_pending`; anti-stale: hasil disembunyikan + hint saat file berubah | State widget Streamlit hanya boleh dihapus sebelum widget terinstansiasi; signature (nama+ukuran file) deteksi file berganti tanpa menghapus data diam-diam |
+| 2026-10-23 | Tombol Reset `disabled` dihitung dari (ada hasil **atau** ada file), bukan dari hasil saja | `analysis_result` baru diset setelah tombol dirender pada run yang sama → Reset lama tetap abu-abu sampai run berikutnya; versi ini aktif sejak file ter-upload sehingga selalu bisa di-klik setelah analisis |
+| 2026-10-23 | Tombol 🔄 Reset custom **dihapus**; hapus file = X bawaan uploader, hasil disembunyikan otomatis saat file berubah (anti-stale) | Duplikasi kontrol membingungkan; mesin flag Reset memunculkan bug disabled-timing — fewer stateful widgets = fewer Streamlit bugs |
+| 2026-10-23 | Durasi panduan diubah 5–10 → 10–15 detik | Permintaan klien; video lebih panjang memberi lebih banyak frame per repetisi; video demo 11.8s kini sesuai panduan |

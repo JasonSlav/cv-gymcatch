@@ -285,3 +285,120 @@ def compute_consistency(
 
     consistency = 1.0 - (mean_rmse / mean_rom)
     return float(max(0.0, min(1.0, consistency)))
+
+
+# --- Scoring rule-based (prototype, bukan validasi klinis) ---
+
+# Landmark MediaPipe (indeks 33 titik)
+_L_HIP_IDX = 23
+_R_HIP_IDX = 24
+
+# Goyangan horizontal pinggul dianggap parah bila std > 50 px → stability 0
+MAX_STABILITY_SWAY_PX = 50.0
+
+# Ambang feedback
+ROM_DEEP_SQUAT_DEG = 90.0
+ROM_GOOD_SQUAT_DEG = 120.0
+ROM_REFERENCE_DEG = 135.0
+MIN_GOOD_CONSISTENCY = 0.8
+MIN_GOOD_STABILITY = 70.0
+
+# Ambang label skor
+SCORE_GOOD_THRESHOLD = 80.0
+SCORE_OK_THRESHOLD = 60.0
+
+
+def compute_stability_proxy(
+    landmarks_history: Sequence,
+    width: int,
+    height: int,
+) -> float:
+    """
+    Proksi stabilitas tubuh dari goyangan horizontal pinggul (0–100).
+
+    Per frame: rata-rata x piksel hip kiri (23) dan hip kanan (24).
+    Std dev deret tersebut dinormalisasi: goyangan > 50 px → stability 0.
+
+    - Frame dengan landmarks None (atau jumlah landmark < indeks 24)
+      diabaikan.
+    - Tidak ada frame valid → 0.0 (tidak ada data = tidak ada klaim).
+    - Landmark di-duck-type: cukup punya atribut `.x` (ruang ternormalisasi
+      [0, 1], dikalikan `width` untuk jadi piksel).
+    - `height` disediakan untuk kelengkapan signature (analisis 2D sumbu X).
+
+    Return: float 0–100 (100 = sangat stabil).
+    """
+    hip_means_px = []
+    for lm in landmarks_history:
+        if lm is None or len(lm) <= max(_L_HIP_IDX, _R_HIP_IDX):
+            continue
+        hip_x = (lm[_L_HIP_IDX].x + lm[_R_HIP_IDX].x) / 2.0
+        hip_means_px.append(hip_x * width)
+
+    if len(hip_means_px) == 0:
+        return 0.0
+
+    sway_px = float(np.std(np.asarray(hip_means_px, dtype=float)))
+    stability = (1.0 - sway_px / MAX_STABILITY_SWAY_PX) * 100.0
+    return float(max(0.0, min(100.0, stability)))
+
+
+def generate_rule_based_feedback(
+    rom: Optional[float],
+    consistency: Optional[float],
+    stability: float,
+) -> dict:
+    """
+    Skor & feedback berbasis aturan (prototype, BUKAN validasi klinis).
+
+    Rumus skor (0–100):
+        (min(rom/135, 1) * 40) + (consistency * 30) + (stability/100 * 30)
+    - rom None (tidak ada repetisi) → 0.
+    - consistency None (<3 repetisi) → 0.
+
+    Label: >=80 "Baik", >=60 "Cukup", selain itu "Perlu Perbaikan".
+    feedback_list: SEMUA pesan yang kondisinya terpenuhi (bukan first-match).
+
+    Return: {"score": float, "label": str, "stability": float,
+             "feedback_list": list[str]}
+    """
+    rom_val = 0.0 if rom is None else float(rom)
+    cons_val = 0.0 if consistency is None else float(consistency)
+    stab_val = float(stability)
+
+    score = (
+        min(rom_val / ROM_REFERENCE_DEG, 1.0) * 40.0
+        + cons_val * 30.0
+        + (stab_val / 100.0) * 30.0
+    )
+
+    if score >= SCORE_GOOD_THRESHOLD:
+        label = "Baik"
+    elif score >= SCORE_OK_THRESHOLD:
+        label = "Cukup"
+    else:
+        label = "Perlu Perbaikan"
+
+    feedback_list = []
+    if rom_val < ROM_DEEP_SQUAT_DEG:
+        feedback_list.append(
+            "Kedalaman squat kurang. Usahakan turun lebih dalam."
+        )
+    elif rom_val > ROM_GOOD_SQUAT_DEG:
+        feedback_list.append("Kedalaman squat sudah sangat baik.")
+    if cons_val < MIN_GOOD_CONSISTENCY:
+        feedback_list.append(
+            "Gerakan kurang konsisten. Perhatikan tempo naik-turun."
+        )
+    if stab_val < MIN_GOOD_STABILITY:
+        feedback_list.append(
+            "Tubuh terlalu banyak bergoyang. "
+            "Fokuskan berat badan di tengah kaki."
+        )
+
+    return {
+        "score": float(score),
+        "label": label,
+        "stability": stab_val,
+        "feedback_list": feedback_list,
+    }

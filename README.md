@@ -44,7 +44,7 @@ curl -L -o models\pose_landmarker_full.task "https://storage.googleapis.com/medi
 
 ### 5. Siapkan Video Uji
 Buat folder `data` di dalam proyek, lalu masukkan video squat Anda ke dalamnya dengan nama `squat_sample.mp4`.
-(Pastikan video memenuhi panduan: durasi 5–10 detik, kamera statis dari samping, seluruh badan terlihat).
+(Pastikan video memenuhi panduan: durasi 10–15 detik, kamera statis dari samping, seluruh badan terlihat).
 
 ### 6. Jalankan Aplikasi
 ```cmd
@@ -76,3 +76,4 @@ pytest tests/ -q
 - **Analisis 2D:** Sudut yang diukur adalah proyeksi 2D dari kamera, bukan sudut anatomis 3D.
 - **Posisi Kamera:** Hasil terbaik didapat jika kamera sejajar lantai (setinggi pinggul) dan mengambil dari samping (sagittal view).
 - **Video Codec:** Browser tidak bisa memutar video hasil (mp4v), sehingga UI menampilkan 3 frame sampel (Awal, Tengah, Akhir). Video utuh tetap bisa diunduh dan diputar via VLC/Media Player.
+- **Skor & Feedback:** Skor kualitas, stabilitas, dan feedback teknis dihasilkan dari aturan sederhana (rule-based), bukan validasi klinis. Disclaimer ditampilkan di UI.

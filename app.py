@@ -25,7 +25,7 @@ MAX_FILE_SIZE_MB = 50
 ALLOWED_EXTENSIONS = ["mp4", "mov"]
 DISCLAIMER_MD = """
 ⚠️ **Panduan Perekaman Optimal**
-- Durasi 5–10 detik, seluruh tubuh terlihat dalam frame.
+- Durasi 10–15 detik, seluruh tubuh terlihat dalam frame.
 - Kamera statis (tripod), 2–3 m dari subjek, setinggi pinggul.
 - Sudut pengambilan 60°–90° terhadap bidang gerak.
 - Untuk squat: **dari samping** lebih baik.
@@ -43,7 +43,7 @@ def _bytes_to_mb(n_bytes: int) -> float:
 
 def _reset_analysis() -> None:
     """Hapus hasil analisis dari session state."""
-    for key in ("analysis_result", "uploaded_name"):
+    for key in ("analysis_result", "uploaded_name", "uploaded_sig"):
         st.session_state.pop(key, None)
 
 
@@ -69,6 +69,7 @@ def main() -> None:
     uploaded = st.file_uploader(
         "Unggah video squat (mp4/mov, maks 50 MB)",
         type=ALLOWED_EXTENSIONS,
+        key="video_uploader",
     )
 
     if uploaded is not None:
@@ -82,21 +83,14 @@ def main() -> None:
 
         st.info(f"File: **{uploaded.name}** ({size_mb:.1f} MB)")
 
-    col_run, col_reset = st.columns([1, 1])
-    run_clicked = col_run.button(
+    # Hapus file = X bawaan file_uploader; hasil disembunyikan otomatis
+    # saat file berubah/dihapus (blok anti-stale di bawah).
+    run_clicked = st.button(
         "🚀 Analisis",
         type="primary",
         disabled=uploaded is None,
         use_container_width=True,
     )
-    reset_clicked = col_reset.button(
-        "🔄 Reset",
-        disabled="analysis_result" not in st.session_state,
-        use_container_width=True,
-    )
-    if reset_clicked:
-        _reset_analysis()
-        st.rerun()
 
     # --- Proses ---
     if run_clicked and uploaded is not None:
@@ -131,6 +125,7 @@ def main() -> None:
             progress_bar.progress(1.0, text="Selesai.")
             st.session_state["analysis_result"] = result
             st.session_state["uploaded_name"] = uploaded.name
+            st.session_state["uploaded_sig"] = (uploaded.name, uploaded.size)
 
         except PipelineError as e:
             st.error(f"❌ Gagal menganalisis video: {e}")
@@ -148,6 +143,18 @@ def main() -> None:
     if result is None:
         return
 
+    # Anti-stale: sembunyikan hasil jika file diubah/dihapus via uploader
+    # (state tidak dihapus — file identik yang dikembalikan → hasil muncul lagi)
+    current_sig = (
+        (uploaded.name, uploaded.size) if uploaded is not None else None
+    )
+    if current_sig != st.session_state.get("uploaded_sig"):
+        st.warning(
+            "File berubah/dihapus — hasil analisis sebelumnya disembunyikan. "
+            "Klik 🚀 Analisis untuk menganalisis file ini."
+        )
+        return
+
     st.divider()
     st.subheader("📊 Hasil Analisis")
     st.caption(f"Video: {st.session_state.get('uploaded_name', '(unknown)')}")
@@ -157,7 +164,6 @@ def main() -> None:
     right = result.right_analysis
 
     st.markdown("### Metrik Utama")
-    c1, c2, c3 = st.columns(3)
 
     if result.display_mode == "both":
         # Jika dua sisi valid, tampilkan yang paling lengkap (>=3 rep)
@@ -175,9 +181,34 @@ def main() -> None:
         if primary.consistency is not None
         else "N/A (<3 rep)"
     )
-    c1.metric("Repetisi", primary.rep_count)
-    c2.metric("ROM", rom_str)
-    c3.metric("Consistency", cons_str)
+    duration = (
+        result.meta.frame_count / result.meta.fps if result.meta.fps else 0.0
+    )
+
+    # Baris 1
+    r1c1, r1c2, r1c3 = st.columns(3)
+    r1c1.metric("Skor Kualitas", f"{result.score:.1f}", result.score_label)
+    r1c2.metric("Repetisi", primary.rep_count)
+    r1c3.metric("Durasi", f"{duration:.1f} detik")
+
+    # Baris 2
+    r2c1, r2c2, r2c3 = st.columns(3)
+    r2c1.metric("ROM", rom_str)
+    r2c2.metric(
+        "Stabilitas Tubuh",
+        f"{result.stability:.0f}%",
+        "Stabil" if result.stability > 70 else "Goyah",
+    )
+    r2c3.metric("Consistency", cons_str)
+
+    feedback_text = "\n".join(f"- {fb}" for fb in result.feedback_list)
+    if not feedback_text:
+        feedback_text = "Tidak ada masalah signifikan terdeteksi."
+    st.info(feedback_text)
+    st.caption(
+        "Skor dan feedback dihasilkan dari aturan prototype, "
+        "belum divalidasi klinis."
+    )
 
     st.caption(
         f"Sisi dianalisis: **{primary.side}** "

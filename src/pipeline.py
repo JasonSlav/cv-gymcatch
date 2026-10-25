@@ -24,8 +24,10 @@ from src.metrics import (
     RepCountResult,
     compute_consistency,
     compute_rom,
+    compute_stability_proxy,
     count_reps,
     extract_rep_curves,
+    generate_rule_based_feedback,
 )
 from src.pose_estimator import (
     LEFT_ANKLE,
@@ -97,6 +99,10 @@ class AnalysisResult:
     summary_path: Path
     summary_text: str
     process_sec: float
+    stability: float
+    score: float
+    score_label: str
+    feedback_list: list[str]
     sample_frames: list[Path] = field(default_factory=list)
 
 
@@ -227,6 +233,7 @@ def analyze_video(
 
     left_angles: list = []
     right_angles: list = []
+    landmarks_history: list = []
 
     try:
         with estimator:
@@ -235,6 +242,7 @@ def analyze_video(
                     int(idx / meta.fps * 1000) if meta.fps > 0 else idx * 33
                 )
                 result = estimator.detect(frame, timestamp_ms)
+                landmarks_history.append(result.landmarks)
 
                 left_a = right_a = None
                 if result.detected:
@@ -290,6 +298,19 @@ def analyze_video(
         annotated_path, valley_idx, meta.frame_count, output_dir
     )
 
+    # --- Skor & feedback rule-based (prototype, bukan validasi klinis) ---
+    stability = compute_stability_proxy(
+        landmarks_history, meta.width, meta.height
+    )
+    primary = (
+        left_analysis
+        if left_analysis.rep_count >= right_analysis.rep_count
+        else right_analysis
+    )
+    score_info = generate_rule_based_feedback(
+        primary.rom, primary.consistency, stability
+    )
+
     # --- CSV ---
     csv_path = output_dir / "knee_angle.csv"
     write_angles_csv(csv_path, left_angles, right_angles)
@@ -341,5 +362,9 @@ def analyze_video(
         summary_path=summary_path,
         summary_text=summary_text,
         process_sec=elapsed,
+        stability=stability,
+        score=score_info["score"],
+        score_label=score_info["label"],
+        feedback_list=score_info["feedback_list"],
         sample_frames=sample_frames,
     )

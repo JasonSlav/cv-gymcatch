@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "inferx": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "InferX",
+      "options": {
+        "baseURL": "https://model.inferx.net/endpoints/v1"
+      },
+      "models": {
+        "deepseek-v4.1-flash-1017": {
+          "name": "deepseek-v4.1-flash-1017"
+        }
+      }
+    }
+  }
+}
