@@ -18,7 +18,7 @@ Prototype penelitian — bukan produk komersial.
 
 Mengevaluasi kualitas gerakan olahraga (squat, push-up) menggunakan video
 tanpa sensor wearable. Output berupa metrik objektif (sudut sendi, ROM,
-jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian.
+jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian. Sistem dirancang modular agar tidak terbatas pada satu gerakan. Squat adalah implementasi pertama untuk membuktikan validitas pipeline.
 
 ---
 
@@ -39,6 +39,8 @@ jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian.
 - Dokumentasi asumsi & keterbatasan
 
 ### ❌ Di Luar Scope (Future Work)
+- **Push-up** — implementasi kedua sesuai prioritas di §3 Masuk Scope (belum dikerjakan; butuh aturan sudut siku + state machine baru)
+- **Gerakan lainnya** (lunge, plank, dll.) — lewat modul gerakan terencana `src/movements/` (belum ada; pipeline & UI sudah terpisah dari logika gerakan)
 - Lari / gait analysis
 - Feedback teknik otomatis berbasis AI (kini baru aturan sederhana)
 - Validasi klinis skor/stabilitas terhadap rubrik ahli (skor masih rule-based)
@@ -293,6 +295,18 @@ Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 | 2026-10-23 | Tombol 🔄 Reset custom **dihapus**; hapus file = X bawaan uploader, hasil disembunyikan otomatis saat file berubah (anti-stale) | Duplikasi kontrol membingungkan; mesin flag Reset memunculkan bug disabled-timing — fewer stateful widgets = fewer Streamlit bugs |
 | 2026-10-23 | Durasi panduan diubah 5–10 → 10–15 detik | Permintaan klien; video lebih panjang memberi lebih banyak frame per repetisi; video demo 11.8s kini sesuai panduan |
 | 2026-10-25 | Migrasi UI dari Streamlit ke Flask + HTML murni | Streamlit terlalu terbatas untuk mencapai desain mockup 100%; Flask memisahkan Frontend (HTML/JS) dan Backend (Python/AI) secara bersih. |
+
+---
+
+## 14. Konfigurasi & Roadmap Gerakan
+
+Catatan: arsitektur yang direncanakan di `src/movements/` memungkinkan
+penambahan file baru untuk gerakan lain tanpa menyentuh pipeline utama.
+
+- Aturan squat kini berada di `src/metrics.py` (state machine + ambang sudut).
+- Gerakan baru direncanakan berupa file aturan sudut & state machine per gerakan di `src/movements/` + rekomendasi umpan balik per gerakan.
+- Didukung saat ini: **Squat** | Pengembangan: Push-up → Lunge → Plank.
+- Validasi ilmiah: perbandingan hasil AI dengan rubrik ahli/instruktur.
 
 ---
 

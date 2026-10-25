@@ -1,6 +1,6 @@
 # CV Gym Catch — Evaluasi Kualitas Gerakan Gym
 
-Prototype sistem Computer Vision untuk menganalisis kualitas gerakan *squat* (dan nantinya *push-up*) dari video menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
+Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Saat ini sistem telah mengimplementasikan analisis gerakan **squat**, dengan arsitektur modular yang siap dikembangkan untuk gerakan lain (seperti *push-up*, *lunge*, dll) di masa depan. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
 
 > ⚠️ **Disclaimer:** Sistem ini adalah prototipe penelitian. Belum divalidasi secara klinis dan tidak boleh digunakan sebagai pengganti penilaian ahli/instruktur.
 
@@ -72,6 +72,14 @@ Hasil analisis (CSV, Grafik, Teks Ringkasan) akan tersimpan di folder `output/`.
 pytest tests/ -q
 ```
 - Detail teknis (keterbatasan, konvensi sudut, log keputusan) ada di [`PROJECT.md`](PROJECT.md).
+
+---
+
+## 🚀 Roadmap & Skalabilitas
+Sistem ini dirancang secara modular. Logika utama (deteksi pose, perhitungan sudut, state machine repetisi) terpisah dari antarmuka (UI).
+- **Gerakan yang Didukung Saat Ini:** Squat.
+- **Pengembangan Selanjutnya:** Push-up, Lunge, Plank (memerlukan penyesuaian aturan sudut dan state machine — rencana struktur: `src/movements/`, belum ada di repo).
+- **Validasi Ilmiah:** Perbandingan hasil AI dengan penilaian ahli/instruktur (rubrik) untuk menguji akurasi klinis.
 
 ---
 
