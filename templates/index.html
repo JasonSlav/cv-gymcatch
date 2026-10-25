@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Catch - Unlock Your Best Form</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -21,7 +17,7 @@
             --text-muted: #a1a1a6;
             --accent-cyan: #00bfff; /* Light blue/cyan color */
             --border-color: #333333;
-            --font-main: 'Inter', sans-serif;
+            --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         /* Reset & Base Styles */
@@ -414,6 +410,11 @@
             display: block;
         }
 
+        .plot-card .chart-wrap {
+            position: relative;
+            height: 320px;
+        }
+
         .loading-text,
         .error-text {
             max-width: 1000px;
@@ -464,8 +465,9 @@
         }
 
         .feature-icon {
-            font-size: 2.5rem;
-            color: var(--accent-cyan);
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
             margin-bottom: 20px;
         }
 
@@ -755,17 +757,17 @@
 
         <div class="features-grid">
             <div class="feature-card">
-                <i class="fa-solid fa-camera feature-icon"></i>
+                <img src="/static/Camera.png" alt="Rekam Gerakan" class="feature-icon">
                 <h3 data-id="Rekam Gerakan" data-en="Capture Movement">Rekam Gerakan</h3>
                 <p data-id="Rekam Setiap Gerakan" data-en="Record Every Movement">Rekam Setiap Gerakan</p>
             </div>
             <div class="feature-card">
-                <i class="fa-solid fa-chart-line feature-icon"></i>
+                <img src="/static/Graphic.png" alt="Analisis Gerakan" class="feature-icon">
                 <h3 data-id="Analisis Gerakan" data-en="Analyze Motion">Analisis Gerakan</h3>
                 <p data-id="Pahami Setiap Detail" data-en="Understand Every Detail">Pahami Setiap Detail</p>
             </div>
             <div class="feature-card">
-                <i class="fa-regular fa-file-lines feature-icon"></i>
+                <img src="/static/File.png" alt="Evaluasi Performa" class="feature-icon">
                 <h3 data-id="Evaluasi Performa" data-en="Evaluate Performance">Evaluasi Performa</h3>
                 <p data-id="Tingkatkan Setiap Performa" data-en="Improve Every Performance">Tingkatkan Setiap Performa</p>
             </div>
@@ -827,6 +829,8 @@
         </div>
     </footer>
 
+    <!-- Chart.js (lokal, offline) -->
+    <script src="/static/chart.min.js"></script>
     <script>
         /* ===== I18N: Indonesia (default) & English ===== */
         const T = {
@@ -853,6 +857,8 @@
                     duration: "Durasi", side: "Sisi", process: "Waktu proses",
                     feedback: "Feedback", samples: "Sampel Frame",
                     plot: "Grafik Sudut Lutut",
+                    seriesLeft: "Sisi Kiri",
+                    seriesRight: "Sisi Kanan",
                     frames: ["Awal", "Tengah", "Akhir"],
                     disclaimer: "Skor & feedback dihasilkan dari aturan prototype, belum divalidasi klinis."
                 }
@@ -880,6 +886,8 @@
                     duration: "Duration", side: "Side", process: "Process time",
                     feedback: "Feedback", samples: "Sample Frames",
                     plot: "Knee Angle Graph",
+                    seriesLeft: "Left Side",
+                    seriesRight: "Right Side",
                     frames: ["Start", "Middle", "End"],
                     disclaimer: "Score & feedback are produced by prototype rules; not clinically validated."
                 }
@@ -888,6 +896,7 @@
 
         let currentLang = localStorage.getItem("gc-lang") || "id";
         let lastResult = null;
+        let angleChart = null;
 
         function applyLang(lang) {
             if (!T[lang]) lang = "id";
@@ -934,12 +943,37 @@
                     <figcaption>${m.frames[i] || ""}</figcaption>
                 </figure>`).join("");
 
-            const plot = d.plot ? `
+            const ad = d.angle_data || null;
+            const leftSeries = ad && Array.isArray(ad.left) ? ad.left : null;
+            const rightSeries = ad && Array.isArray(ad.right) ? ad.right : null;
+            const hasLeft = leftSeries && leftSeries.some(v => v != null);
+            const hasRight = rightSeries && rightSeries.some(v => v != null);
+            const frameCount = Math.max(
+                hasLeft ? leftSeries.length : 0,
+                hasRight ? rightSeries.length : 0
+            );
+
+            let plot;
+            if (frameCount > 0) {
+                // Grafik interaktif Chart.js (fallback ke PNG bila kosong)
+                plot = `
+                <div class="card plot-card">
+                    <h3>${m.plot}</h3>
+                    <div class="chart-wrap"><canvas id="angleChart"></canvas></div>
+                </div>`;
+            } else if (d.plot) {
+                plot = `
                 <div class="card plot-card">
                     <h3>${m.plot}</h3>
                     <img src="${d.plot}?t=${Date.now()}" alt="${m.plot}"
                          onerror="this.parentElement.style.display='none'">
-                </div>` : "";
+                </div>`;
+            } else {
+                plot = "";
+            }
+
+            const plotMode = ad && ad.mode ? ad.mode
+                : (hasLeft && hasRight ? "both" : (hasLeft ? "left" : "right"));
 
             hasil.innerHTML = `
                 <div class="results-grid">
@@ -971,6 +1005,73 @@
                 </div>
                 ${plot}
             `;
+
+            /* Render Chart.js setelah canvas ada di DOM */
+            if (frameCount > 0) {
+                const canvas = document.getElementById("angleChart");
+                const labels = Array.from({ length: frameCount }, (_, i) => i + 1);
+
+                if (angleChart) angleChart.destroy(); // cegah tumpukan saat upload ulang
+
+                const lineStyle = {
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    backgroundColor: "transparent",
+                    spanGaps: false
+                };
+
+                const datasets = [];
+                if (plotMode !== "right") {
+                    datasets.push({
+                        label: m.seriesLeft,
+                        data: leftSeries,
+                        borderColor: "#00E5FF",
+                        ...lineStyle
+                    });
+                }
+                if (plotMode !== "left") {
+                    datasets.push({
+                        label: m.seriesRight,
+                        data: rightSeries,
+                        borderColor: "#FF4081",
+                        ...lineStyle
+                    });
+                }
+
+                angleChart = new Chart(canvas, {
+                    type: "line",
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: "index", intersect: false },
+                        plugins: {
+                            legend: {
+                                display: datasets.length > 1,
+                                labels: { color: "#888" }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    label: ctx =>
+                                        ` ${ctx.dataset.label}: ${ctx.parsed.y}°`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: "#888" },
+                                grid: { color: "#222" }
+                            },
+                            y: {
+                                ticks: { color: "#888" },
+                                grid: { color: "#222" }
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         /* ===== Upload & kirim ke backend ===== */

@@ -129,6 +129,13 @@ def analyze():
             "process_sec": round(result.process_sec, 2),
             "samples": samples,
             "plot": plot,
+            # Deret sudut untuk grafik interaktif (Chart.js).
+            # None di list otomatis menjadi null oleh jsonify.
+            "angle_data": {
+                "mode": result.display_mode,  # "both" | "left" | "right"
+                "left": list(result.left_angles),
+                "right": list(result.right_angles),
+            },
         }
     )
 
