@@ -1,6 +1,6 @@
 # CV Gym Catch — Evaluasi Kualitas Gerakan Gym
 
-Prototype sistem Computer Vision untuk menganalisis kualitas gerakan *squat* (dan nantinya *push-up*) dari video menggunakan MediaPipe dan Streamlit.
+Prototype sistem Computer Vision untuk menganalisis kualitas gerakan *squat* (dan nantinya *push-up*) dari video menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
 
 > ⚠️ **Disclaimer:** Sistem ini adalah prototipe penelitian. Belum divalidasi secara klinis dan tidak boleh digunakan sebagai pengganti penilaian ahli/instruktur.
 
@@ -34,6 +34,7 @@ python -m venv .venv
 ```cmd
 pip install -r requirements.txt
 ```
+( Termasuk **Flask** — web server untuk UI utama. )
 
 ### 4. Unduh Model AI (Pose Landmarker)
 Model tidak dimasukkan ke dalam GitHub karena berukuran ~9 MB. Jalankan perintah ini di CMD untuk mengunduhnya:
@@ -48,9 +49,11 @@ Buat folder `data` di dalam proyek, lalu masukkan video squat Anda ke dalamnya d
 
 ### 6. Jalankan Aplikasi
 ```cmd
-streamlit run app.py
+python app_flask.py
 ```
-Aplikasi akan otomatis terbuka di browser pada alamat http://localhost:8501.
+Buka browser di **http://localhost:5000** — dari HP/LAN gunakan `http://<ip-laptop>:5000`.
+
+> Catatan: UI Streamlit lama (`app.py`) masih tersedia sebagai **cadangan/legacy**, bukan jalur utama lagi.
 
 ---
 
@@ -64,7 +67,7 @@ Hasil analisis (CSV, Grafik, Teks Ringkasan) akan tersimpan di folder `output/`.
 ---
 
 ## 🧪 Untuk Pengembang
-- Jalankan seluruh unit test (127 test):
+- Jalankan seluruh unit test (131 test):
 ```cmd
 pytest tests/ -q
 ```

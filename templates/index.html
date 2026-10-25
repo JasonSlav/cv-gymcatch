@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Catch - Unlock Your Best Form</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS Variables for Colors */
+        :root {
+            --bg-color: #000000;
+            --bg-card: #1a1a1a;
+            --bg-footer: #050505;
+            --text-main: #ffffff;
+            --text-muted: #a1a1a6;
+            --accent-cyan: #00bfff; /* Light blue/cyan color */
+            --border-color: #333333;
+            --font-main: 'Inter', sans-serif;
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .text-cyan {
+            color: var(--accent-cyan);
+        }
+
+        /* --- Navbar --- */
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        /* --- Language Toggle (kanan atas) --- */
+        .lang-toggle {
+            position: absolute;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 4px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .lang-btn:hover {
+            color: var(--text-main);
+        }
+
+        .lang-btn.active {
+            background: var(--accent-cyan);
+            color: #000000;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            position: relative;
+            height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('/static/bg_gym_small.jpg') center/cover no-repeat;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+            margin-top: 50px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-outline {
+            display: inline-block;
+            padding: 10px 30px;
+            border: 1px solid var(--text-main);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        /* --- Upload Section --- */
+        .upload-section {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 50px;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: left;
+            border: 1px solid #2a2a2a;
+        }
+
+        .upload-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px dashed #444;
+            border-radius: 15px;
+            padding: 40px 20px;
+            height: 100%;
+        }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .upload-box h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .upload-box p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .btn-select {
+            background-color: #333;
+            color: var(--text-main);
+            padding: 10px 25px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-select:hover {
+            background-color: #444;
+        }
+
+        .guide-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .guide-card ol {
+            list-style-position: inside;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        /* --- Results Section --- */
+        .results-wrap:empty {
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
+        }
+
+        .result-head {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .result-score {
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .result-label {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .result-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .metric-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-size: 1.45rem;
+            font-weight: 700;
+        }
+
+        .result-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .feedback-list {
+            list-style: none;
+        }
+
+        .feedback-list li {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            padding: 9px 0;
+            border-bottom: 1px solid #242424;
+        }
+
+        .feedback-list li:last-child {
+            border-bottom: none;
+        }
+
+        .result-disclaimer {
+            font-size: 0.72rem;
+            color: #6e6e73;
+            margin-top: 14px;
+        }
+
+        .samples-card {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .samples-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .samples-grid figure {
+            margin: 0;
+        }
+
+        .samples-grid img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+        }
+
+        .samples-grid figcaption {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .plot-card {
+            max-width: 1000px;
+            margin: 20px auto 0 auto;
+        }
+
+        .plot-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .plot-card img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+        }
+
+        .loading-text,
+        .error-text {
+            max-width: 1000px;
+            margin: 0 auto;
+            font-size: 0.95rem;
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+        }
+
+        .error-text {
+            color: #ff6b6b;
+        }
+
+        /* --- Features Section --- */
+        .features-section {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .features-section .section-title {
+            line-height: 1.2;
+        }
+
+        .features-section .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 50px;
+            font-size: 0.95rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background-color: var(--bg-card);
+            border-radius: 20px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #2a2a2a;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* --- About Us Section --- */
+        .about-section {
+            background-color: #111111; /* Slightly lighter black */
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid #222;
+        }
+
+        .about-section p {
+            max-width: 800px;
+            margin: 0 auto;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background-color: var(--bg-footer);
+            padding: 60px 0 20px 0;
+            font-size: 0.85rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto 40px auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .footer-fik {
+            height: 56px;
+            width: auto;
+            display: block;
+        }
+
+        .footer-desc {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 0.75rem;
+            max-width: 300px;
+        }
+
+        .footer-address {
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.75rem;
+        }
+
+        .footer-address i {
+            color: var(--text-main);
+            margin-top: 3px;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-main);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            color: var(--text-main);
+            font-size: 1.2rem;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #222;
+            color: #555;
+            font-size: 0.7rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+            .lang-toggle {
+                right: 20px;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .upload-grid, .features-grid, .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-grid {
+                text-align: center;
+            }
+            .footer-address, .social-icons {
+                justify-content: center;
+            }
+            .footer-desc {
+                margin: 0 auto 20px auto;
+            }
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .result-score {
+                font-size: 2.4rem;
+            }
+            .samples-grid {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 24px;
+            }
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar: logo tengah + toggle bahasa kanan atas -->
+    <nav>
+        <div class="logo">
+            <img src="/static/logo.png" alt="Gym Catch Logo">
+        </div>
+        <div class="lang-toggle" id="langToggle">
+            <button type="button" class="lang-btn active" data-lang="id">ID</button>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1 data-id-html="Wujudkan &lt;span class='text-cyan'&gt;Bentuk Terbaikmu&lt;/span&gt;"
+                data-en-html="Unlock Your &lt;span class='text-cyan'&gt;Best Form&lt;/span&gt;">Wujudkan <span class="text-cyan">Bentuk Terbaikmu</span></h1>
+            <p data-id="Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik."
+               data-en="Optimize every movement with proper guidance to improve your form, maximize workout effectiveness, and achieve the best results">Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik.</p>
+            <a href="#upload" class="btn-outline" data-id="Selengkapnya" data-en="Learn More">Selengkapnya</a>
+        </div>
+    </header>
+
+    <!-- Upload Section -->
+    <section class="upload-section container" id="upload">
+        <h2 class="section-title"
+            data-id-html="&lt;span class='text-cyan'&gt;Unggah file&lt;/span&gt; untuk memulai"
+            data-en-html="&lt;span class='text-cyan'&gt;Upload a file&lt;/span&gt; to start"><span class="text-cyan">Unggah file</span> untuk memulai</h2>
+
+        <div class="upload-grid">
+            <!-- Left Card -->
+            <div class="card upload-box">
+                <div class="icon-circle">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h3 data-id="Tambahkan file untuk diunggah" data-en="Add files to upload">Tambahkan file untuk diunggah</h3>
+                <p data-id="Atau Telusuri File" data-en="Or Browse Files">Atau Telusuri File</p>
+                <input type="file" id="videoInput" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
+                <button type="button" class="btn-select" id="btnSelect" data-id="Pilih File" data-en="Select files">Pilih File</button>
+            </div>
+
+            <!-- Right Card -->
+            <div class="card guide-card">
+                <h3 data-id="Panduan Perekaman Optimal" data-en="Optimal Recording Guide">Panduan Perekaman Optimal</h3>
+                <ol>
+                    <li data-id="Durasi 10-15 detik, seluruh tubuh terlihat dalam frame." data-en="Duration 10-15 seconds, the entire body is visible within the frame.">Durasi 10-15 detik, seluruh tubuh terlihat dalam frame.</li>
+                    <li data-id="Kamera statis (tripod), jarak 2-3 m dari subjek, setinggi pinggul." data-en="Static camera (on a tripod), 2-3 m from the subject at hip height.">Kamera statis (tripod), jarak 2-3 m dari subjek, setinggi pinggul.</li>
+                    <li data-id="Sudut pengambilan 60°-90° terhadap bidang gerak." data-en="Capture angle 60°-90° to the plane of motion.">Sudut pengambilan 60°-90° terhadap bidang gerak.</li>
+                    <li data-id="Pencahayaan cukup, latar kontras dengan subjek." data-en="Sufficient lighting, the background contrasts with the subject.">Pencahayaan cukup, latar kontras dengan subjek.</li>
+                    <li data-id="Satu orang dalam frame, tanpa oklusi." data-en="One person in the frame, without occlusion.">Satu orang dalam frame, tanpa oklusi.</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hasil Analisis (diisi oleh JavaScript) -->
+    <div id="hasil-analisis" class="container results-wrap"></div>
+
+    <!-- Features Section -->
+    <section class="features-section container">
+        <h2 class="section-title"
+            data-id-html="Gerakanmu&lt;br&gt;&lt;span class='text-cyan'&gt;Visi Kami&lt;/span&gt;"
+            data-en-html="Your Motion&lt;br&gt;&lt;span class='text-cyan'&gt;Our Vision&lt;/span&gt;">Gerakanmu<br><span class="text-cyan">Visi Kami</span></h2>
+        <p class="subtitle"
+           data-id="Pengalaman analisis gerakan yang lebih cerdas untuk mengevaluasi, meningkatkan, dan mengoptimalkan performamu"
+           data-en="Experience smarter movement analysis designed to evaluate, improve, and optimize your performance">Pengalaman analisis gerakan yang lebih cerdas untuk mengevaluasi, meningkatkan, dan mengoptimalkan performamu</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fa-solid fa-camera feature-icon"></i>
+                <h3 data-id="Rekam Gerakan" data-en="Capture Movement">Rekam Gerakan</h3>
+                <p data-id="Rekam Setiap Gerakan" data-en="Record Every Movement">Rekam Setiap Gerakan</p>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-chart-line feature-icon"></i>
+                <h3 data-id="Analisis Gerakan" data-en="Analyze Motion">Analisis Gerakan</h3>
+                <p data-id="Pahami Setiap Detail" data-en="Understand Every Detail">Pahami Setiap Detail</p>
+            </div>
+            <div class="feature-card">
+                <i class="fa-regular fa-file-lines feature-icon"></i>
+                <h3 data-id="Evaluasi Performa" data-en="Evaluate Performance">Evaluasi Performa</h3>
+                <p data-id="Tingkatkan Setiap Performa" data-en="Improve Every Performance">Tingkatkan Setiap Performa</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="about-section">
+        <div class="container">
+            <h2 class="section-title"
+                data-id-html="Tentang &lt;span class='text-cyan'&gt;Kami&lt;/span&gt;"
+                data-en-html="About &lt;span class='text-cyan'&gt;Us&lt;/span&gt;">Tentang <span class="text-cyan">Kami</span></h2>
+            <p data-id="Kami percaya setiap gerakan dapat diperbaiki ketika dipahami dengan baik melalui analisis gerakan. Kami membantu pengguna menemukan cara bergerak, berlatih, dan berperforma yang lebih baik dengan memberikan wawasan mendalam terhadap pola gerakan, mengidentifikasi area perbaikan, serta mendukung progres berkelanjutan menuju tujuan mereka."
+               data-en="We believe that every movement can be improved when it is properly understood through movement analysis, we help users discover better ways to move, train, and perform by providing deeper insights into their movement patterns, identifying areas for improvement, and supporting continuous progress toward their goals.">Kami percaya setiap gerakan dapat diperbaiki ketika dipahami dengan baik melalui analisis gerakan. Kami membantu pengguna menemukan cara bergerak, berlatih, dan berperforma yang lebih baik dengan memberikan wawasan mendalam terhadap pola gerakan, mengidentifikasi area perbaikan, serta mendukung progres berkelanjutan menuju tujuan mereka.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1 -->
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <img class="footer-fik" src="/static/fik.png" alt="Faculty of Sports Science, Universitas Negeri Malang">
+                    </div>
+                    <p class="footer-desc"
+                       data-id="Dikembangkan oleh Fakultas Ilmu Keolahragaan, Universitas Negeri Malang untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif."
+                       data-en="Developed by Faculty of Sports Science, Universitas Negeri Malang to support movement evaluation and performance improvement through innovative technology.">Dikembangkan oleh Fakultas Ilmu Keolahragaan, Universitas Negeri Malang untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif.</p>
+                    <div class="footer-address">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <p>Jl. Ambarawa No.5, Sumbersari, Kec. Lowokwaru, Kota Malang, Jawa Timur 65145</p>
+                    </div>
+                </div>
+
+                <!-- Column 2 -->
+                <div class="footer-col">
+                    <h4 data-id="Sumber Daya" data-en="Resources">Sumber Daya</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" data-id="Tentang Kami" data-en="About Us">Tentang Kami</a></li>
+                        <li><a href="#" data-id="Kontak" data-en="Contact">Kontak</a></li>
+                        <li><a href="#" data-id="Pusat Bantuan" data-en="Help Center">Pusat Bantuan</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3 -->
+                <div class="footer-col">
+                    <h4 data-id="Ikuti Kami di" data-en="Follow Us On">Ikuti Kami di</h4>
+                    <div class="social-icons">
+                        <a href="https://github.com/JasonSlav/cv-gymcatch" target="_blank" rel="noopener" aria-label="GitHub">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"
+                 data-id="© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. Hak cipta dilindungi."
+                 data-en="© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. All rights reserved.">© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. Hak cipta dilindungi.</div>
+        </div>
+    </footer>
+
+    <script>
+        /* ===== I18N: Indonesia (default) & English ===== */
+        const T = {
+            id: {
+                loading: "Menganalisis video… (±15–60 detik, mohon tunggu)",
+                errPrefix: "Gagal menganalisis: ",
+                na: "N/A",
+                labels: {
+                    "Baik": "Baik",
+                    "Cukup": "Cukup",
+                    "Perlu Perbaikan": "Perlu Perbaikan"
+                },
+                feedbacks: {
+                    "Kedalaman squat kurang. Usahakan turun lebih dalam.": "Kedalaman squat kurang. Usahakan turun lebih dalam.",
+                    "Kedalaman squat sudah sangat baik.": "Kedalaman squat sudah sangat baik.",
+                    "Gerakan kurang konsisten. Perhatikan tempo naik-turun.": "Gerakan kurang konsisten. Perhatikan tempo naik-turun.",
+                    "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.": "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki."
+                },
+                emptyFeedback: "Tidak ada masalah signifikan terdeteksi.",
+                m: {
+                    score: "Skor Kualitas", reps: "Repetisi", rom: "ROM",
+                    stability: "Stabilitas", consistency: "Consistency",
+                    duration: "Durasi", side: "Sisi", process: "Waktu proses",
+                    feedback: "Feedback", samples: "Sampel Frame",
+                    plot: "Grafik Sudut Lutut",
+                    frames: ["Awal", "Tengah", "Akhir"],
+                    disclaimer: "Skor & feedback dihasilkan dari aturan prototype, belum divalidasi klinis."
+                }
+            },
+            en: {
+                loading: "Analyzing video… (about 15–60 s, please wait)",
+                errPrefix: "Analysis failed: ",
+                na: "N/A",
+                labels: {
+                    "Baik": "Good",
+                    "Cukup": "Fair",
+                    "Perlu Perbaikan": "Needs Improvement"
+                },
+                feedbacks: {
+                    "Kedalaman squat kurang. Usahakan turun lebih dalam.": "Squat depth is insufficient. Try to go deeper.",
+                    "Kedalaman squat sudah sangat baik.": "Squat depth is already excellent.",
+                    "Gerakan kurang konsisten. Perhatikan tempo naik-turun.": "Movement is inconsistent. Mind your up-and-down tempo.",
+                    "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.": "Your body sways too much. Focus your weight through the middle of your feet."
+                },
+                emptyFeedback: "No significant issues detected.",
+                m: {
+                    score: "Quality Score", reps: "Repetitions", rom: "ROM",
+                    stability: "Stability", consistency: "Consistency",
+                    duration: "Duration", side: "Side", process: "Process time",
+                    feedback: "Feedback", samples: "Sample Frames",
+                    plot: "Knee Angle Graph",
+                    frames: ["Start", "Middle", "End"],
+                    disclaimer: "Score & feedback are produced by prototype rules; not clinically validated."
+                }
+            }
+        };
+
+        let currentLang = localStorage.getItem("gc-lang") || "id";
+        let lastResult = null;
+
+        function applyLang(lang) {
+            if (!T[lang]) lang = "id";
+            currentLang = lang;
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll("[data-id]").forEach(el => {
+                el.textContent = el.getAttribute("data-" + lang) || el.getAttribute("data-id");
+            });
+            document.querySelectorAll("[data-id-html]").forEach(el => {
+                el.innerHTML = el.getAttribute("data-" + lang + "-html") || el.getAttribute("data-id-html");
+            });
+
+            document.querySelectorAll(".lang-btn").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.lang === lang);
+            });
+
+            localStorage.setItem("gc-lang", lang);
+
+            if (lastResult) {
+                renderResults(lastResult);
+            }
+        }
+
+        /* ===== Render hasil analisis ===== */
+        function renderResults(d) {
+            const t = T[currentLang];
+            const m = t.m;
+            const hasil = document.getElementById("hasil-analisis");
+            const na = t.na;
+
+            const label = t.labels[d.score_label] || d.score_label;
+            const feedbacks = (d.feedbacks && d.feedbacks.length)
+                ? d.feedbacks.map(f => `<li>${t.feedbacks[f] || f}</li>`).join("")
+                : `<li>${t.emptyFeedback}</li>`;
+
+            const metric = (lab, val) =>
+                `<div><span class="metric-label">${lab}</span><span class="metric-value">${val ?? na}</span></div>`;
+
+            const samples = (d.samples || []).map((src, i) => `
+                <figure>
+                    <img src="${src}?t=${Date.now()}" alt="Sample frame ${i + 1}"
+                         onerror="this.parentElement.style.display='none'">
+                    <figcaption>${m.frames[i] || ""}</figcaption>
+                </figure>`).join("");
+
+            const plot = d.plot ? `
+                <div class="card plot-card">
+                    <h3>${m.plot}</h3>
+                    <img src="${d.plot}?t=${Date.now()}" alt="${m.plot}"
+                         onerror="this.parentElement.style.display='none'">
+                </div>` : "";
+
+            hasil.innerHTML = `
+                <div class="results-grid">
+                    <div class="card result-card">
+                        <div class="result-head">
+                            <span class="result-score">${d.score}</span>
+                            <span class="result-label">${label}</span>
+                        </div>
+                        <div class="result-sub">
+                            ${m.side}: ${d.side} · ${m.process}: ${d.process_sec}s · ${m.duration}: ${d.duration_sec}s
+                        </div>
+                        <div class="metrics-grid">
+                            ${metric(m.reps, d.reps)}
+                            ${metric(m.rom, d.rom != null ? d.rom + "°" : na)}
+                            ${metric(m.stability, d.stability + "%")}
+                            ${metric(m.consistency, d.consistency != null ? d.consistency : na)}
+                            ${metric(m.duration, d.duration_sec + "s")}
+                        </div>
+                    </div>
+                    <div class="card result-card">
+                        <h3>${m.feedback}</h3>
+                        <ul class="feedback-list">${feedbacks}</ul>
+                        <p class="result-disclaimer">${m.disclaimer}</p>
+                    </div>
+                </div>
+                <div class="card samples-card">
+                    <h3>${m.samples}</h3>
+                    <div class="samples-grid">${samples || "<p class='result-sub'>" + na + "</p>"}</div>
+                </div>
+                ${plot}
+            `;
+        }
+
+        /* ===== Upload & kirim ke backend ===== */
+        document.addEventListener("DOMContentLoaded", () => {
+            applyLang(currentLang);
+
+            document.querySelectorAll(".lang-btn").forEach(btn => {
+                btn.addEventListener("click", () => applyLang(btn.dataset.lang));
+            });
+
+            const input = document.getElementById("videoInput");
+            const btnSelect = document.getElementById("btnSelect");
+            const hasil = document.getElementById("hasil-analisis");
+
+            btnSelect.addEventListener("click", () => input.click());
+
+            input.addEventListener("change", async () => {
+                const file = input.files && input.files[0];
+                if (!file) return;
+
+                const t = T[currentLang];
+                hasil.innerHTML = `<p class="loading-text">⏳ ${t.loading}</p>`;
+
+                const fd = new FormData();
+                fd.append("video", file);
+
+                try {
+                    const res = await fetch("/analyze", { method: "POST", body: fd });
+                    let data = null;
+                    try { data = await res.json(); } catch (_) { /* bukan JSON */ }
+
+                    if (!res.ok || !data || data.error) {
+                        const msg = (data && data.error) || ("HTTP " + res.status);
+                        hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${msg}</p>`;
+                        return;
+                    }
+
+                    lastResult = data;
+                    renderResults(data);
+                    hasil.scrollIntoView({ behavior: "smooth", block: "start" });
+                } catch (err) {
+                    hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${err.message}</p>`;
+                } finally {
+                    input.value = ""; // izinkan pilih file yang sama lagi
+                }
+            });
+        });
+    </script>
+</body>
+</html>

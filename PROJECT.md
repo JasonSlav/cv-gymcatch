@@ -35,7 +35,7 @@ jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian.
 - Skor kualitas, stabilitas & feedback teknis (rule-based prototype, disclaimer di UI)
 - Grafik sudut vs waktu
 - Ekspor CSV + video berlandmark + grafik PNG
-- UI Streamlit lokal dengan disclaimer & error handling
+- UI web lokal (kini **Flask + HTML**, sebelumnya Streamlit) dengan disclaimer & error handling
 - Dokumentasi asumsi & keterbatasan
 
 ### ❌ Di Luar Scope (Future Work)
@@ -58,7 +58,8 @@ Target: Windows 10, Python 3.12.3
 | opencv-python | 5.0.0.93 | Baca/tulis video, visualisasi |
 | numpy | 2.5.4 | Komputasi numerik |
 | matplotlib | 3.11.2 | Grafik |
-| streamlit | 1.40.0 | UI Web Dashboard |
+| streamlit | 1.40.0 | UI Web Dashboard (kini legacy/backup) |
+| Flask | 3.1.3 | Web framework — server backend + sajikan UI HTML |
 
 **Baseline:** CPU (i7-7700HQ). GPU (GTX 1050 Ti) belum dioptimasi.
 
@@ -77,8 +78,17 @@ C:\Projects\cv\gymcatch\
 ├─ requirements.txt            # dependensi terkunci
 ├─ PROJECT.md                  # dokumen ini
 ├─ README.md                   # panduan instalasi & penggunaan (penguji)
-├─ app.py                      # Streamlit UI tipis (entry point, logika di pipeline.py)
+├─ app.py                      # Streamlit UI — [LEGACY/BACKUP] (cadangan, port 8501)
+├─ app_flask.py                # Backend Flask — entry point BARU (port 5000)
 ├─ run_squat.py                # CLI wrapper tipis di atas src/pipeline.py
+│
+├─ templates\
+│  └─ index.html               # UI murni HTML/CSS/JS (i18n ID/EN, sesuai mockup)
+│
+├─ static\
+│  ├─ logo.png                 # logo navbar
+│  ├─ fik.png                  # logo FIK (footer)
+│  └─ bg_gym_small.jpg         # background hero
 │
 ├─ src\                        # kode modular
 │  ├─ geometry.py              # sudut, normalisasi, interpolasi (murni)
@@ -89,7 +99,7 @@ C:\Projects\cv\gymcatch\
 │  ├─ report.py                # pilih seri, CSV sudut, format summary
 │  └─ pipeline.py              # orkestrasi end-to-end (analyze_video → AnalysisResult)
 │
-├─ tests\                      # unit test (127 test)
+├─ tests\                      # unit test (131 test)
 │  ├─ test_geometry.py
 │  ├─ test_metrics.py
 │  ├─ test_video_io.py
@@ -187,6 +197,7 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 - [x] Pipeline end-to-end terbukti konsisten (selisih 0.000000° antar run)
 - [x] Streamlit UI + fallback 3 sampel frame (mengatasi codec video yang tidak didukung browser) + tombol download
 - [x] Dokumentasi akhir: README.md (panduan penguji) + PROJECT.md (asumsi, keterbatasan, log keputusan)
+- [x] Migrasi Frontend dari Streamlit ke Flask + HTML/CSS murni (UI 100% sesuai mockup, i18n ID/EN, integrasi API)
 
 ### 📋 Berikutnya
 - [ ] Testing dengan video nyata kondisi buruk (goyang, oklusi, durasi ekstrem)
@@ -196,7 +207,7 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 
 ## 9. Panduan Pengambilan Video (untuk Pengguna)
 
-Ditampilkan sebagai disclaimer di UI Streamlit:
+Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 
 > ⚠️ **Panduan Perekaman Optimal**
 > - Durasi 10–15 detik, seluruh tubuh terlihat dalam frame
@@ -240,7 +251,7 @@ Ditampilkan sebagai disclaimer di UI Streamlit:
 ## 11. Rancangan Evaluasi (Draft)
 
 ### Technical Testing
-- [x] Aplikasi berjalan di Windows lokal (Streamlit health 200)
+- [x] Aplikasi berjalan di Windows lokal (Streamlit health 200; kini Flask `GET /` 200)
 - [x] Video valid diproses tanpa error
 - [ ] Video rusak ditolak dengan pesan jelas (unit test lolos, UI manual belum diuji)
 - [x] Sudut konsisten antar-run (test–retest internal: 2 run, selisih CSV 0.000000°)
@@ -259,7 +270,7 @@ Ditampilkan sebagai disclaimer di UI Streamlit:
 
 1. **Bekerja bertahap**, tidak membangun semua fitur sekaligus.
 2. **Modularitas ketat**: Satu file = satu tanggung jawab (UI, Pipeline, Geometri, dll).
-3. **Selalu jalankan test** setelah implementasi (127 unit test).
+3. **Selalu jalankan test** setelah implementasi (131 unit test).
 4. **Jujur pada hasil**: Jangan klaim fitur berjalan jika belum diuji dengan data nyata.
 5. **Jangan tambah dependensi** di luar yang terkunci tanpa persetujuan.
 6. **Laporkan error/gagal** apa adanya, jangan di-*bypass*.
@@ -281,3 +292,8 @@ Ditampilkan sebagai disclaimer di UI Streamlit:
 | 2026-10-23 | Tombol Reset `disabled` dihitung dari (ada hasil **atau** ada file), bukan dari hasil saja | `analysis_result` baru diset setelah tombol dirender pada run yang sama → Reset lama tetap abu-abu sampai run berikutnya; versi ini aktif sejak file ter-upload sehingga selalu bisa di-klik setelah analisis |
 | 2026-10-23 | Tombol 🔄 Reset custom **dihapus**; hapus file = X bawaan uploader, hasil disembunyikan otomatis saat file berubah (anti-stale) | Duplikasi kontrol membingungkan; mesin flag Reset memunculkan bug disabled-timing — fewer stateful widgets = fewer Streamlit bugs |
 | 2026-10-23 | Durasi panduan diubah 5–10 → 10–15 detik | Permintaan klien; video lebih panjang memberi lebih banyak frame per repetisi; video demo 11.8s kini sesuai panduan |
+| 2026-10-25 | Migrasi UI dari Streamlit ke Flask + HTML murni | Streamlit terlalu terbatas untuk mencapai desain mockup 100%; Flask memisahkan Frontend (HTML/JS) dan Backend (Python/AI) secara bersih. |
+
+---
+
+*Terakhir diperbarui: 2026-10-25*
