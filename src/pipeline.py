@@ -45,7 +45,13 @@ from src.report import (
     format_summary_text,
     write_angles_csv,
 )
-from src.video_io import VideoIOError, VideoMeta, iter_frames, read_meta
+from src.video_io import (
+    DEFAULT_OUTPUT_FOURCC,
+    VideoIOError,
+    VideoMeta,
+    iter_frames,
+    read_meta,
+)
 from src.visualize import (
     draw_angle_label,
     draw_pose_on_frame,
@@ -140,8 +146,8 @@ def extract_sample_frames(
     """
     Ambil 3 frame sampel dari video hasil (start, mid/valley, end).
 
-    Codec mp4v (MPEG-4 Part 2) pada video hasil tidak diputar oleh browser
-    modern — frame JPG dipakai sebagai fallback tampilan web.
+    Video hasil dicoba ditulis WebM/VP8 (diputar browser); bila fallback
+    ke mp4v, frame JPG dipakai sebagai fallback tampilan web.
 
     Mengembalikan list path yang berhasil disimpan (boleh < 3; [] jika
     video tidak bisa dibuka).
@@ -216,11 +222,23 @@ def analyze_video(
         raise PipelineError(str(e)) from e
 
     # --- Siapkan VideoWriter ---
-    annotated_path = output_dir / "squat_annotated.mp4"
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    # Coba WebM/VP8 agar bisa diputar langsung di browser; fallback ke
+    # mp4v (+ ekstensi .mp4) bila codec VP8 tidak tersedia.
+    annotated_path = output_dir / "squat_annotated.webm"
     writer = cv2.VideoWriter(
-        str(annotated_path), fourcc, meta.fps, (meta.width, meta.height)
+        str(annotated_path),
+        cv2.VideoWriter_fourcc(*DEFAULT_OUTPUT_FOURCC),
+        meta.fps,
+        (meta.width, meta.height),
     )
+    if not writer.isOpened():
+        annotated_path = output_dir / "squat_annotated.mp4"
+        writer = cv2.VideoWriter(
+            str(annotated_path),
+            cv2.VideoWriter_fourcc(*"mp4v"),
+            meta.fps,
+            (meta.width, meta.height),
+        )
     if not writer.isOpened():
         raise PipelineError(f"Gagal membuat VideoWriter untuk {annotated_path}")
 
@@ -288,7 +306,7 @@ def analyze_video(
     left_analysis = analyze_side(left_angles, "kiri")
     right_analysis = analyze_side(right_angles, "kanan")
 
-    # --- Sampel frame (fallback tampilan web: mp4v tidak diputar browser) ---
+    # --- Sampel frame (cadangan tampilan web bila video WebM gagal diputar) ---
     valley_idx = (
         left_analysis.rep_result.reps[0].valley_idx
         if left_analysis.rep_result.reps

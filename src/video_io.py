@@ -21,7 +21,7 @@ from typing import Iterable, Iterator, Optional, Tuple
 import cv2
 import numpy as np
 
-DEFAULT_OUTPUT_FOURCC = "mp4v"
+DEFAULT_OUTPUT_FOURCC = "vp80"
 
 
 class VideoIOError(Exception):
@@ -152,7 +152,9 @@ def write_video(
     size : (width, height)
         Ukuran output (sesuai cv2.VideoWriter).
     fourcc : str
-        FourCC codec, default "mp4v".
+        FourCC codec, default "vp80" (WebM, diputar browser).
+        Jika codec gagal dibuka, otomatis dicoba ulang dengan "mp4v"
+        (fallback perilaku lama).
 
     Returns
     -------
@@ -174,6 +176,11 @@ def write_video(
 
     fourcc_code = cv2.VideoWriter_fourcc(*fourcc)
     writer = cv2.VideoWriter(str(p), fourcc_code, float(fps), tuple(size))
+    if not writer.isOpened() and fourcc != "mp4v":
+        # Fallback ke codec lama (mp4v) bila codec utama tidak tersedia.
+        fourcc = "mp4v"
+        fourcc_code = cv2.VideoWriter_fourcc(*fourcc)
+        writer = cv2.VideoWriter(str(p), fourcc_code, float(fps), tuple(size))
     if not writer.isOpened():
         raise VideoIOError(
             f"Gagal membuat VideoWriter untuk {p} "

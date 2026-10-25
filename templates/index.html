@@ -393,6 +393,27 @@
             margin-top: 6px;
         }
 
+        .samples-grid img {
+            max-height: 50vh;
+            object-fit: contain;
+        }
+
+        .video-container {
+            width: 100%;
+            max-height: 50vh;
+            display: flex;
+            justify-content: center;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .video-container video {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
         .plot-card {
             max-width: 1000px;
             margin: 20px auto 0 auto;
@@ -856,6 +877,7 @@
                     stability: "Stabilitas", consistency: "Consistency",
                     duration: "Durasi", side: "Sisi", process: "Waktu proses",
                     feedback: "Feedback", samples: "Sampel Frame",
+                    video: "Video Hasil Analisis",
                     plot: "Grafik Sudut Lutut",
                     seriesLeft: "Sisi Kiri",
                     seriesRight: "Sisi Kanan",
@@ -885,6 +907,7 @@
                     stability: "Stability", consistency: "Consistency",
                     duration: "Duration", side: "Side", process: "Process time",
                     feedback: "Feedback", samples: "Sample Frames",
+                    video: "Annotated Video",
                     plot: "Knee Angle Graph",
                     seriesLeft: "Left Side",
                     seriesRight: "Right Side",
@@ -943,6 +966,17 @@
                     <figcaption>${m.frames[i] || ""}</figcaption>
                 </figure>`).join("");
 
+            const playable = !!d.is_browser_playable && !!d.video_url;
+            const mediaCard = playable ? `
+                <div class="card samples-card">
+                    <h3>${m.video}</h3>
+                    <div class="video-container"><video controls src="${d.video_url}?t=${Date.now()}"></video></div>
+                </div>` : `
+                <div class="card samples-card">
+                    <h3>${m.samples}</h3>
+                    <div class="samples-grid">${samples || "<p class='result-sub'>" + na + "</p>"}</div>
+                </div>`;
+
             const ad = d.angle_data || null;
             const leftSeries = ad && Array.isArray(ad.left) ? ad.left : null;
             const rightSeries = ad && Array.isArray(ad.right) ? ad.right : null;
@@ -999,10 +1033,7 @@
                         <p class="result-disclaimer">${m.disclaimer}</p>
                     </div>
                 </div>
-                <div class="card samples-card">
-                    <h3>${m.samples}</h3>
-                    <div class="samples-grid">${samples || "<p class='result-sub'>" + na + "</p>"}</div>
-                </div>
+                ${mediaCard}
                 ${plot}
             `;
 

@@ -111,6 +111,11 @@ def analyze():
     if result.plot_path is not None and Path(result.plot_path).exists():
         plot = f"/output/{Path(result.plot_path).name}"
 
+    # Video hasil: WebM/VP8 bisa diputar browser langsung; mp4v hanya
+    # sebagai fallback codec (browser umumnya tidak mendukung).
+    video_url = f"/output/{result.annotated_video_path.name}"
+    is_browser_playable = result.annotated_video_path.suffix.lower() == ".webm"
+
     return jsonify(
         {
             "score": round(result.score, 1),
@@ -129,6 +134,8 @@ def analyze():
             "process_sec": round(result.process_sec, 2),
             "samples": samples,
             "plot": plot,
+            "video_url": video_url,
+            "is_browser_playable": is_browser_playable,
             # Deret sudut untuk grafik interaktif (Chart.js).
             # None di list otomatis menjadi null oleh jsonify.
             "angle_data": {
