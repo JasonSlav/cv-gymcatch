@@ -59,7 +59,7 @@
             width: 100%;
             padding: 30px 50px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             z-index: 100;
         }
@@ -80,10 +80,6 @@
 
         /* --- Language Toggle (kanan atas) --- */
         .lang-toggle {
-            position: absolute;
-            top: 50%;
-            right: 50px;
-            transform: translateY(-50%);
             display: flex;
             gap: 4px;
             border: 1px solid var(--border-color);
@@ -132,7 +128,7 @@
         /* --- Hero Section --- */
         .hero {
             position: relative;
-            height: 80vh;
+            height: calc(100vh - 90px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -143,7 +139,7 @@
         .hero-content {
             max-width: 800px;
             padding: 0 20px;
-            margin-top: 50px;
+            margin-top: 90px;
         }
 
         .hero h1 {
@@ -280,43 +276,10 @@
             display: none;
         }
 
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto 20px auto;
-        }
-
-        .result-head {
-            display: flex;
-            align-items: baseline;
-            gap: 16px;
-            margin-bottom: 8px;
-        }
-
-        .result-score {
-            font-size: 3.2rem;
-            font-weight: 800;
-            line-height: 1;
-        }
-
-        .result-label {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
-        }
-
         .result-sub {
             font-size: 0.8rem;
             color: var(--text-muted);
             margin-bottom: 18px;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
         }
 
         .metric-label {
@@ -336,21 +299,6 @@
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 14px;
-        }
-
-        .feedback-list {
-            list-style: none;
-        }
-
-        .feedback-list li {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            padding: 9px 0;
-            border-bottom: 1px solid #242424;
-        }
-
-        .feedback-list li:last-child {
-            border-bottom: none;
         }
 
         .result-disclaimer {
@@ -644,19 +592,131 @@
             100% { transform: translateX(350%); }
         }
 
+        /* --- Halaman Result (SPA) --- */
+        .result-container {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .result-card {
+            background-color: var(--bg-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .result-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .result-card .big-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .metric-card {
+            background-color: var(--bg-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .metric-card .metric-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        .score-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .overview-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .overview-box li {
+            padding: 8px 0;
+            border-bottom: 1px solid #2a2a2a;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .overview-box li:last-child {
+            border-bottom: none;
+        }
+
+        .result-disclaimer {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .btn-new-analysis {
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            border-radius: 24px;
+            padding: 10px 28px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-new-analysis:hover {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        .result-actions {
+            max-width: 1100px;
+            margin: 110px auto 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .result-left,
+        .result-right {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        #chart-full-width {
+            max-width: 1100px;
+            margin: 20px auto 40px auto;
+            padding: 0 20px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             nav {
-                flex-direction: column;
-                gap: 20px;
-                padding: 44px 20px 20px;
-            }
-            .lang-toggle {
-                top: 12px;
-                right: 12px;
-                transform: none;
-                padding: 3px;
-                gap: 3px;
+                padding: 20px;
             }
             .lang-btn {
                 padding: 3px 10px;
@@ -671,6 +731,22 @@
             .upload-grid, .features-grid, .footer-grid {
                 grid-template-columns: 1fr;
             }
+            .hero {
+                height: min(60vh, 500px);
+            }
+            .hero-content {
+                margin-top: 0;
+            }
+            .result-container {
+                grid-template-columns: 1fr;
+                margin-top: 0;
+            }
+            .result-actions {
+                margin-top: 90px;
+            }
+            .footer-logo {
+                justify-content: center;
+            }
             .footer-grid {
                 text-align: center;
             }
@@ -680,14 +756,8 @@
             .footer-desc {
                 margin: 0 auto 20px auto;
             }
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
             .metrics-grid {
                 grid-template-columns: repeat(2, 1fr);
-            }
-            .result-score {
-                font-size: 2.4rem;
             }
             .samples-grid {
                 grid-template-columns: 1fr;
@@ -704,7 +774,7 @@
 </head>
 <body>
 
-    <!-- Navbar: logo tengah + toggle bahasa kanan atas -->
+    <!-- Navbar: logo kiri (klik = kembali ke landing) + toggle bahasa kanan -->
     <nav>
         <div class="logo">
             <img src="/static/logo.png" alt="Gym Catch Logo">
@@ -715,6 +785,7 @@
         </div>
     </nav>
 
+    <div id="page-landing">
     <!-- Hero Section -->
     <header class="hero">
         <div class="hero-content">
@@ -763,9 +834,6 @@
         <p class="progress-text" data-id="Menganalisis video…" data-en="Analyzing video…">Menganalisis video…</p>
         <div class="progress-bar-container"><div class="progress-bar-fill"></div></div>
     </div>
-
-    <!-- Hasil Analisis (diisi oleh JavaScript) -->
-    <div id="hasil-analisis" class="container results-wrap"></div>
 
     <!-- Features Section -->
     <section class="features-section container">
@@ -849,6 +917,16 @@
                  data-en="© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. All rights reserved.">© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. Hak cipta dilindungi.</div>
         </div>
     </footer>
+    </div><!-- /#page-landing -->
+
+    <!-- Halaman Result (SPA) -->
+    <div id="page-result" style="display:none;">
+        <div class="result-actions">
+            <button type="button" class="btn-new-analysis" id="btn-new-analysis"
+                    data-id="Analisis Video Baru" data-en="New Analysis">Analisis Video Baru</button>
+        </div>
+        <div id="hasil-analisis" class="results-wrap"></div>
+    </div>
 
     <!-- Chart.js (lokal, offline) -->
     <script src="/static/chart.min.js"></script>
@@ -881,6 +959,9 @@
                     plot: "Grafik Sudut Lutut",
                     seriesLeft: "Sisi Kiri",
                     seriesRight: "Sisi Kanan",
+                    overview: "Overview",
+                    stabilityLabel: "Body Stability Score",
+                    stabilityTag: "Stable",
                     frames: ["Awal", "Tengah", "Akhir"],
                     disclaimer: "Skor & feedback dihasilkan dari aturan prototype, belum divalidasi klinis."
                 }
@@ -911,6 +992,9 @@
                     plot: "Knee Angle Graph",
                     seriesLeft: "Left Side",
                     seriesRight: "Right Side",
+                    overview: "Overview",
+                    stabilityLabel: "Body Stability Score",
+                    stabilityTag: "Stable",
                     frames: ["Start", "Middle", "End"],
                     disclaimer: "Score & feedback are produced by prototype rules; not clinically validated."
                 }
@@ -957,7 +1041,7 @@
                 : `<li>${t.emptyFeedback}</li>`;
 
             const metric = (lab, val) =>
-                `<div><span class="metric-label">${lab}</span><span class="metric-value">${val ?? na}</span></div>`;
+                `<div class="metric-card"><span class="metric-label">${lab}</span><span class="metric-value">${val ?? na}</span></div>`;
 
             const samples = (d.samples || []).map((src, i) => `
                 <figure>
@@ -968,11 +1052,11 @@
 
             const playable = !!d.is_browser_playable && !!d.video_url;
             const mediaCard = playable ? `
-                <div class="card samples-card">
+                <div class="result-card">
                     <h3>${m.video}</h3>
                     <div class="video-container"><video controls src="${d.video_url}?t=${Date.now()}"></video></div>
                 </div>` : `
-                <div class="card samples-card">
+                <div class="result-card">
                     <h3>${m.samples}</h3>
                     <div class="samples-grid">${samples || "<p class='result-sub'>" + na + "</p>"}</div>
                 </div>`;
@@ -991,13 +1075,13 @@
             if (frameCount > 0) {
                 // Grafik interaktif Chart.js (fallback ke PNG bila kosong)
                 plot = `
-                <div class="card plot-card">
+                <div class="result-card">
                     <h3>${m.plot}</h3>
                     <div class="chart-wrap"><canvas id="angleChart"></canvas></div>
                 </div>`;
             } else if (d.plot) {
                 plot = `
-                <div class="card plot-card">
+                <div class="result-card">
                     <h3>${m.plot}</h3>
                     <img src="${d.plot}?t=${Date.now()}" alt="${m.plot}"
                          onerror="this.parentElement.style.display='none'">
@@ -1010,31 +1094,34 @@
                 : (hasLeft && hasRight ? "both" : (hasLeft ? "left" : "right"));
 
             hasil.innerHTML = `
-                <div class="results-grid">
-                    <div class="card result-card">
-                        <div class="result-head">
-                            <span class="result-score">${d.score}</span>
-                            <span class="result-label">${label}</span>
-                        </div>
-                        <div class="result-sub">
-                            ${m.side}: ${d.side} · ${m.process}: ${d.process_sec}s · ${m.duration}: ${d.duration_sec}s
+                <div class="result-container">
+                    <div class="result-left">${mediaCard}</div>
+                    <div class="result-right">
+                        <div class="result-card score-card">
+                            <span class="metric-label">${m.score}</span>
+                            <span class="big-number">${d.score}%</span>
+                            <span class="metric-label" style="margin-top:6px;">${label}</span>
                         </div>
                         <div class="metrics-grid">
                             ${metric(m.reps, d.reps)}
-                            ${metric(m.rom, d.rom != null ? d.rom + "°" : na)}
-                            ${metric(m.stability, d.stability + "%")}
-                            ${metric(m.consistency, d.consistency != null ? d.consistency : na)}
                             ${metric(m.duration, d.duration_sec + "s")}
+                            ${metric(m.rom, d.rom != null ? d.rom + "°" : na)}
+                            ${metric(m.consistency, d.consistency != null ? d.consistency : na)}
+                        </div>
+                        <div class="score-row">
+                            <div class="metric-card">
+                                <span class="metric-label">${m.stabilityLabel}</span>
+                                <span class="metric-value">${d.stability}% ${m.stabilityTag}</span>
+                            </div>
+                        </div>
+                        <div class="result-card overview-box">
+                            <h3>${m.overview}</h3>
+                            <ul>${feedbacks}</ul>
+                            <p class="result-disclaimer">${m.disclaimer}</p>
                         </div>
                     </div>
-                    <div class="card result-card">
-                        <h3>${m.feedback}</h3>
-                        <ul class="feedback-list">${feedbacks}</ul>
-                        <p class="result-disclaimer">${m.disclaimer}</p>
-                    </div>
                 </div>
-                ${mediaCard}
-                ${plot}
+                <div id="chart-full-width">${plot}</div>
             `;
 
             /* Render Chart.js setelah canvas ada di DOM */
@@ -1048,7 +1135,6 @@
                     tension: 0.3,
                     borderWidth: 2,
                     pointRadius: 0,
-                    backgroundColor: "transparent",
                     spanGaps: false
                 };
 
@@ -1058,6 +1144,8 @@
                         label: m.seriesLeft,
                         data: leftSeries,
                         borderColor: "#00E5FF",
+                        backgroundColor: "rgba(0, 229, 255, 0.2)",
+                        fill: true,
                         ...lineStyle
                     });
                 }
@@ -1066,6 +1154,8 @@
                         label: m.seriesRight,
                         data: rightSeries,
                         borderColor: "#FF4081",
+                        backgroundColor: "rgba(255, 64, 129, 0.15)",
+                        fill: true,
                         ...lineStyle
                     });
                 }
@@ -1118,6 +1208,25 @@
             const hasil = document.getElementById("hasil-analisis");
             const dropBox = document.querySelector(".upload-box");
             const progressWrapper = document.getElementById("progress-wrapper");
+            const pageLanding = document.getElementById("page-landing");
+            const pageResult = document.getElementById("page-result");
+
+            function showResultPage() {
+                pageLanding.style.display = "none";
+                pageResult.style.display = "block";
+                window.scrollTo(0, 0);
+            }
+
+            function showLandingPage() {
+                if (angleChart) { angleChart.destroy(); angleChart = null; }
+                pageResult.style.display = "none";
+                pageLanding.style.display = "block";
+                hasil.innerHTML = "";
+                input.value = "";
+                window.scrollTo(0, 0);
+            }
+
+            document.getElementById("btn-new-analysis").addEventListener("click", showLandingPage);
 
             async function analyzeFile(file) {
                 const t = T[currentLang];
@@ -1140,7 +1249,7 @@
 
                     lastResult = data;
                     renderResults(data);
-                    hasil.scrollIntoView({ behavior: "smooth", block: "start" });
+                    showResultPage();
                 } catch (err) {
                     hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${err.message}</p>`;
                 } finally {
