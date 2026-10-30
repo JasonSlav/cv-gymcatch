@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Catch - Riwayat Analisis</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --bg-card: #1a1a1a;
+            --text-main: #ffffff;
+            --text-muted: #a1a1a6;
+            --accent-cyan: #00bfff;
+            --border-color: #333333;
+            --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            border-bottom: 1px solid #1c1c1c;
+        }
+
+        .logo img { height: 40px; width: auto; display: block; }
+
+        .nav-right { display: flex; align-items: center; gap: 18px; }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .nav-link:hover { color: var(--accent-cyan); }
+
+        .lang-toggle {
+            display: flex;
+            gap: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.55);
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 4px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .lang-btn.active { background: var(--accent-cyan); color: #000; }
+
+        .page {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+            flex: 1;
+        }
+
+        .page-title { font-size: 2rem; font-weight: 800; margin-bottom: 24px; }
+        .page-title .text-cyan { color: var(--accent-cyan); }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        /* --- Mode list --- */
+        .table-wrap {
+            overflow-x: auto;
+            background-color: var(--bg-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 15px;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 640px; }
+
+        th, td { padding: 14px 18px; text-align: left; font-size: 0.9rem; }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid #2a2a2a;
+            white-space: nowrap;
+        }
+
+        td { border-bottom: 1px solid #242424; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+
+        .score-cell { font-weight: 800; color: var(--accent-cyan); white-space: nowrap; }
+        .score-label { font-size: 0.75rem; color: var(--text-muted); margin-left: 6px; }
+
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .btn-sm {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: transparent;
+            white-space: nowrap;
+        }
+        .btn-sm:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-sm.primary { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-sm.primary:hover { background: var(--accent-cyan); color: #000; }
+
+        .empty { text-align: center; color: var(--text-muted); padding: 40px 0; }
+
+        /* --- Mode detail --- */
+        .detail-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+        .detail-name { font-size: 1.2rem; font-weight: 700; }
+        .detail-time { color: var(--text-muted); font-size: 0.85rem; }
+
+        .big-score { font-size: 2.6rem; font-weight: 800; color: var(--accent-cyan); line-height: 1; }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+
+        .metric-card {
+            background-color: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 15px;
+            padding: 16px;
+        }
+        .metric-label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+        .metric-value { font-size: 1.4rem; font-weight: 800; }
+
+        .files { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+        .feedback-box ul { list-style: none; margin-top: 4px; }
+        .feedback-box li { padding: 8px 0; border-bottom: 1px solid #2a2a2a; font-size: 0.9rem; }
+        .feedback-box li:last-child { border-bottom: none; }
+
+        .back-row { margin-top: 24px; }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+            color: #555;
+            font-size: 0.75rem;
+            border-top: 1px solid #1c1c1c;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 20px; }
+            .page { padding: 24px 16px 40px; }
+            .page-title { font-size: 1.5rem; }
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/"><img src="/static/logo.png" alt="Gym Catch Logo"></a>
+        <div class="nav-right">
+            <a href="/" class="nav-link" data-id="Beranda" data-en="Home">Beranda</a>
+            <div class="lang-toggle">
+                <button type="button" class="lang-btn active" data-lang="id">ID</button>
+                <button type="button" class="lang-btn" data-lang="en">EN</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page">
+        {% if mode == 'detail' %}
+            <h1 class="page-title" data-id="Detail <span class='text-cyan'>Analisis</span>"
+                data-en="Analysis <span class='text-cyan'>Detail</span>">Detail <span class="text-cyan">Analisis</span></h1>
+
+            <div class="card">
+                <div class="detail-head">
+                    <span class="detail-name">{{ row.video_name }}</span>
+                    <span class="detail-time">{{ row.timestamp }}</span>
+                </div>
+                <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
+                <span class="big-score">{{ '%.1f'|format(row.score if row.score is not none else 0) }}%</span>
+                <span class="score-label">{{ row.score_label or '' }}</span>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
+                        <span class="metric-value">{{ row.reps if row.reps is not none else 'N/A' }}</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">ROM</span>
+                        <span class="metric-value">{% if row.rom is not none %}{{ '%.1f'|format(row.rom) }}&deg;{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
+                        <span class="metric-value">{{ row.stability if row.stability is not none else 'N/A' }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
+                        <span class="metric-value">{{ row.consistency if row.consistency is not none else 'N/A' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card feedback-box" style="margin-top:14px;">
+                <h3 data-id="Feedback" data-en="Feedback">Feedback</h3>
+                <ul>
+                    {% for f in feedbacks %}
+                        <li>{{ f }}</li>
+                    {% else %}
+                        <li data-id="Tidak ada catatan feedback." data-en="No feedback recorded.">Tidak ada catatan feedback.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="card files-box" style="margin-top:14px;">
+                <h3 data-id="Unduh File" data-en="Download Files">Unduh File</h3>
+                <div class="files">
+                    {% if files.get('video') %}
+                        <a class="btn-sm primary" href="/download/{{ row.job_id }}/{{ files['video'] }}"
+                           data-id="Unduh Video" data-en="Download Video">Unduh Video</a>
+                    {% endif %}
+                    {% if files.get('plot') %}
+                        <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['plot'] }}"
+                           data-id="Unduh Grafik (PNG)" data-en="Download Plot (PNG)">Unduh Grafik (PNG)</a>
+                    {% endif %}
+                    {% if files.get('csv') %}
+                        <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['csv'] }}"
+                           data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="back-row">
+                <a class="btn-sm" href="/history" data-id="Kembali ke Riwayat" data-en="Back to History">Kembali ke Riwayat</a>
+            </div>
+
+        {% else %}
+            <h1 class="page-title"><span data-id="Riwayat" data-en="History">Riwayat</span> <span class="text-cyan" data-id="Analisis" data-en="Analysis">Analisis</span></h1>
+
+            {% if rows %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th data-id="Waktu" data-en="Time">Waktu</th>
+                                <th data-id="Nama Video" data-en="Video Name">Nama Video</th>
+                                <th data-id="Skor" data-en="Score">Skor</th>
+                                <th data-id="Repetisi" data-en="Reps">Repetisi</th>
+                                <th data-id="Aksi" data-en="Actions">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in rows %}
+                                <tr>
+                                    <td>{{ r.timestamp }}</td>
+                                    <td>{{ r.video_name }}</td>
+                                    <td class="score-cell">{{ '%.1f'|format(r.score if r.score is not none else 0) }}<span class="score-label">{{ r.score_label or '' }}</span></td>
+                                    <td>{{ r.reps if r.reps is not none else 'N/A' }}</td>
+                                    <td>
+                                        <div class="actions">
+                                            <a class="btn-sm primary" href="/result/{{ r.job_id }}"
+                                               data-id="Lihat Detail" data-en="View Detail">Lihat Detail</a>
+                                            {% if r.video_file %}
+                                                <a class="btn-sm" href="/download/{{ r.job_id }}/{{ r.video_file }}"
+                                                   data-id="Unduh Video" data-en="Download Video">Unduh Video</a>
+                                            {% endif %}
+                                            {% if r.csv_file %}
+                                                <a class="btn-sm" href="/download/{{ r.job_id }}/{{ r.csv_file }}"
+                                                   data-id="Unduh CSV" data-en="Download CSV">Unduh CSV</a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="card empty" data-id="Belum ada riwayat analisis." data-en="No analysis history yet.">Belum ada riwayat analisis.</div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <footer data-id="Gym Catch - Fakultas Ilmu Keolahragaan, Universitas Negeri Malang"
+            data-en="Gym Catch - Faculty of Sports Science, Universitas Negeri Malang">Gym Catch - Fakultas Ilmu Keolahragaan, Universitas Negeri Malang</footer>
+
+    <script>
+        (function () {
+            const lang = localStorage.getItem("gc-lang") || "id";
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll("[data-id]").forEach(el => {
+                el.innerHTML = el.getAttribute("data-" + lang) || el.getAttribute("data-id");
+            });
+
+            document.querySelectorAll(".lang-btn").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.lang === lang);
+                btn.addEventListener("click", () => {
+                    localStorage.setItem("gc-lang", btn.dataset.lang);
+                    window.location.reload();
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
