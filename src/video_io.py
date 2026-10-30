@@ -37,6 +37,9 @@ class VideoMeta:
     width: int
     height: int
     frame_count: int
+    # Rotasi dari metadata kontainer (0/90/180/270). 0 jika tidak ada
+    # metadata atau backend sudah memutar frame secara otomatis.
+    rotation: int = 0
 
     @property
     def duration_sec(self) -> float:
@@ -84,6 +87,18 @@ def read_meta(path) -> VideoMeta:
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+
+        # Rotasi dari metadata kontainer (video portrait dari HP).
+        # Bila backend sudah memutar frame otomatis (ORIENTATION_AUTO = 1),
+        # jangan memutar lagi — hindari rotasi ganda.
+        orientation_meta = 0.0
+        orientation_auto = 0.0
+        try:
+            orientation_meta = cap.get(cv2.CAP_PROP_ORIENTATION_META)
+            orientation_auto = cap.get(cv2.CAP_PROP_ORIENTATION_AUTO)
+        except Exception:  # noqa: BLE001 — properti tak tersedia di backend lama
+            pass
+        rotation = 0 if orientation_auto else int(orientation_meta or 0)
     finally:
         cap.release()
 
@@ -93,7 +108,12 @@ def read_meta(path) -> VideoMeta:
         raise VideoIOError(f"Video tidak berisi frame: {p}")
 
     return VideoMeta(
-        path=p, fps=fps, width=width, height=height, frame_count=frame_count
+        path=p,
+        fps=fps,
+        width=width,
+        height=height,
+        frame_count=frame_count,
+        rotation=rotation,
     )
 
 
@@ -126,6 +146,57 @@ def iter_frames(path) -> Iterator[Tuple[int, np.ndarray]]:
             if not ok:
                 break
             yield idx, frame
+            idx += 1
+    finally:
+        cap.release()
+
+
+def _rotate_frame(frame: np.ndarray, rotation: int) -> np.ndarray:
+    """Putar frame tegak sesuai metadata kontainer (rotasi HP)."""
+    if rotation == 90:
+        return cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+    if rotation in (-90, 270):
+        return cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    if rotation == 180:
+        return cv2.rotate(frame, cv2.ROTATE_180)
+    return frame
+
+
+def iter_frames_timestamped(
+    path, rotate: int = 0
+) -> Iterator[Tuple[int, np.ndarray, float]]:
+    """
+    Generator yang yield (frame_idx, frame_bgr, timestamp_msec).
+
+    Timestamp diambil dari CAP_PROP_POS_MSEC (milidetik asli kontainer),
+    sehingga benar untuk video VFR (variable frame rate, umum di HP).
+    Frame diputar bila `rotate` sesuai metadata rotasi HP (0 = tidak).
+
+    Raises
+    ------
+    VideoIOError
+        Jika video tidak bisa dibuka sejak awal.
+    """
+    p = _as_path(path)
+    if not p.exists():
+        raise VideoIOError(f"File video tidak ditemukan: {p}")
+
+    cap = cv2.VideoCapture(str(p))
+    if not cap.isOpened():
+        raise VideoIOError(
+            f"Gagal membuka video (format tidak didukung atau file rusak): {p}"
+        )
+
+    try:
+        idx = 0
+        while True:
+            ok, frame = cap.read()
+            if not ok:
+                break
+            msec = float(cap.get(cv2.CAP_PROP_POS_MSEC) or 0.0)
+            if rotate:
+                frame = _rotate_frame(frame, rotate)
+            yield idx, frame, msec
             idx += 1
     finally:
         cap.release()

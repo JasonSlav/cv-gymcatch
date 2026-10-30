@@ -18,6 +18,8 @@ Jalankan:
 from __future__ import annotations
 
 import tempfile
+import threading
+import uuid
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request, send_from_directory
@@ -29,7 +31,15 @@ OUTPUT_DIR = BASE_DIR / "output"
 MAX_FILE_SIZE_MB = 50
 ALLOWED_EXTENSIONS = {".mp4", ".mov"}
 
+# Mencegah 2 analisis berjalan bersamaan (MediaPipe & writer tidak thread-safe).
+ANALYSIS_LOCK = threading.Lock()
+
 app = Flask(__name__)
+
+
+def _to_output_url(path) -> str:
+    """URL publik untuk file di dalam OUTPUT_DIR (mendukung subfolder UUID)."""
+    return "/output/" + Path(path).relative_to(OUTPUT_DIR).as_posix()
 
 
 @app.route("/")
@@ -66,16 +76,19 @@ def analyze():
         )
 
     tmp_path: Path | None = None
+    # Folder unik per request → file antar-device tidak saling menimpa.
+    out_dir = OUTPUT_DIR / f"req_{uuid.uuid4().hex[:12]}"
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             tmp.write(data)
             tmp_path = Path(tmp.name)
 
-        result = analyze_video(
-            video_path=tmp_path,
-            model_path=DEFAULT_MODEL_PATH,
-            output_dir=str(OUTPUT_DIR),
-        )
+        with ANALYSIS_LOCK:
+            result = analyze_video(
+                video_path=tmp_path,
+                model_path=DEFAULT_MODEL_PATH,
+                output_dir=str(out_dir),
+            )
     except PipelineError as e:
         return jsonify({"error": f"Gagal menganalisis video: {e}"}), 422
     except Exception as e:  # noqa: BLE001
@@ -103,17 +116,17 @@ def analyze():
         result.meta.frame_count / result.meta.fps if result.meta.fps else 0.0
     )
     samples = [
-        f"/output/{Path(p).name}"
+        _to_output_url(p)
         for p in result.sample_frames
         if p is not None and Path(p).exists()
     ]
     plot = None
     if result.plot_path is not None and Path(result.plot_path).exists():
-        plot = f"/output/{Path(result.plot_path).name}"
+        plot = _to_output_url(result.plot_path)
 
     # Video hasil: WebM/VP8 bisa diputar browser langsung; mp4v hanya
     # sebagai fallback codec (browser umumnya tidak mendukung).
-    video_url = f"/output/{result.annotated_video_path.name}"
+    video_url = _to_output_url(result.annotated_video_path)
     is_browser_playable = result.annotated_video_path.suffix.lower() == ".webm"
 
     return jsonify(

@@ -49,7 +49,7 @@ from src.video_io import (
     DEFAULT_OUTPUT_FOURCC,
     VideoIOError,
     VideoMeta,
-    iter_frames,
+    iter_frames_timestamped,
     read_meta,
 )
 from src.visualize import (
@@ -221,6 +221,13 @@ def analyze_video(
     except VideoIOError as e:
         raise PipelineError(str(e)) from e
 
+    # Dimensi efektif: bila frame diputar (video portrait dari HP),
+    # lebar/tinggi bertukar — dipakai writer & normalisasi sudut.
+    if meta.rotation in (90, -90, 270):
+        eff_w, eff_h = meta.height, meta.width
+    else:
+        eff_w, eff_h = meta.width, meta.height
+
     # --- Siapkan VideoWriter ---
     # Coba WebM/VP8 agar bisa diputar langsung di browser; fallback ke
     # mp4v (+ ekstensi .mp4) bila codec VP8 tidak tersedia.
@@ -229,7 +236,7 @@ def analyze_video(
         str(annotated_path),
         cv2.VideoWriter_fourcc(*DEFAULT_OUTPUT_FOURCC),
         meta.fps,
-        (meta.width, meta.height),
+        (eff_w, eff_h),
     )
     if not writer.isOpened():
         annotated_path = output_dir / "squat_annotated.mp4"
@@ -237,7 +244,7 @@ def analyze_video(
             str(annotated_path),
             cv2.VideoWriter_fourcc(*"mp4v"),
             meta.fps,
-            (meta.width, meta.height),
+            (eff_w, eff_h),
         )
     if not writer.isOpened():
         raise PipelineError(f"Gagal membuat VideoWriter untuk {annotated_path}")
@@ -255,10 +262,17 @@ def analyze_video(
 
     try:
         with estimator:
-            for idx, frame in iter_frames(video_path):
-                timestamp_ms = (
-                    int(idx / meta.fps * 1000) if meta.fps > 0 else idx * 33
-                )
+            for idx, frame, msec in iter_frames_timestamped(
+                video_path, rotate=meta.rotation
+            ):
+                # Timestamp asli kontainer (POS_MSEC) — benar untuk VFR.
+                # Fallback ke formula frame/fps bila kontainer tanpa PTS.
+                if msec > 0:
+                    timestamp_ms = int(round(msec))
+                else:
+                    timestamp_ms = (
+                        int(idx / meta.fps * 1000) if meta.fps > 0 else idx * 33
+                    )
                 result = estimator.detect(frame, timestamp_ms)
                 landmarks_history.append(result.landmarks)
 
@@ -267,11 +281,11 @@ def analyze_video(
                     lm = result.landmarks
                     left_a = angle_from_landmarks(
                         lm[LEFT_HIP], lm[LEFT_KNEE], lm[LEFT_ANKLE],
-                        meta.width, meta.height, min_visibility,
+                        eff_w, eff_h, min_visibility,
                     )
                     right_a = angle_from_landmarks(
                         lm[RIGHT_HIP], lm[RIGHT_KNEE], lm[RIGHT_ANKLE],
-                        meta.width, meta.height, min_visibility,
+                        eff_w, eff_h, min_visibility,
                     )
 
                     draw_pose_on_frame(frame, lm, inplace=True)
