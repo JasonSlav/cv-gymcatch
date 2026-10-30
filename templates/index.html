@@ -254,6 +254,43 @@
             margin-bottom: 20px;
         }
 
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-cyan);
+            color: #000;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 22px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.15);
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px 22px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-muted);
+        }
+
         .btn-select {
             background-color: #333;
             color: var(--text-main);
@@ -826,6 +863,16 @@
                 <input type="file" id="videoInput" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 <button type="button" class="btn-select" id="btnSelect" data-id="Pilih File" data-en="Select files">Pilih File</button>
             </div>
+            <p id="upload-error" class="error-text" style="display:none;"></p>
+
+            <!-- Preview sebelum analisis -->
+            <div id="preview-container" style="display:none;">
+                <video id="preview-video" controls style="max-width: 100%; max-height: 50vh; border-radius: 10px; margin-bottom: 15px;"></video>
+                <div class="preview-actions">
+                    <button type="button" id="btn-confirm-analyze" class="btn-primary" data-id="Analisis Video Ini" data-en="Analyze This Video">Analisis Video Ini</button>
+                    <button type="button" id="btn-cancel-preview" class="btn-secondary" data-id="Batal" data-en="Cancel">Batal</button>
+                </div>
+            </div>
 
             <!-- Right Card -->
             <div class="card guide-card">
@@ -1222,6 +1269,34 @@
             const progressWrapper = document.getElementById("progress-wrapper");
             const pageLanding = document.getElementById("page-landing");
             const pageResult = document.getElementById("page-result");
+            const previewContainer = document.getElementById("preview-container");
+            const previewVideo = document.getElementById("preview-video");
+            const uploadError = document.getElementById("upload-error");
+
+            let selectedFile = null;
+            let previewUrl = null;
+
+            function showPreview(file) {
+                selectedFile = file;
+                uploadError.style.display = "none";
+                previewUrl = URL.createObjectURL(file);
+                previewVideo.src = previewUrl;
+                dropBox.style.display = "none";
+                previewContainer.style.display = "block";
+            }
+
+            function resetPreviewState() {
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                    previewUrl = null;
+                }
+                previewVideo.src = "";
+                previewContainer.style.display = "none";
+                dropBox.style.display = "";
+                uploadError.style.display = "none";
+                selectedFile = null;
+                input.value = "";
+            }
 
             function showResultPage() {
                 pageLanding.style.display = "none";
@@ -1234,7 +1309,7 @@
                 pageResult.style.display = "none";
                 pageLanding.style.display = "block";
                 hasil.innerHTML = "";
-                input.value = "";
+                resetPreviewState();
                 window.scrollTo(0, 0);
             }
 
@@ -1256,6 +1331,7 @@
                     if (!res.ok || !data || data.error) {
                         const msg = (data && data.error) || ("HTTP " + res.status);
                         hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${msg}</p>`;
+                        showResultPage();
                         return;
                     }
 
@@ -1264,6 +1340,7 @@
                     showResultPage();
                 } catch (err) {
                     hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${err.message}</p>`;
+                    showResultPage();
                 } finally {
                     input.value = ""; // izinkan pilih file yang sama lagi
                     progressWrapper.style.display = "none";
@@ -1272,9 +1349,17 @@
 
             btnSelect.addEventListener("click", () => input.click());
 
+            document.getElementById("btn-confirm-analyze").addEventListener("click", () => {
+                const file = selectedFile;
+                resetPreviewState();
+                if (file) analyzeFile(file);
+            });
+
+            document.getElementById("btn-cancel-preview").addEventListener("click", resetPreviewState);
+
             input.addEventListener("change", () => {
                 const file = input.files && input.files[0];
-                if (file) analyzeFile(file);
+                if (file) showPreview(file);
             });
 
             /* ===== Drag & drop ===== */
@@ -1303,10 +1388,11 @@
                 const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
                 if (!file) return;
                 if (!validExt.test(file.name)) {
-                    hasil.innerHTML = `<p class="error-text">⚠️ ${T[currentLang].dropInvalid}</p>`;
+                    uploadError.textContent = `⚠️ ${T[currentLang].dropInvalid}`;
+                    uploadError.style.display = "block";
                     return;
                 }
-                analyzeFile(file);
+                showPreview(file);
             });
 
             /* cegah browser men-open file bila jatuh di luar zona upload */
