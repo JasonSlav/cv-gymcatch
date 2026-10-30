@@ -89,6 +89,17 @@
             color: var(--accent-cyan);
         }
 
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .nav-hello {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
         /* --- Language Toggle (kanan atas) --- */
         .lang-toggle {
             display: flex;
@@ -828,6 +839,14 @@
             <img src="/static/logo.png" alt="Gym Catch Logo">
         </div>
         <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
+        <div class="nav-user">
+            {% if current_user.is_authenticated %}
+                <span class="nav-hello"><span data-id="Halo," data-en="Hi,">Halo,</span> {{ current_user.username }}</span>
+                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout">Logout</a>
+            {% else %}
+                <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
+            {% endif %}
+        </div>
         <div class="lang-toggle" id="langToggle">
             <button type="button" class="lang-btn active" data-lang="id">ID</button>
             <button type="button" class="lang-btn" data-lang="en">EN</button>
@@ -1325,6 +1344,11 @@
 
                 try {
                     const res = await fetch("/analyze", { method: "POST", body: fd });
+                    if (res.redirected) {
+                        // Belum login → server mengarahkan ke halaman login.
+                        window.location.href = res.url;
+                        return;
+                    }
                     let data = null;
                     try { data = await res.json(); } catch (_) { /* bukan JSON */ }
 

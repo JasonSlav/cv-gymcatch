@@ -46,6 +46,8 @@
         }
         .nav-link:hover { color: var(--accent-cyan); }
 
+        .nav-hello { color: var(--text-muted); font-size: 13px; }
+
         .lang-toggle {
             display: flex;
             gap: 4px;
@@ -178,6 +180,12 @@
         <a href="/"><img src="/static/logo.png" alt="Gym Catch Logo"></a>
         <div class="nav-right">
             <a href="/" class="nav-link" data-id="Beranda" data-en="Home">Beranda</a>
+            {% if current_user.is_authenticated %}
+                <span class="nav-hello"><span data-id="Halo," data-en="Hi,">Halo,</span> {{ current_user.username }}</span>
+                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout">Logout</a>
+            {% else %}
+                <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
+            {% endif %}
             <div class="lang-toggle">
                 <button type="button" class="lang-btn active" data-lang="id">ID</button>
                 <button type="button" class="lang-btn" data-lang="en">EN</button>

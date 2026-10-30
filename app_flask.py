@@ -21,6 +21,7 @@ Jalankan:
 from __future__ import annotations
 
 import json
+import os
 import re
 import sqlite3
 import tempfile
@@ -29,7 +30,25 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, render_template, request, send_from_directory
+from flask import (
+    Flask,
+    abort,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    url_for,
+)
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from src.pipeline import DEFAULT_MODEL_PATH, PipelineError, analyze_video
 
@@ -44,6 +63,70 @@ JOB_ID_RE = re.compile(r"^req_[0-9a-f]{12}$")
 ANALYSIS_LOCK = threading.Lock()
 
 app = Flask(__name__)
+# Prototype: fallback dev key. Produksi wajib pakai env SECRET_KEY.
+app.secret_key = os.environ.get("SECRET_KEY", "gymcatch-dev-secret-prototype")
+
+login_manager = LoginManager()
+login_manager.login_view = "login"
+login_manager.init_app(app)
+
+
+class User(UserMixin):
+    """User Flask-Login yang dibaca dari tabel users (SQLite)."""
+
+    def __init__(self, id_: int, username: str):
+        self.id = str(id_)
+        self.username = username
+
+    @staticmethod
+    def get(user_id: int) -> "User | None":
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            row = conn.execute(
+                "SELECT id, username FROM users WHERE id = ?", (user_id,)
+            ).fetchone()
+        finally:
+            conn.close()
+        if row is None:
+            return None
+        return User(row[0], row[1])
+
+    @staticmethod
+    def find_by_username(username: str) -> "User | None":
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            row = conn.execute(
+                "SELECT id, username FROM users WHERE username = ?",
+                (username,),
+            ).fetchone()
+        finally:
+            conn.close()
+        if row is None:
+            return None
+        return User(row[0], row[1])
+
+    @staticmethod
+    def create(username: str, password_hash: str) -> "User | None":
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            cur = conn.execute(
+                "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+                (username, password_hash),
+            )
+            conn.commit()
+            return User(cur.lastrowid, username)
+        except sqlite3.IntegrityError:
+            return None
+        finally:
+            conn.close()
+
+
+@login_manager.user_loader
+def load_user(user_id: str):
+    try:
+        return User.get(int(user_id))
+    except (TypeError, ValueError):
+        return None
 
 
 def _to_output_url(path) -> str:
@@ -52,9 +135,18 @@ def _to_output_url(path) -> str:
 
 
 def init_db() -> None:
-    """Buat tabel riwayat jika belum ada (idempotent)."""
+    """Buat/migrasi tabel (idempotent) — users + analyses(user_id)."""
     conn = sqlite3.connect(DB_PATH)
     try:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY,
+                username TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL
+            )
+            """
+        )
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS analyses (
@@ -69,10 +161,17 @@ def init_db() -> None:
                 stability REAL,
                 consistency REAL,
                 feedbacks TEXT,
-                folder_path TEXT NOT NULL
+                folder_path TEXT NOT NULL,
+                user_id INTEGER
             )
             """
         )
+        # Migrasi DB lama: tambah kolom user_id bila belum ada.
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(analyses)").fetchall()}
+        if "user_id" not in cols:
+            conn.execute("ALTER TABLE analyses ADD COLUMN user_id INTEGER")
+            # Baris tanpa user (demo/legacy) dihapus agar riwayat bersifat privat.
+            conn.execute("DELETE FROM analyses WHERE user_id IS NULL")
         conn.commit()
     finally:
         conn.close()
@@ -86,7 +185,62 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        username = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
+        user = User.find_by_username(username) if username else None
+        if user is None or not check_password_hash(
+            _get_hash(username), password
+        ):
+            error = "Username atau password salah."
+        else:
+            login_user(user)
+            return redirect(url_for("index"))
+    return render_template("login.html", error=error)
+
+
+def _get_hash(username: str) -> str:
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        row = conn.execute(
+            "SELECT password_hash FROM users WHERE username = ?", (username,)
+        ).fetchone()
+    finally:
+        conn.close()
+    return row[0] if row else ""
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    error = None
+    if request.method == "POST":
+        username = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
+        if not username or not password:
+            error = "Username dan password wajib diisi."
+        elif len(password) < 4:
+            error = "Password minimal 4 karakter."
+        else:
+            user = User.create(username, generate_password_hash(password))
+            if user is None:
+                error = "Username sudah dipakai."
+            else:
+                login_user(user)
+                return redirect(url_for("index"))
+    return render_template("register.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("index"))
+
+
 @app.route("/analyze", methods=["POST"])
+@login_required
 def analyze():
     file = request.files.get("video")
     if file is None or not file.filename:
@@ -178,7 +332,7 @@ def analyze():
                 conn.execute(
                     "INSERT INTO analyses (job_id, timestamp, video_name, score,"
                     " score_label, reps, rom, stability, consistency, feedbacks,"
-                    " folder_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    " folder_path, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         job_id,
                         datetime.now().isoformat(timespec="seconds"),
@@ -195,6 +349,7 @@ def analyze():
                         ),
                         json.dumps(list(result.feedback_list), ensure_ascii=False),
                         f"output/{job_id}",
+                        current_user.get_id() and int(current_user.get_id()),
                     ),
                 )
                 conn.commit()
@@ -235,13 +390,16 @@ def analyze():
 
 
 @app.route("/history")
+@login_required
 def history():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
         rows = conn.execute(
             "SELECT id, job_id, timestamp, video_name, score, score_label, reps,"
-            " folder_path FROM analyses ORDER BY timestamp DESC, id DESC"
+            " folder_path FROM analyses WHERE user_id = ?"
+            " ORDER BY timestamp DESC, id DESC",
+            (current_user.get_id(),),
         ).fetchall()
     finally:
         conn.close()
@@ -259,6 +417,7 @@ def history():
 
 
 @app.route("/result/<job_id>")
+@login_required
 def result_detail(job_id: str):
     if not JOB_ID_RE.match(job_id):
         abort(404)
@@ -267,7 +426,8 @@ def result_detail(job_id: str):
     conn.row_factory = sqlite3.Row
     try:
         row = conn.execute(
-            "SELECT * FROM analyses WHERE job_id = ?", (job_id,)
+            "SELECT * FROM analyses WHERE job_id = ? AND user_id = ?",
+            (job_id, current_user.get_id()),
         ).fetchone()
     finally:
         conn.close()
@@ -296,14 +456,34 @@ def result_detail(job_id: str):
 
 
 @app.route("/download/<job_id>/<path:filename>")
+@login_required
 def download_file(job_id: str, filename: str):
     if not JOB_ID_RE.match(job_id):
+        abort(404)
+    if not _owns_job(job_id):
         abort(404)
     return send_from_directory(OUTPUT_DIR / job_id, filename, as_attachment=True)
 
 
+def _owns_job(job_id: str) -> bool:
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        row = conn.execute(
+            "SELECT 1 FROM analyses WHERE job_id = ? AND user_id = ?",
+            (job_id, current_user.get_id()),
+        ).fetchone()
+    finally:
+        conn.close()
+    return row is not None
+
+
 @app.route("/output/<path:filename>")
+@login_required
 def output_file(filename: str):
+    # Segmen pertama = folder job (req_xxx). Pastikan milik user ini.
+    parts = filename.split("/")
+    if len(parts) > 1 and JOB_ID_RE.match(parts[0]) and not _owns_job(parts[0]):
+        abort(404)
     return send_from_directory(OUTPUT_DIR, filename)
 
 
