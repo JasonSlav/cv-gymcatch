@@ -639,10 +639,15 @@
         }
 
         .progress-bar-fill {
-            width: 40%;
+            width: 0%;
             height: 100%;
             border-radius: 6px;
             background: linear-gradient(90deg, transparent, var(--accent-cyan));
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar-fill.indeterminate {
+            width: 40%;
             animation: progress-slide 1.2s ease-in-out infinite;
         }
 
@@ -909,8 +914,8 @@
 
     <!-- Progress analisis (ditampilkan saat fetch berjalan) -->
     <div id="progress-wrapper" class="container progress-wrapper" style="display:none;">
-        <p class="progress-text" data-id="Menganalisis video…" data-en="Analyzing video…">Menganalisis video…</p>
-        <div class="progress-bar-container"><div class="progress-bar-fill"></div></div>
+        <p class="progress-text" id="progress-text" data-id="Menganalisis video…" data-en="Analyzing video…">Menganalisis video…</p>
+        <div class="progress-bar-container"><div class="progress-bar-fill indeterminate" id="progress-fill"></div></div>
     </div>
 
     <!-- Features Section -->
@@ -1015,6 +1020,7 @@
                 loading: "Menganalisis video… (±15–60 detik, mohon tunggu)",
                 errPrefix: "Gagal menganalisis: ",
                 dropInvalid: "Format file tidak didukung (hanya .mp4/.mov)",
+                progressFrames: "Memproses {done}/{total} frame",
                 na: "N/A",
                 labels: {
                     "Baik": "Baik",
@@ -1048,6 +1054,7 @@
                 loading: "Analyzing video… (about 15–60 s, please wait)",
                 errPrefix: "Analysis failed: ",
                 dropInvalid: "Unsupported file type (.mp4/.mov only)",
+                progressFrames: "Processing {done}/{total} frames",
                 na: "N/A",
                 labels: {
                     "Baik": "Good",
@@ -1286,6 +1293,25 @@
             const hasil = document.getElementById("hasil-analisis");
             const dropBox = document.querySelector(".upload-box");
             const progressWrapper = document.getElementById("progress-wrapper");
+            const progressText = document.getElementById("progress-text");
+            const progressFill = document.getElementById("progress-fill");
+
+            function resetProgressUI() {
+                progressFill.classList.add("indeterminate");
+                progressFill.style.width = "";
+                progressText.textContent =
+                    progressText.getAttribute("data-" + currentLang) ||
+                    progressText.getAttribute("data-id");
+            }
+
+            function updateProgressUI(done, total) {
+                if (!total) return; // 0/0 = masih menunggu antrean (indeterminate)
+                progressFill.classList.remove("indeterminate");
+                progressFill.style.width = ((done / total) * 100).toFixed(1) + "%";
+                progressText.textContent = T[currentLang].progressFrames
+                    .replace("{done}", done)
+                    .replace("{total}", total);
+            }
             const pageLanding = document.getElementById("page-landing");
             const pageResult = document.getElementById("page-result");
             const previewContainer = document.getElementById("preview-container");
@@ -1338,11 +1364,24 @@
                 const t = T[currentLang];
                 hasil.innerHTML = "";
                 progressWrapper.style.display = "block";
+                resetProgressUI();
 
+                const jobId = Date.now().toString();
                 const fd = new FormData();
                 fd.append("video", file);
+                fd.append("job_id", jobId);
 
+                let progressTimer = null;
                 try {
+                    progressTimer = setInterval(async () => {
+                        try {
+                            const pr = await fetch("/progress/" + jobId);
+                            if (!pr.ok) return;
+                            const pj = await pr.json();
+                            updateProgressUI(pj.done, pj.total);
+                        } catch (_) { /* gangguan jaringan sesaat — lanjut polling */ }
+                    }, 500);
+
                     const res = await fetch("/analyze", { method: "POST", body: fd });
                     if (res.redirected) {
                         // Belum login → server mengarahkan ke halaman login.
@@ -1366,6 +1405,8 @@
                     hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${err.message}</p>`;
                     showResultPage();
                 } finally {
+                    clearInterval(progressTimer);
+                    resetProgressUI();
                     input.value = ""; // izinkan pilih file yang sama lagi
                     progressWrapper.style.display = "none";
                 }

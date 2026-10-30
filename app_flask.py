@@ -62,6 +62,12 @@ JOB_ID_RE = re.compile(r"^req_[0-9a-f]{12}$")
 # Mencegah 2 analisis berjalan bersamaan (MediaPipe & writer tidak thread-safe).
 ANALYSIS_LOCK = threading.Lock()
 
+# Progres analisis per job_id (diisi callback pipeline, dibaca GET /progress).
+PROGRESS_DICT: dict = {}
+progress_lock = threading.Lock()
+
+PROGRESS_JOB_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
 app = Flask(__name__)
 # Prototype: fallback dev key. Produksi wajib pakai env SECRET_KEY.
 app.secret_key = os.environ.get("SECRET_KEY", "gymcatch-dev-secret-prototype")
@@ -242,6 +248,16 @@ def logout():
 @app.route("/analyze", methods=["POST"])
 @login_required
 def analyze():
+    # job_id dari frontend (FormData); bila tidak valid/absen, server
+    # menghasilkan sendiri — dipakai sebagai key progress polling.
+    job_id = request.form.get("job_id") or ""
+    if not PROGRESS_JOB_ID_RE.match(job_id):
+        job_id = uuid.uuid4().hex[:12]
+
+    def on_progress(done: int, total: int) -> None:
+        with progress_lock:
+            PROGRESS_DICT[job_id] = (done, total)
+
     file = request.files.get("video")
     if file is None or not file.filename:
         return jsonify({"error": "Tidak ada file video yang diunggah."}), 400
@@ -281,12 +297,15 @@ def analyze():
                 video_path=tmp_path,
                 model_path=DEFAULT_MODEL_PATH,
                 output_dir=str(out_dir),
+                progress_callback=on_progress,
             )
     except PipelineError as e:
         return jsonify({"error": f"Gagal menganalisis video: {e}"}), 422
     except Exception as e:  # noqa: BLE001
         return jsonify({"error": f"Terjadi kesalahan tak terduga: {e}"}), 500
     finally:
+        with progress_lock:
+            PROGRESS_DICT.pop(job_id, None)
         if tmp_path is not None and tmp_path.exists():
             try:
                 tmp_path.unlink()
@@ -387,6 +406,16 @@ def analyze():
             },
         }
     )
+
+
+@app.route("/progress/<job_id>")
+@login_required
+def progress(job_id: str):
+    if not PROGRESS_JOB_ID_RE.match(job_id):
+        abort(404)
+    with progress_lock:
+        done, total = PROGRESS_DICT.get(job_id, (0, 0))
+    return jsonify({"done": done, "total": total})
 
 
 @app.route("/history")
