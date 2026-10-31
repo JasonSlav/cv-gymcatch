@@ -1,5 +1,7 @@
 # CV Gym Catch — Evaluasi Kualitas Gerakan Gym
 
+![Tests](https://github.com/JasonSlav/cv-gymcatch/actions/workflows/python-tests.yml/badge.svg)
+
 Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Saat ini sistem telah mengimplementasikan analisis gerakan **squat**, dengan arsitektur modular yang siap dikembangkan untuk gerakan lain (seperti *push-up*, *lunge*, dll) di masa depan. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
 
 > ⚠️ **Disclaimer:** Sistem ini adalah prototipe penelitian. Belum divalidasi secara klinis dan tidak boleh digunakan sebagai pengganti penilaian ahli/instruktur.
@@ -53,7 +55,9 @@ python app_flask.py
 ```
 Buka browser di **http://localhost:5000** — dari HP/LAN gunakan `http://<ip-laptop>:5000`.
 
-> Catatan: UI Streamlit lama (`app.py`) masih tersedia sebagai **cadangan/legacy**, bukan jalur utama lagi.
+> Catatan keamanan: untuk deploy di server, **wajib** mengatur variabel lingkungan `SECRET_KEY` (lihat [`.env.example`](.env.example)).
+
+> Catatan: UI Streamlit lama (`legacy/app_streamlit.py`) masih tersedia sebagai **cadangan/legacy**, bukan jalur utama lagi.
 
 ---
 
@@ -66,11 +70,43 @@ Hasil analisis (CSV, Grafik, Teks Ringkasan) akan tersimpan di folder `output/`.
 
 ---
 
+## 🔌 API Contract
+`POST /analyze` (multipart form: `video`, `movement_type`, `job_id`; wajib login) mengembalikan JSON:
+```json
+{
+  "score": 77.8,
+  "score_label": "Cukup",
+  "reps": 3,
+  "rom": 130.8,
+  "stability": 41,
+  "consistency": 0.915,
+  "duration_sec": 12.5,
+  "side": "left",
+  "feedbacks": ["Kedalaman squat kurang. Usahakan turun lebih dalam."],
+  "process_sec": 12.8,
+  "samples": ["/output/req_xxx/sample_1.jpg", "/output/req_xxx/sample_2.jpg", "/output/req_xxx/sample_3.jpg"],
+  "plot": "/output/req_xxx/knee_angle.png",
+  "video_url": "/output/req_xxx/squat_annotated.webm",
+  "is_browser_playable": true,
+  "angle_data": {"mode": "both", "left": [170.2, "..."], "right": [169.8, "..."]}
+}
+```
+- `feedbacks` berisi pesan rule-based (dari `src/movements/`); kosong bila gerakan sudah baik.
+- `angle_data` = deret sudut per frame untuk grafik interaktif.
+- Error: 400 (file tidak valid), 422 (gerakan/pipeline gagal), 500 (kesalahan tak terduga).
+
+---
+
 ## 🧪 Untuk Pengembang
-- Jalankan seluruh unit test (131 test):
+- Install dependensi development (test):
+```cmd
+pip install -r requirements-dev.txt
+```
+- Jalankan seluruh unit test (126 test, folder `tests/`):
 ```cmd
 pytest tests/ -q
 ```
+- Test Streamlit legacy (opsional): `pytest legacy/ -q`.
 - Detail teknis (keterbatasan, konvensi sudut, log keputusan) ada di [`PROJECT.md`](PROJECT.md).
 
 ---

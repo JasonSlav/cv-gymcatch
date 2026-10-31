@@ -1,10 +1,10 @@
-"""Smoke test untuk app.py.
+"""Smoke test untuk legacy/app_streamlit.py (Streamlit).
 
 Catatan: Streamlit AppTest belum mendukung upload file secara penuh
 (di versi 1.40.0). Test di sini fokus ke:
 - Render halaman tanpa error.
 - Elemen wajib ada (title, disclaimer, uploader, tombol).
-Alur analisis penuh diuji secara manual (streamlit run app.py).
+Alur analisis penuh diuji secara manual (streamlit run legacy/app_streamlit.py).
 """
 
 import sys
@@ -14,7 +14,7 @@ import pytest
 
 # Path ke root proyek
 ROOT = Path(__file__).resolve().parents[1]
-APP_FILE = ROOT / "app.py"
+APP_FILE = ROOT / "legacy" / "app_streamlit.py"
 
 sys.path.insert(0, str(ROOT))
 

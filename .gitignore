@@ -13,8 +13,9 @@ streamlit_out.log
 streamlit_err.log
 streamlit_landing.png
 
-# Data (Video privat/penelitian)
-data/
+# Data (Video privat/penelitian) — .gitkeep tetap di-commit
+data/*
+!data/.gitkeep
 
 # Model (File besar, 9MB)
 models/*.task
@@ -27,3 +28,6 @@ Thumbs.db
 
 opencode.json
 history.db
+
+# Environment (rahasia)
+.env
