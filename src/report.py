@@ -69,10 +69,14 @@ def write_angles_csv(
     path,
     left_angles: Sequence[Optional[float]],
     right_angles: Sequence[Optional[float]],
+    joint_name: str = "knee",
 ) -> int:
     """
     Tulis CSV sudut. Format sama dengan PoC lama:
-        frame,left_knee_angle_deg,right_knee_angle_deg,left_valid,right_valid
+        frame,left_<joint>_angle_deg,right_<joint>_angle_deg,left_valid,right_valid
+
+    `joint_name` berasal dari konfigurasi gerakan ("knee", "elbow", ...).
+    Default "knee" mempertahankan header lama untuk squat.
 
     Returns
     -------
@@ -94,8 +98,8 @@ def write_angles_csv(
     with p.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(
-            ["frame", "left_knee_angle_deg", "right_knee_angle_deg",
-             "left_valid", "right_valid"]
+            [f"frame", f"left_{joint_name}_angle_deg",
+             f"right_{joint_name}_angle_deg", "left_valid", "right_valid"]
         )
         for i, (lv, rv) in enumerate(zip(left_angles, right_angles)):
             w.writerow([

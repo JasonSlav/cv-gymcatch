@@ -302,6 +302,24 @@
             border-color: var(--text-muted);
         }
 
+        .form-select {
+            width: 100%;
+            background: #141414;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 12px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
         .btn-select {
             background-color: #333;
             color: var(--text-main);
@@ -879,6 +897,10 @@
         <div class="upload-grid">
             <!-- Left Card -->
             <div class="card upload-box">
+                <select id="movement-select" class="form-select">
+                    <option value="squat" data-id="Squat" data-en="Squat">Squat</option>
+                    <option value="pushup" data-id="Push-up" data-en="Push-up">Push-up</option>
+                </select>
                 <div class="icon-circle">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
@@ -1370,6 +1392,10 @@
                 const fd = new FormData();
                 fd.append("video", file);
                 fd.append("job_id", jobId);
+                fd.append(
+                    "movement_type",
+                    document.getElementById("movement-select").value
+                );
 
                 let progressTimer = null;
                 try {

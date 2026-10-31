@@ -20,6 +20,8 @@ from typing import Callable, Optional, Sequence
 import cv2
 
 from src.metrics import (
+    DEFAULT_DOWN_THRESHOLD,
+    DEFAULT_UP_THRESHOLD,
     MIN_REPS_FOR_CONSISTENCY,
     RepCountResult,
     compute_consistency,
@@ -29,13 +31,8 @@ from src.metrics import (
     extract_rep_curves,
     generate_rule_based_feedback,
 )
+from src.movements import get_movement_config
 from src.pose_estimator import (
-    LEFT_ANKLE,
-    LEFT_HIP,
-    LEFT_KNEE,
-    RIGHT_ANKLE,
-    RIGHT_HIP,
-    RIGHT_KNEE,
     PoseEstimator,
     PoseEstimatorError,
     angle_from_landmarks,
@@ -115,13 +112,20 @@ class AnalysisResult:
 def analyze_side(
     angles: Sequence[Optional[float]],
     side_name: str,
+    up_threshold: float = DEFAULT_UP_THRESHOLD,
+    down_threshold: float = DEFAULT_DOWN_THRESHOLD,
 ) -> SideAnalysis:
     """
     Hitung rep count, ROM, consistency untuk satu sisi.
 
     Murni — bisa di-unit-test tanpa video atau model.
+    Threshold dari konfigurasi gerakan (default: squat).
     """
-    rep_result = count_reps(angles)
+    rep_result = count_reps(
+        angles,
+        up_threshold=up_threshold,
+        down_threshold=down_threshold,
+    )
     rom = compute_rom(angles)
     consistency = None
     if rep_result.count >= MIN_REPS_FOR_CONSISTENCY:
@@ -185,6 +189,7 @@ def analyze_video(
     output_dir="output",
     min_visibility: float = DEFAULT_MIN_VISIBILITY,
     progress_callback: Optional[Callable[[int, int], None]] = None,
+    movement_type: str = "squat",
 ) -> AnalysisResult:
     """
     Jalankan pipeline end-to-end untuk satu video.
@@ -201,6 +206,8 @@ def analyze_video(
     progress_callback : callable | None
         Callback(done_frames, total_frames) dipanggil periodik. Error di
         callback tidak akan mematikan pipeline.
+    movement_type : str
+        Gerakan yang dianalisis (lihat src/movements/). Default "squat".
 
     Returns
     -------
@@ -214,6 +221,12 @@ def analyze_video(
     t0 = time.time()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # --- Konfigurasi gerakan (config-driven) ---
+    try:
+        config = get_movement_config(movement_type)
+    except ValueError as e:
+        raise PipelineError(str(e)) from e
 
     # --- Baca metadata ---
     try:
@@ -280,23 +293,25 @@ def analyze_video(
                 if result.detected:
                     lm = result.landmarks
                     left_a = angle_from_landmarks(
-                        lm[LEFT_HIP], lm[LEFT_KNEE], lm[LEFT_ANKLE],
+                        lm[config.parent_idx], lm[config.joint_idx],
+                        lm[config.child_idx],
                         eff_w, eff_h, min_visibility,
                     )
                     right_a = angle_from_landmarks(
-                        lm[RIGHT_HIP], lm[RIGHT_KNEE], lm[RIGHT_ANKLE],
+                        lm[config.right_parent_idx], lm[config.right_joint_idx],
+                        lm[config.right_child_idx],
                         eff_w, eff_h, min_visibility,
                     )
 
                     draw_pose_on_frame(frame, lm, inplace=True)
                     if left_a is not None:
                         draw_angle_label(
-                            frame, f"L knee: {left_a:.1f}", (20, 40),
+                            frame, f"L {config.joint_name}: {left_a:.1f}", (20, 40),
                             color=(0, 255, 0),
                         )
                     if right_a is not None:
                         draw_angle_label(
-                            frame, f"R knee: {right_a:.1f}", (20, 80),
+                            frame, f"R {config.joint_name}: {right_a:.1f}", (20, 80),
                             color=(0, 128, 255),
                         )
 
@@ -316,9 +331,13 @@ def analyze_video(
     finally:
         writer.release()
 
-    # --- Analisis ---
-    left_analysis = analyze_side(left_angles, "kiri")
-    right_analysis = analyze_side(right_angles, "kanan")
+    # --- Analisis (threshold dari konfigurasi gerakan) ---
+    left_analysis = analyze_side(
+        left_angles, "kiri", config.up_threshold, config.down_threshold
+    )
+    right_analysis = analyze_side(
+        right_angles, "kanan", config.up_threshold, config.down_threshold
+    )
 
     # --- Sampel frame (cadangan tampilan web bila video WebM gagal diputar) ---
     valley_idx = (
@@ -340,12 +359,12 @@ def analyze_video(
         else right_analysis
     )
     score_info = generate_rule_based_feedback(
-        primary.rom, primary.consistency, stability
+        primary.rom, primary.consistency, stability, config.feedback_rules
     )
 
     # --- CSV ---
     csv_path = output_dir / "knee_angle.csv"
-    write_angles_csv(csv_path, left_angles, right_angles)
+    write_angles_csv(csv_path, left_angles, right_angles, joint_name=config.joint_name)
 
     # --- Plot ---
     mode, s1, s2 = choose_display_series(left_angles, right_angles)

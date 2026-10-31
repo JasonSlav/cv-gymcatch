@@ -131,6 +131,31 @@
         .btn-sm.primary { border-color: var(--accent-cyan); color: var(--accent-cyan); }
         .btn-sm.primary:hover { background: var(--accent-cyan); color: #000; }
 
+        .btn-danger {
+            border-color: rgba(239, 68, 68, 0.6);
+            color: #f87171;
+            background: transparent;
+            cursor: pointer;
+            font-family: var(--font-main);
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #f87171;
+        }
+
+        .movement-badge {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 10px;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            vertical-align: middle;
+        }
+
         .empty { text-align: center; color: var(--text-muted); padding: 40px 0; }
 
         /* --- Mode detail --- */
@@ -200,7 +225,9 @@
 
             <div class="card">
                 <div class="detail-head">
-                    <span class="detail-name">{{ row.video_name }}</span>
+                    <span class="detail-name">{{ row.video_name }}
+                        <span class="movement-badge">{{ movement_label }}</span>
+                    </span>
                     <span class="detail-time">{{ row.timestamp }}</span>
                 </div>
                 <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
@@ -270,6 +297,7 @@
                             <tr>
                                 <th data-id="Waktu" data-en="Time">Waktu</th>
                                 <th data-id="Nama Video" data-en="Video Name">Nama Video</th>
+                                <th data-id="Gerakan" data-en="Movement">Gerakan</th>
                                 <th data-id="Skor" data-en="Score">Skor</th>
                                 <th data-id="Repetisi" data-en="Reps">Repetisi</th>
                                 <th data-id="Aksi" data-en="Actions">Aksi</th>
@@ -280,6 +308,7 @@
                                 <tr>
                                     <td>{{ r.timestamp }}</td>
                                     <td>{{ r.video_name }}</td>
+                                    <td>{{ r.movement_label }}</td>
                                     <td class="score-cell">{{ '%.1f'|format(r.score if r.score is not none else 0) }}<span class="score-label">{{ r.score_label or '' }}</span></td>
                                     <td>{{ r.reps if r.reps is not none else 'N/A' }}</td>
                                     <td>
@@ -294,6 +323,11 @@
                                                 <a class="btn-sm" href="/download/{{ r.job_id }}/{{ r.csv_file }}"
                                                    data-id="Unduh CSV" data-en="Download CSV">Unduh CSV</a>
                                             {% endif %}
+                                            <form method="post" action="/delete/{{ r.job_id }}"
+                                                  onsubmit="return confirm('Yakin ingin menghapus?');">
+                                                <button type="submit" class="btn-sm btn-danger"
+                                                        data-id="Hapus" data-en="Delete">Hapus</button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

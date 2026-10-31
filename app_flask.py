@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import sqlite3
 import tempfile
 import threading
@@ -168,16 +169,21 @@ def init_db() -> None:
                 consistency REAL,
                 feedbacks TEXT,
                 folder_path TEXT NOT NULL,
-                user_id INTEGER
+                user_id INTEGER,
+                movement_type TEXT DEFAULT 'squat'
             )
             """
         )
-        # Migrasi DB lama: tambah kolom user_id bila belum ada.
+        # Migrasi DB lama: tambah kolom bila belum ada.
         cols = {r[1] for r in conn.execute("PRAGMA table_info(analyses)").fetchall()}
         if "user_id" not in cols:
             conn.execute("ALTER TABLE analyses ADD COLUMN user_id INTEGER")
             # Baris tanpa user (demo/legacy) dihapus agar riwayat bersifat privat.
             conn.execute("DELETE FROM analyses WHERE user_id IS NULL")
+        if "movement_type" not in cols:
+            conn.execute(
+                "ALTER TABLE analyses ADD COLUMN movement_type TEXT DEFAULT 'squat'"
+            )
         conn.commit()
     finally:
         conn.close()
@@ -254,6 +260,10 @@ def analyze():
     if not PROGRESS_JOB_ID_RE.match(job_id):
         job_id = uuid.uuid4().hex[:12]
 
+    # Jenis gerakan dari frontend. Validasi dilakukan get_movement_config
+    # (gerakan tak dikenal → PipelineError → HTTP 422).
+    movement_type = (request.form.get("movement_type") or "squat").strip().lower()
+
     def on_progress(done: int, total: int) -> None:
         with progress_lock:
             PROGRESS_DICT[job_id] = (done, total)
@@ -297,6 +307,7 @@ def analyze():
                 video_path=tmp_path,
                 model_path=DEFAULT_MODEL_PATH,
                 output_dir=str(out_dir),
+                movement_type=movement_type,
                 progress_callback=on_progress,
             )
     except PipelineError as e:
@@ -351,7 +362,8 @@ def analyze():
                 conn.execute(
                     "INSERT INTO analyses (job_id, timestamp, video_name, score,"
                     " score_label, reps, rom, stability, consistency, feedbacks,"
-                    " folder_path, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    " folder_path, user_id, movement_type)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         job_id,
                         datetime.now().isoformat(timespec="seconds"),
@@ -369,6 +381,7 @@ def analyze():
                         json.dumps(list(result.feedback_list), ensure_ascii=False),
                         f"output/{job_id}",
                         current_user.get_id() and int(current_user.get_id()),
+                        movement_type,
                     ),
                 )
                 conn.commit()
@@ -426,7 +439,7 @@ def history():
     try:
         rows = conn.execute(
             "SELECT id, job_id, timestamp, video_name, score, score_label, reps,"
-            " folder_path FROM analyses WHERE user_id = ?"
+            " folder_path, movement_type FROM analyses WHERE user_id = ?"
             " ORDER BY timestamp DESC, id DESC",
             (current_user.get_id(),),
         ).fetchall()
@@ -440,7 +453,14 @@ def history():
         folder = OUTPUT_DIR / r["job_id"]
         video = next((f.name for f in sorted(folder.glob("squat_annotated.*"))), None)
         csv_file = "knee_angle.csv" if (folder / "knee_angle.csv").exists() else None
-        data.append({**dict(r), "video_file": video, "csv_file": csv_file})
+        mt = (r["movement_type"] or "squat").lower()
+        movement_label = "Push-up" if mt == "pushup" else mt.capitalize()
+        data.append({
+            **dict(r),
+            "video_file": video,
+            "csv_file": csv_file,
+            "movement_label": movement_label,
+        })
 
     return render_template("history.html", mode="list", rows=data)
 
@@ -479,8 +499,15 @@ def result_detail(job_id: str):
         if name:
             files[key] = name
 
+    mt = (row["movement_type"] or "squat").lower()
+    movement_label = "Push-up" if mt == "pushup" else mt.capitalize()
     return render_template(
-        "history.html", mode="detail", row=row, feedbacks=feedbacks, files=files
+        "history.html",
+        mode="detail",
+        row=row,
+        feedbacks=feedbacks,
+        files=files,
+        movement_label=movement_label,
     )
 
 
@@ -504,6 +531,29 @@ def _owns_job(job_id: str) -> bool:
     finally:
         conn.close()
     return row is not None
+
+
+@app.route("/delete/<job_id>", methods=["POST"])
+@login_required
+def delete_analysis(job_id: str):
+    """Hapus satu riwayat: hanya milik user yang bersangkutan."""
+    if not JOB_ID_RE.match(job_id) or not _owns_job(job_id):
+        abort(404)
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            "DELETE FROM analyses WHERE job_id = ? AND user_id = ?",
+            (job_id, current_user.get_id()),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    # Hapus folder hasil (video, plot, CSV, sampel). ignore_errors agar
+    # kegagalan filesystem tidak mematikan request.
+    shutil.rmtree(OUTPUT_DIR / job_id, ignore_errors=True)
+    return redirect(url_for("history"))
 
 
 @app.route("/output/<path:filename>")

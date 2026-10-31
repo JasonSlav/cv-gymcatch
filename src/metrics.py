@@ -19,6 +19,8 @@ from typing import List, Optional, Sequence
 
 import numpy as np
 
+from src.movements.base import FeedbackRules
+
 
 # --- Konstanta state machine ---
 STATE_UNKNOWN = "UNKNOWN"
@@ -347,6 +349,7 @@ def generate_rule_based_feedback(
     rom: Optional[float],
     consistency: Optional[float],
     stability: float,
+    rules: Optional[FeedbackRules] = None,
 ) -> dict:
     """
     Skor & feedback berbasis aturan (prototype, BUKAN validasi klinis).
@@ -359,9 +362,16 @@ def generate_rule_based_feedback(
     Label: >=80 "Baik", >=60 "Cukup", selain itu "Perlu Perbaikan".
     feedback_list: SEMUA pesan yang kondisinya terpenuhi (bukan first-match).
 
+    `rules` diambil dari konfigurasi gerakan (src/movements/); bila None
+    dipakai FeedbackRules default (squat) — perilaku identik dengan versi
+    sebelum config-driven.
+
     Return: {"score": float, "label": str, "stability": float,
              "feedback_list": list[str]}
     """
+    if rules is None:
+        rules = FeedbackRules()
+
     rom_val = 0.0 if rom is None else float(rom)
     cons_val = 0.0 if consistency is None else float(consistency)
     stab_val = float(stability)
@@ -380,21 +390,14 @@ def generate_rule_based_feedback(
         label = "Perlu Perbaikan"
 
     feedback_list = []
-    if rom_val < ROM_DEEP_SQUAT_DEG:
-        feedback_list.append(
-            "Kedalaman squat kurang. Usahakan turun lebih dalam."
-        )
-    elif rom_val > ROM_GOOD_SQUAT_DEG:
-        feedback_list.append("Kedalaman squat sudah sangat baik.")
+    if rom_val < rules.deep_rom_deg:
+        feedback_list.append(rules.low_rom)
+    elif rom_val > rules.good_rom_deg:
+        feedback_list.append(rules.good_rom)
     if cons_val < MIN_GOOD_CONSISTENCY:
-        feedback_list.append(
-            "Gerakan kurang konsisten. Perhatikan tempo naik-turun."
-        )
+        feedback_list.append(rules.low_consistency)
     if stab_val < MIN_GOOD_STABILITY:
-        feedback_list.append(
-            "Tubuh terlalu banyak bergoyang. "
-            "Fokuskan berat badan di tengah kaki."
-        )
+        feedback_list.append(rules.low_stability)
 
     return {
         "score": float(score),
