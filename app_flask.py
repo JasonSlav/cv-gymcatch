@@ -446,8 +446,13 @@ def history():
     finally:
         conn.close()
 
-    # Lengkapi tiap baris dengan nama file yang benar-benar ada di foldernya
-    # (video bisa .webm atau fallback .mp4).
+    # Format timestamp menjadi lebih rapi (contoh: "31 Okt 2026, 12:13").
+    bulan_map = {
+        "id": ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+        "en": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    }
+    lang = "id"  # Default ID (bisa di-upgrade i18n nanti)
+
     data = []
     for r in rows:
         folder = OUTPUT_DIR / r["job_id"]
@@ -455,11 +460,20 @@ def history():
         csv_file = "knee_angle.csv" if (folder / "knee_angle.csv").exists() else None
         mt = (r["movement_type"] or "squat").lower()
         movement_label = "Push-up" if mt == "pushup" else mt.capitalize()
+
+        # Format timestamp: ISO → datetime → strftime
+        try:
+            dt = datetime.fromisoformat(r["timestamp"])
+            month_idx = dt.month - 1
+            date_str = dt.strftime(f"%d {bulan_map[lang][month_idx]} %Y, %H:%M")
+        except Exception:
+            date_str = r["timestamp"]
         data.append({
             **dict(r),
             "video_file": video,
             "csv_file": csv_file,
             "movement_label": movement_label,
+            "timestamp_label": date_str,
         })
 
     return render_template("history.html", mode="list", rows=data)
@@ -482,6 +496,19 @@ def result_detail(job_id: str):
         conn.close()
     if row is None:
         abort(404)
+
+    # Format timestamp
+    bulan_map = {
+        "id": ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+        "en": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    }
+    lang = "id"
+    try:
+        dt = datetime.fromisoformat(row["timestamp"])
+        month_idx = dt.month - 1
+        timestamp_label = dt.strftime(f"%d {bulan_map[lang][month_idx]} %Y, %H:%M")
+    except Exception:
+        timestamp_label = row["timestamp"]
 
     try:
         feedbacks = json.loads(row["feedbacks"]) if row["feedbacks"] else []
@@ -508,6 +535,7 @@ def result_detail(job_id: str):
         feedbacks=feedbacks,
         files=files,
         movement_label=movement_label,
+        timestamp_label=timestamp_label,
     )
 
 

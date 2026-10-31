@@ -31,7 +31,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 50px;
-            border-bottom: 1px solid #1c1c1c;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 10, 10, 0.85);
+            border-bottom: 1px solid #222;
         }
 
         .logo img { height: 40px; width: auto; display: block; }
@@ -46,7 +53,21 @@
         }
         .nav-link:hover { color: var(--accent-cyan); }
 
+        .nav-user-name {
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+        }
         .nav-hello { color: var(--text-muted); font-size: 13px; }
+
+        .btn-logout {
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        .btn-logout:hover {
+            background: #ef4444;
+            color: #000;
+        }
 
         .lang-toggle {
             display: flex;
@@ -74,7 +95,7 @@
             width: 100%;
             max-width: 1000px;
             margin: 0 auto;
-            padding: 40px 20px 60px;
+            padding: 120px 20px 60px;
             flex: 1;
         }
 
@@ -110,6 +131,7 @@
         td { border-bottom: 1px solid #242424; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
 
+        .video-name-cell { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px; }
         .score-cell { font-weight: 800; color: var(--accent-cyan); white-space: nowrap; }
         .score-label { font-size: 0.75rem; color: var(--text-muted); margin-left: 6px; }
 
@@ -204,10 +226,12 @@
     <nav>
         <a href="/"><img src="/static/logo.png" alt="Gym Catch Logo"></a>
         <div class="nav-right">
-            <a href="/" class="nav-link" data-id="Beranda" data-en="Home">Beranda</a>
+            {% if mode == 'detail' %}
+                <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
+            {% endif %}
             {% if current_user.is_authenticated %}
-                <span class="nav-hello"><span data-id="Halo," data-en="Hi,">Halo,</span> {{ current_user.username }}</span>
-                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout">Logout</a>
+                <span class="nav-user-name">👤 {{ current_user.username }}</span>
+                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
             {% else %}
                 <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
             {% endif %}
@@ -228,7 +252,7 @@
                     <span class="detail-name">{{ row.video_name }}
                         <span class="movement-badge">{{ movement_label }}</span>
                     </span>
-                    <span class="detail-time">{{ row.timestamp }}</span>
+                    <span class="detail-time">{{ timestamp_label }}</span>
                 </div>
                 <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
                 <span class="big-score">{{ '%.1f'|format(row.score if row.score is not none else 0) }}%</span>
@@ -254,13 +278,22 @@
                 </div>
             </div>
 
+            {% if files.get('video') %}
+                <div class="card" style="margin-top:14px;">
+                    <h3 data-id="Video Hasil Analisis" data-en="Analyzed Video">Video Hasil Analisis</h3>
+                    <div style="width:100%; margin-top:10px;">
+                        <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" style="width:100%; border-radius:10px;"></video>
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="card feedback-box" style="margin-top:14px;">
                 <h3 data-id="Feedback" data-en="Feedback">Feedback</h3>
                 <ul>
                     {% for f in feedbacks %}
                         <li>{{ f }}</li>
                     {% else %}
-                        <li data-id="Tidak ada catatan feedback." data-en="No feedback recorded.">Tidak ada catatan feedback.</li>
+                        <li data-id="Gerakan sudah sangat baik. Pertahankan!" data-en="Excellent movement. Keep it up!">Gerakan sudah sangat baik. Pertahankan!</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -269,7 +302,7 @@
                 <h3 data-id="Unduh File" data-en="Download Files">Unduh File</h3>
                 <div class="files">
                     {% if files.get('video') %}
-                        <a class="btn-sm primary" href="/download/{{ row.job_id }}/{{ files['video'] }}"
+                        <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['video'] }}"
                            data-id="Unduh Video" data-en="Download Video">Unduh Video</a>
                     {% endif %}
                     {% if files.get('plot') %}
@@ -281,10 +314,6 @@
                            data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
                     {% endif %}
                 </div>
-            </div>
-
-            <div class="back-row">
-                <a class="btn-sm" href="/history" data-id="Kembali ke Riwayat" data-en="Back to History">Kembali ke Riwayat</a>
             </div>
 
         {% else %}
@@ -306,8 +335,8 @@
                         <tbody>
                             {% for r in rows %}
                                 <tr>
-                                    <td>{{ r.timestamp }}</td>
-                                    <td>{{ r.video_name }}</td>
+                                    <td>{{ r.timestamp_label }}</td>
+                                    <td class="video-name-cell">{{ r.video_name }}</td>
                                     <td>{{ r.movement_label }}</td>
                                     <td class="score-cell">{{ '%.1f'|format(r.score if r.score is not none else 0) }}<span class="score-label">{{ r.score_label or '' }}</span></td>
                                     <td>{{ r.reps if r.reps is not none else 'N/A' }}</td>
@@ -321,7 +350,7 @@
                                             {% endif %}
                                             {% if r.csv_file %}
                                                 <a class="btn-sm" href="/download/{{ r.job_id }}/{{ r.csv_file }}"
-                                                   data-id="Unduh CSV" data-en="Download CSV">Unduh CSV</a>
+                                                   data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
                                             {% endif %}
                                             <form method="post" action="/delete/{{ r.job_id }}"
                                                   onsubmit="return confirm('Yakin ingin menghapus?');">

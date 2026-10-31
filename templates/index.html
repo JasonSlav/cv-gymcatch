@@ -53,15 +53,18 @@
 
         /* --- Navbar --- */
         nav {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            padding: 30px 50px;
+            padding: 20px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 10, 10, 0.85);
+            border-bottom: 1px solid #222;
         }
 
         .logo {
@@ -89,15 +92,25 @@
             color: var(--accent-cyan);
         }
 
-        .nav-user {
+        .nav-right {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 18px;
         }
 
-        .nav-hello {
-            color: var(--text-muted);
+        .nav-user-name {
+            color: var(--text-main);
             font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        .btn-logout:hover {
+            background: #ef4444;
+            color: #000;
         }
 
         /* --- Language Toggle (kanan atas) --- */
@@ -156,12 +169,12 @@
             align-items: center;
             text-align: center;
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('/static/bg_gym_small.jpg') center/cover no-repeat;
+            padding-top: 80px;
         }
 
         .hero-content {
             max-width: 800px;
             padding: 0 20px;
-            margin-top: 90px;
         }
 
         .hero h1 {
@@ -774,11 +787,27 @@
             color: #000;
         }
 
+        .btn-history {
+            display: inline-block;
+            padding: 10px 28px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+        .btn-history:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
         .result-actions {
             max-width: 1100px;
             margin: 110px auto 0 auto;
             padding: 0 20px;
             display: flex;
+            gap: 12px;
             justify-content: flex-start;
         }
 
@@ -856,23 +885,23 @@
 </head>
 <body>
 
-    <!-- Navbar: logo kiri (klik = kembali ke landing) + toggle bahasa kanan -->
+    <!-- Navbar: logo kiri (klik = beranda) + semua link di kanan (konsisten history.html) -->
     <nav>
-        <div class="logo">
+        <a href="/" class="logo">
             <img src="/static/logo.png" alt="Gym Catch Logo">
-        </div>
-        <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
-        <div class="nav-user">
+        </a>
+        <div class="nav-right">
+            <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
             {% if current_user.is_authenticated %}
-                <span class="nav-hello"><span data-id="Halo," data-en="Hi,">Halo,</span> {{ current_user.username }}</span>
-                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout">Logout</a>
+                <span class="nav-user-name">👤 {{ current_user.username }}</span>
+                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
             {% else %}
                 <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
             {% endif %}
-        </div>
-        <div class="lang-toggle" id="langToggle">
-            <button type="button" class="lang-btn active" data-lang="id">ID</button>
-            <button type="button" class="lang-btn" data-lang="en">EN</button>
+            <div class="lang-toggle" id="langToggle">
+                <button type="button" class="lang-btn active" data-lang="id">ID</button>
+                <button type="button" class="lang-btn" data-lang="en">EN</button>
+            </div>
         </div>
     </nav>
 
@@ -1029,6 +1058,7 @@
         <div class="result-actions">
             <button type="button" class="btn-new-analysis" id="btn-new-analysis"
                     data-id="Analisis Video Baru" data-en="New Analysis">Analisis Video Baru</button>
+            <a href="/history" class="btn-history" data-id="Riwayat" data-en="History">Riwayat</a>
         </div>
         <div id="hasil-analisis" class="results-wrap"></div>
     </div>
