@@ -1,8 +1,8 @@
 # CV Gym Catch — Evaluasi Kualitas Gerakan Gym
 
-![Tests](https://github.com/JasonSlav/cv-gymcatch/actions/workflows/python-tests.yml/badge.svg)
+![CI](https://github.com/JasonSlav/cv-gymcatch/actions/workflows/python-tests.yml/badge.svg)
 
-Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Saat ini sistem telah mengimplementasikan analisis gerakan **squat**, dengan arsitektur modular yang siap dikembangkan untuk gerakan lain (seperti *push-up*, *lunge*, dll) di masa depan. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
+Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Saat ini sistem mendukung analisis gerakan **squat** dan **push-up**, dengan arsitektur config-driven (`src/movements/`) yang siap dikembangkan untuk gerakan lain (seperti *lunge*, *plank*, dll) di masa depan. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
 
 > ⚠️ **Disclaimer:** Sistem ini adalah prototipe penelitian. Belum divalidasi secara klinis dan tidak boleh digunakan sebagai pengganti penilaian ahli/instruktur.
 
@@ -113,8 +113,8 @@ pytest tests/ -q
 
 ## 🚀 Roadmap & Skalabilitas
 Sistem ini dirancang secara modular. Logika utama (deteksi pose, perhitungan sudut, state machine repetisi) terpisah dari antarmuka (UI).
-- **Gerakan yang Didukung Saat Ini:** Squat.
-- **Pengembangan Selanjutnya:** Push-up, Lunge, Plank (memerlukan penyesuaian aturan sudut dan state machine — rencana struktur: `src/movements/`, belum ada di repo).
+- **Gerakan yang Didukung Saat Ini:** Squat & Push-up.
+- **Pengembangan Selanjutnya:** Lunge, Plank (cukup menambah file konfigurasi baru di `src/movements/`).
 - **Validasi Ilmiah:** Perbandingan hasil AI dengan penilaian ahli/instruktur (rubrik) untuk menguji akurasi klinis.
 
 ---
@@ -122,5 +122,5 @@ Sistem ini dirancang secara modular. Logika utama (deteksi pose, perhitungan sud
 ## ⚙️ Batasan Sistem
 - **Analisis 2D:** Sudut yang diukur adalah proyeksi 2D dari kamera, bukan sudut anatomis 3D.
 - **Posisi Kamera:** Hasil terbaik didapat jika kamera sejajar lantai (setinggi pinggul) dan mengambil dari samping (sagittal view).
-- **Video Codec:** Browser tidak bisa memutar video hasil (mp4v), sehingga UI menampilkan 3 frame sampel (Awal, Tengah, Akhir). Video utuh tetap bisa diunduh dan diputar via VLC/Media Player.
+- **Video Codec:** Hasil analisis menggunakan WebM (vp80) sehingga dapat diputar langsung di browser. File video juga dapat diunduh.
 - **Skor & Feedback:** Skor kualitas, stabilitas, dan feedback teknis dihasilkan dari aturan sederhana (rule-based), bukan validasi klinis. Disclaimer ditampilkan di UI.
