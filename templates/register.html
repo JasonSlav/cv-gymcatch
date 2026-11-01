@@ -96,7 +96,7 @@
         <h1 data-id="Buat <span class='text-cyan'>Akun</span>"
             data-en="Create <span class='text-cyan'>Account</span>">Buat <span class="text-cyan">Akun</span></h1>
 
-        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+        {% if error %}<div class="error" data-ekey="{{ error_key or '' }}">{{ error }}</div>{% endif %}
 
         <form method="post" action="/register">
             <label for="username" data-id="Username" data-en="Username">Username</label>
@@ -123,6 +123,18 @@
             document.querySelectorAll("[data-id]").forEach(el => {
                 el.innerHTML = el.getAttribute("data-" + lang) || el.getAttribute("data-id");
             });
+
+            /* Terjemahan pesan error dari backend */
+            const ERR = {
+                bad_credentials: { id: "Username atau password salah.", en: "Wrong username or password." },
+                missing_fields: { id: "Username dan password wajib diisi.", en: "Username and password are required." },
+                password_short: { id: "Password minimal 4 karakter.", en: "Password must be at least 4 characters." },
+                username_taken: { id: "Username sudah dipakai.", en: "Username is already taken." }
+            };
+            const errBox = document.querySelector(".error");
+            if (errBox && errBox.dataset.ekey && ERR[errBox.dataset.ekey]) {
+                errBox.textContent = ERR[errBox.dataset.ekey][lang] || errBox.textContent;
+            }
         })();
     </script>
 </body>

@@ -19,6 +19,7 @@ from typing import Callable, Optional, Sequence
 
 import cv2
 
+from src.auto_detect import AUTO_DETECT_MAX_FRAMES, detect_movement
 from src.metrics import (
     DEFAULT_DOWN_THRESHOLD,
     DEFAULT_UP_THRESHOLD,
@@ -107,6 +108,7 @@ class AnalysisResult:
     score_label: str
     feedback_list: list[str]
     sample_frames: list[Path] = field(default_factory=list)
+    movement_type: str = "squat"
 
 
 def analyze_side(
@@ -183,6 +185,43 @@ def extract_sample_frames(
     return paths
 
 
+def _detect_movement_auto(
+    video_path, model_path, meta: VideoMeta, eff_w: int, eff_h: int
+) -> str:
+    """
+    Pre-pass auto-detect: inferensi frame pertama, lalu tebak gerakan
+    dari ROM (heuristic — lihat src/auto_detect.py).
+
+    Memakai instance PoseEstimator terpisah: MediaPipe VIDEO mode
+    mensyaratkan timestamp monoton naik per instance, sedangkan loop
+    analisis utama membaca video dari awal lagi.
+    """
+    landmarks_pre: list = []
+    try:
+        estimator = PoseEstimator(model_path=model_path)
+    except PoseEstimatorError as e:
+        raise PipelineError(str(e)) from e
+    try:
+        with estimator:
+            for idx, frame, msec in iter_frames_timestamped(
+                video_path, rotate=meta.rotation
+            ):
+                if idx >= AUTO_DETECT_MAX_FRAMES:
+                    break
+                if msec > 0:
+                    timestamp_ms = int(round(msec))
+                else:
+                    timestamp_ms = (
+                        int(idx / meta.fps * 1000) if meta.fps > 0 else idx * 33
+                    )
+                result = estimator.detect(frame, timestamp_ms)
+                if result.detected:
+                    landmarks_pre.append(result.landmarks)
+    except VideoIOError as e:
+        raise PipelineError(str(e)) from e
+    return detect_movement(landmarks_pre, eff_w, eff_h)
+
+
 def analyze_video(
     video_path,
     model_path=DEFAULT_MODEL_PATH,
@@ -222,12 +261,6 @@ def analyze_video(
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # --- Konfigurasi gerakan (config-driven) ---
-    try:
-        config = get_movement_config(movement_type)
-    except ValueError as e:
-        raise PipelineError(str(e)) from e
-
     # --- Baca metadata ---
     try:
         meta = read_meta(video_path)
@@ -240,6 +273,17 @@ def analyze_video(
         eff_w, eff_h = meta.height, meta.width
     else:
         eff_w, eff_h = meta.width, meta.height
+
+    # --- Konfigurasi gerakan (config-driven) ---
+    # "auto" belum punya config → deteksi dulu via pre-pass heuristic ROM.
+    if movement_type == "auto":
+        movement_type = _detect_movement_auto(
+            video_path, model_path, meta, eff_w, eff_h
+        )
+    try:
+        config = get_movement_config(movement_type)
+    except ValueError as e:
+        raise PipelineError(str(e)) from e
 
     # --- Siapkan VideoWriter ---
     # Coba WebM/VP8 agar bisa diputar langsung di browser; fallback ke
@@ -418,4 +462,5 @@ def analyze_video(
         score_label=score_info["label"],
         feedback_list=score_info["feedback_list"],
         sample_frames=sample_frames,
+        movement_type=config.name,
     )

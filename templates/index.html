@@ -63,22 +63,20 @@
             align-items: center;
             z-index: 1000;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             background: rgba(10, 10, 10, 0.85);
             border-bottom: 1px solid #222;
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 2px;
             display: flex;
             align-items: center;
-            gap: 10px;
         }
 
         .logo img {
             height: 40px;
             width: auto;
+            display: block;
         }
 
         .nav-link {
@@ -86,6 +84,7 @@
             text-decoration: none;
             font-size: 14px;
             font-weight: 600;
+            line-height: 1.4;
         }
 
         .nav-link:hover {
@@ -102,11 +101,14 @@
             color: var(--text-main);
             font-size: 13px;
             font-weight: 600;
+            line-height: 1.4;
         }
 
         .btn-logout {
             color: #ef4444;
             border: 1px solid #ef4444;
+            padding: 3px 12px;
+            border-radius: 14px;
         }
         .btn-logout:hover {
             background: #ef4444;
@@ -134,6 +136,7 @@
             font-size: 13px;
             font-weight: 700;
             letter-spacing: 1px;
+            line-height: 1.2;
             transition: background 0.2s, color 0.2s;
         }
 
@@ -146,20 +149,6 @@
             color: #000000;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 40px;
-        }
-
-        .nav-links a {
-            font-size: 14px;
-            font-weight: 400;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent-cyan);
-        }
-
         /* --- Hero Section --- */
         .hero {
             position: relative;
@@ -169,7 +158,7 @@
             align-items: center;
             text-align: center;
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('/static/bg_gym_small.jpg') center/cover no-repeat;
-            padding-top: 80px;
+            padding-top: 100px;
         }
 
         .hero-content {
@@ -688,6 +677,10 @@
         }
 
         /* --- Halaman Result (SPA) --- */
+        #page-result {
+            padding-top: 110px;
+        }
+
         .result-container {
             display: grid;
             grid-template-columns: 1fr 1.2fr;
@@ -741,6 +734,13 @@
             font-weight: 800;
         }
 
+        .metric-hint {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
         .score-row {
             display: grid;
             grid-template-columns: 1fr;
@@ -769,48 +769,6 @@
             margin-top: 12px;
         }
 
-        .btn-new-analysis {
-            background: transparent;
-            border: 1px solid var(--accent-cyan);
-            color: var(--accent-cyan);
-            border-radius: 24px;
-            padding: 10px 28px;
-            font-family: var(--font-main);
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .btn-new-analysis:hover {
-            background: var(--accent-cyan);
-            color: #000;
-        }
-
-        .btn-history {
-            display: inline-block;
-            padding: 10px 28px;
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: all 0.2s ease;
-        }
-        .btn-history:hover {
-            border-color: var(--accent-cyan);
-            color: var(--accent-cyan);
-        }
-
-        .result-actions {
-            max-width: 1100px;
-            margin: 110px auto 0 auto;
-            padding: 0 20px;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-start;
-        }
-
         .result-left,
         .result-right {
             display: flex;
@@ -827,11 +785,25 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             nav {
-                padding: 20px;
+                padding: 12px 16px;
+                flex-wrap: nowrap;
+                white-space: nowrap;
+                overflow: hidden;
             }
-            .lang-btn {
-                padding: 3px 10px;
+            .logo img { height: 32px; }
+            .nav-right { gap: 12px; }
+            .nav-link { font-size: 13px; }
+            .nav-user-name {
                 font-size: 12px;
+                max-width: 96px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .btn-logout { padding: 3px 10px; border-radius: 13px; }
+            .lang-btn { padding: 3px 9px; font-size: 12px; }
+            #page-result {
+                padding-top: 100px;
             }
             .hero h1 {
                 font-size: 2rem;
@@ -851,9 +823,6 @@
             .result-container {
                 grid-template-columns: 1fr;
                 margin-top: 0;
-            }
-            .result-actions {
-                margin-top: 90px;
             }
             .footer-logo {
                 justify-content: center;
@@ -894,7 +863,7 @@
             <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
             {% if current_user.is_authenticated %}
                 <span class="nav-user-name">👤 {{ current_user.username }}</span>
-                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
+                <a href="/logout" class="nav-link btn-logout" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
             {% else %}
                 <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
             {% endif %}
@@ -927,6 +896,7 @@
             <!-- Left Card -->
             <div class="card upload-box">
                 <select id="movement-select" class="form-select">
+                    <option value="auto" selected data-id="Auto-Detect (AI)" data-en="Auto-Detect (AI)">Auto-Detect (AI)</option>
                     <option value="squat" data-id="Squat" data-en="Squat">Squat</option>
                     <option value="pushup" data-id="Push-up" data-en="Push-up">Push-up</option>
                 </select>
@@ -958,6 +928,7 @@
                     <li data-id="Sudut pengambilan 60°-90° terhadap bidang gerak." data-en="Capture angle 60°-90° to the plane of motion.">Sudut pengambilan 60°-90° terhadap bidang gerak.</li>
                     <li data-id="Pencahayaan cukup, latar kontras dengan subjek." data-en="Sufficient lighting, the background contrasts with the subject.">Pencahayaan cukup, latar kontras dengan subjek.</li>
                     <li data-id="Satu orang dalam frame, tanpa oklusi." data-en="One person in the frame, without occlusion.">Satu orang dalam frame, tanpa oklusi.</li>
+                    <li data-id="Rekam minimal 3 repetisi gerakan agar skor konsistensi dapat dihitung." data-en="Record at least 3 repetitions so the consistency score can be computed.">Rekam minimal 3 repetisi gerakan agar skor konsistensi dapat dihitung.</li>
                 </ol>
             </div>
         </div>
@@ -1055,11 +1026,6 @@
 
     <!-- Halaman Result (SPA) -->
     <div id="page-result" style="display:none;">
-        <div class="result-actions">
-            <button type="button" class="btn-new-analysis" id="btn-new-analysis"
-                    data-id="Analisis Video Baru" data-en="New Analysis">Analisis Video Baru</button>
-            <a href="/history" class="btn-history" data-id="Riwayat" data-en="History">Riwayat</a>
-        </div>
         <div id="hasil-analisis" class="results-wrap"></div>
     </div>
 
@@ -1070,10 +1036,27 @@
         const T = {
             id: {
                 loading: "Menganalisis video… (±15–60 detik, mohon tunggu)",
+                detecting: "Mendeteksi gerakan...",
                 errPrefix: "Gagal menganalisis: ",
                 dropInvalid: "Format file tidak didukung (hanya .mp4/.mov)",
                 progressFrames: "Memproses {done}/{total} frame",
                 na: "N/A",
+                hints: {
+                    score: "Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%).",
+                    reps: "Jumlah gerakan naik-turun yang terdeteksi.",
+                    rom: "Rentang gerak sendi (derajat).",
+                    stability: "Seberapa stabil tubuh; makin kecil goyangan makin tinggi.",
+                    consistency: "Kemiripan antar repetisi (0–1).",
+                    consistencyZero: "Repetisi sangat bervariasi — samakan kedalaman & tempo.",
+                    consistencyNeedReps: "Butuh minimal 3 repetisi untuk dihitung."
+                },
+                errors: {
+                    no_video: "Tidak ada file video yang diunggah.",
+                    bad_format: "Format tidak didukung. Gunakan mp4 atau mov.",
+                    too_large: "Ukuran file melebihi batas 50 MB.",
+                    pipeline_error: "Gagal menganalisis video.",
+                    server_error: "Terjadi kesalahan tak terduga."
+                },
                 labels: {
                     "Baik": "Baik",
                     "Cukup": "Cukup",
@@ -1083,7 +1066,11 @@
                     "Kedalaman squat kurang. Usahakan turun lebih dalam.": "Kedalaman squat kurang. Usahakan turun lebih dalam.",
                     "Kedalaman squat sudah sangat baik.": "Kedalaman squat sudah sangat baik.",
                     "Gerakan kurang konsisten. Perhatikan tempo naik-turun.": "Gerakan kurang konsisten. Perhatikan tempo naik-turun.",
-                    "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.": "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki."
+                    "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.": "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.",
+                    "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.": "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.",
+                    "Kedalaman push-up sudah sangat baik.": "Kedalaman push-up sudah sangat baik.",
+                    "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.": "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.",
+                    "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.": "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up."
                 },
                 emptyFeedback: "Tidak ada masalah signifikan terdeteksi.",
                 m: {
@@ -1104,10 +1091,27 @@
             },
             en: {
                 loading: "Analyzing video… (about 15–60 s, please wait)",
+                detecting: "Detecting movement...",
                 errPrefix: "Analysis failed: ",
                 dropInvalid: "Unsupported file type (.mp4/.mov only)",
                 progressFrames: "Processing {done}/{total} frames",
                 na: "N/A",
+                hints: {
+                    score: "Combines ROM (40%), consistency (30%), and stability (30%).",
+                    reps: "Number of detected up-and-down movements.",
+                    rom: "Joint range of motion (degrees).",
+                    stability: "How steady the body is; less sway means higher.",
+                    consistency: "Repetition similarity (0–1).",
+                    consistencyZero: "Repetitions vary a lot — keep depth & tempo consistent.",
+                    consistencyNeedReps: "Needs at least 3 repetitions to compute."
+                },
+                errors: {
+                    no_video: "No video file was uploaded.",
+                    bad_format: "Unsupported format. Use mp4 or mov.",
+                    too_large: "File size exceeds the 50 MB limit.",
+                    pipeline_error: "Failed to analyze the video.",
+                    server_error: "An unexpected error occurred."
+                },
                 labels: {
                     "Baik": "Good",
                     "Cukup": "Fair",
@@ -1117,7 +1121,11 @@
                     "Kedalaman squat kurang. Usahakan turun lebih dalam.": "Squat depth is insufficient. Try to go deeper.",
                     "Kedalaman squat sudah sangat baik.": "Squat depth is already excellent.",
                     "Gerakan kurang konsisten. Perhatikan tempo naik-turun.": "Movement is inconsistent. Mind your up-and-down tempo.",
-                    "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.": "Your body sways too much. Focus your weight through the middle of your feet."
+                    "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.": "Your body sways too much. Focus your weight through the middle of your feet.",
+                    "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.": "Push-up depth is insufficient. Lower your chest closer to the floor.",
+                    "Kedalaman push-up sudah sangat baik.": "Push-up depth is already excellent.",
+                    "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.": "Push-up movement is inconsistent. Keep a steady down-up tempo.",
+                    "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.": "Hips sway too much. Brace your core during push-ups."
                 },
                 emptyFeedback: "No significant issues detected.",
                 m: {
@@ -1165,6 +1173,15 @@
             }
         }
 
+        /* Pesan error backend → bahasa aktif (fallback: teks dari server) */
+        function errMsg(data) {
+            const t = T[currentLang];
+            if (data && data.error_key && t.errors && t.errors[data.error_key]) {
+                return t.errors[data.error_key];
+            }
+            return (data && data.error) || "HTTP error";
+        }
+
         /* ===== Render hasil analisis ===== */
         function renderResults(d) {
             const t = T[currentLang];
@@ -1177,8 +1194,12 @@
                 ? d.feedbacks.map(f => `<li>${t.feedbacks[f] || f}</li>`).join("")
                 : `<li>${t.emptyFeedback}</li>`;
 
-            const metric = (lab, val) =>
-                `<div class="metric-card"><span class="metric-label">${lab}</span><span class="metric-value">${val ?? na}</span></div>`;
+            const metric = (lab, val, hint) =>
+                `<div class="metric-card"><span class="metric-label">${lab}</span><span class="metric-value">${val ?? na}</span>${hint ? `<span class="metric-hint">${hint}</span>` : ""}</div>`;
+
+            const consistencyHint = (d.consistency == null)
+                ? t.hints.consistencyNeedReps
+                : t.hints.consistency + (d.consistency === 0 ? " " + t.hints.consistencyZero : "");
 
             const samples = (d.samples || []).map((src, i) => `
                 <figure>
@@ -1238,17 +1259,19 @@
                             <span class="metric-label">${m.score}</span>
                             <span class="big-number">${d.score}%</span>
                             <span class="metric-label" style="margin-top:6px;">${label}</span>
+                            <span class="metric-hint">${t.hints.score}</span>
                         </div>
                         <div class="metrics-grid">
-                            ${metric(m.reps, d.reps)}
+                            ${metric(m.reps, d.reps, t.hints.reps)}
                             ${metric(m.duration, d.duration_sec + "s")}
-                            ${metric(m.rom, d.rom != null ? d.rom + "°" : na)}
-                            ${metric(m.consistency, d.consistency != null ? d.consistency : na)}
+                            ${metric(m.rom, d.rom != null ? d.rom + "°" : na, t.hints.rom)}
+                            ${metric(m.consistency, d.consistency != null ? d.consistency : na, consistencyHint)}
                         </div>
                         <div class="score-row">
                             <div class="metric-card">
                                 <span class="metric-label">${m.stabilityLabel}</span>
                                 <span class="metric-value">${d.stability}% ${m.stabilityTag}</span>
+                                <span class="metric-hint">${t.hints.stability}</span>
                             </div>
                         </div>
                         <div class="result-card overview-box">
@@ -1261,8 +1284,8 @@
                 <div id="chart-full-width">${plot}</div>
             `;
 
-            /* Render Chart.js setelah canvas ada di DOM */
-            if (frameCount > 0) {
+            /* Render Chart.js setelah canvas ada di DOM (guard: lib gagal load) */
+            if (frameCount > 0 && typeof Chart !== "undefined") {
                 const canvas = document.getElementById("angleChart");
                 const labels = Array.from({ length: frameCount }, (_, i) => i + 1);
 
@@ -1297,6 +1320,7 @@
                     });
                 }
 
+                try {
                 angleChart = new Chart(canvas, {
                     type: "line",
                     data: { labels, datasets },
@@ -1329,6 +1353,13 @@
                         }
                     }
                 });
+                } catch (err) {
+                    // Chart.js gagal render (data tak valid) → fallback gambar PNG
+                    if (d.plot) {
+                        document.getElementById("chart-full-width").innerHTML =
+                            `<div class="result-card"><h3>${m.plot}</h3><img src="${d.plot}?t=${Date.now()}" alt="${m.plot}" onerror="this.parentElement.style.display='none'"></div>`;
+                    }
+                }
             }
         }
 
@@ -1410,13 +1441,20 @@
                 window.scrollTo(0, 0);
             }
 
-            document.getElementById("btn-new-analysis").addEventListener("click", showLandingPage);
+            const btnNew = document.getElementById("btn-new-analysis");
+            if (btnNew) btnNew.addEventListener("click", showLandingPage);
 
             async function analyzeFile(file) {
                 const t = T[currentLang];
                 hasil.innerHTML = "";
                 progressWrapper.style.display = "block";
+                // Pastikan bar terlihat (penting di HP — bar ada di bawah section upload).
+                progressWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
                 resetProgressUI();
+                // Fase pre-pass auto-detect: server belum mengirim total frame.
+                if (document.getElementById("movement-select").value === "auto") {
+                    progressText.textContent = T[currentLang].detecting;
+                }
 
                 const jobId = Date.now().toString();
                 const fd = new FormData();
@@ -1448,7 +1486,7 @@
                     try { data = await res.json(); } catch (_) { /* bukan JSON */ }
 
                     if (!res.ok || !data || data.error) {
-                        const msg = (data && data.error) || ("HTTP " + res.status);
+                        const msg = data ? errMsg(data) : "HTTP " + res.status;
                         hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${msg}</p>`;
                         showResultPage();
                         return;
@@ -1470,13 +1508,22 @@
 
             btnSelect.addEventListener("click", () => input.click());
 
-            document.getElementById("btn-confirm-analyze").addEventListener("click", () => {
+            // Klik area kosong kotak upload juga membuka picker
+            // (jangan dobel dengan tombol/select/input/link di dalamnya).
+            dropBox.addEventListener("click", (e) => {
+                if (e.target.closest("button, select, input, a")) return;
+                input.click();
+            });
+
+            const btnConfirm = document.getElementById("btn-confirm-analyze");
+            if (btnConfirm) btnConfirm.addEventListener("click", () => {
                 const file = selectedFile;
                 resetPreviewState();
                 if (file) analyzeFile(file);
             });
 
-            document.getElementById("btn-cancel-preview").addEventListener("click", resetPreviewState);
+            const btnCancel = document.getElementById("btn-cancel-preview");
+            if (btnCancel) btnCancel.addEventListener("click", resetPreviewState);
 
             input.addEventListener("change", () => {
                 const file = input.files && input.files[0];

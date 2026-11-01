@@ -200,6 +200,7 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
+    error_key = None
     if request.method == "POST":
         username = (request.form.get("username") or "").strip()
         password = request.form.get("password") or ""
@@ -208,10 +209,11 @@ def login():
             _get_hash(username), password
         ):
             error = "Username atau password salah."
+            error_key = "bad_credentials"
         else:
             login_user(user)
             return redirect(url_for("index"))
-    return render_template("login.html", error=error)
+    return render_template("login.html", error=error, error_key=error_key)
 
 
 def _get_hash(username: str) -> str:
@@ -228,21 +230,25 @@ def _get_hash(username: str) -> str:
 @app.route("/register", methods=["GET", "POST"])
 def register():
     error = None
+    error_key = None
     if request.method == "POST":
         username = (request.form.get("username") or "").strip()
         password = request.form.get("password") or ""
         if not username or not password:
             error = "Username dan password wajib diisi."
+            error_key = "missing_fields"
         elif len(password) < 4:
             error = "Password minimal 4 karakter."
+            error_key = "password_short"
         else:
             user = User.create(username, generate_password_hash(password))
             if user is None:
                 error = "Username sudah dipakai."
+                error_key = "username_taken"
             else:
                 login_user(user)
                 return redirect(url_for("index"))
-    return render_template("register.html", error=error)
+    return render_template("register.html", error=error, error_key=error_key)
 
 
 @app.route("/logout")
@@ -270,12 +276,19 @@ def analyze():
 
     file = request.files.get("video")
     if file is None or not file.filename:
-        return jsonify({"error": "Tidak ada file video yang diunggah."}), 400
+        return jsonify(
+            {"error": "Tidak ada file video yang diunggah.", "error_key": "no_video"}
+        ), 400
 
     suffix = Path(file.filename).suffix.lower()
     if suffix not in ALLOWED_EXTENSIONS:
         return (
-            jsonify({"error": "Format tidak didukung. Gunakan mp4 atau mov."}),
+            jsonify(
+                {
+                    "error": "Format tidak didukung. Gunakan mp4 atau mov.",
+                    "error_key": "bad_format",
+                }
+            ),
             400,
         )
 
@@ -288,7 +301,8 @@ def analyze():
                     "error": (
                         f"Ukuran file {size_mb:.1f} MB melebihi batas "
                         f"{MAX_FILE_SIZE_MB} MB."
-                    )
+                    ),
+                    "error_key": "too_large",
                 }
             ),
             400,
@@ -311,9 +325,13 @@ def analyze():
                 progress_callback=on_progress,
             )
     except PipelineError as e:
-        return jsonify({"error": f"Gagal menganalisis video: {e}"}), 422
+        return jsonify(
+            {"error": f"Gagal menganalisis video: {e}", "error_key": "pipeline_error"}
+        ), 422
     except Exception as e:  # noqa: BLE001
-        return jsonify({"error": f"Terjadi kesalahan tak terduga: {e}"}), 500
+        return jsonify(
+            {"error": f"Terjadi kesalahan tak terduga: {e}", "error_key": "server_error"}
+        ), 500
     finally:
         with progress_lock:
             PROGRESS_DICT.pop(job_id, None)
@@ -381,7 +399,7 @@ def analyze():
                         json.dumps(list(result.feedback_list), ensure_ascii=False),
                         f"output/{job_id}",
                         current_user.get_id() and int(current_user.get_id()),
-                        movement_type,
+                        result.movement_type,
                     ),
                 )
                 conn.commit()
@@ -404,6 +422,7 @@ def analyze():
             ),
             "duration_sec": round(duration, 1),
             "side": primary.side,
+            "movement_type": result.movement_type,
             "feedbacks": list(result.feedback_list),
             "process_sec": round(result.process_sec, 2),
             "samples": samples,

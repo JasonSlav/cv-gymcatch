@@ -27,43 +27,64 @@
         }
 
         nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 50px;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             z-index: 1000;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             background: rgba(10, 10, 10, 0.85);
             border-bottom: 1px solid #222;
         }
 
-        .logo img { height: 40px; width: auto; display: block; }
+        .logo {
+            display: flex;
+            align-items: center;
+        }
 
-        .nav-right { display: flex; align-items: center; gap: 18px; }
+        .logo img {
+            height: 40px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
 
         .nav-link {
             color: var(--text-muted);
             text-decoration: none;
             font-size: 14px;
             font-weight: 600;
+            line-height: 1.4;
         }
-        .nav-link:hover { color: var(--accent-cyan); }
+
+        .nav-link:hover {
+            color: var(--accent-cyan);
+        }
 
         .nav-user-name {
             color: var(--text-main);
             font-size: 13px;
             font-weight: 600;
+            line-height: 1.4;
         }
-        .nav-hello { color: var(--text-muted); font-size: 13px; }
 
         .btn-logout {
             color: #ef4444;
             border: 1px solid #ef4444;
+            padding: 3px 12px;
+            border-radius: 14px;
         }
+
         .btn-logout:hover {
             background: #ef4444;
             color: #000;
@@ -77,6 +98,7 @@
             padding: 4px;
             background: rgba(0, 0, 0, 0.55);
         }
+
         .lang-btn {
             background: transparent;
             border: none;
@@ -88,8 +110,18 @@
             font-size: 13px;
             font-weight: 700;
             letter-spacing: 1px;
+            line-height: 1.2;
+            transition: background 0.2s, color 0.2s;
         }
-        .lang-btn.active { background: var(--accent-cyan); color: #000; }
+
+        .lang-btn:hover {
+            color: var(--text-main);
+        }
+
+        .lang-btn.active {
+            background: var(--accent-cyan);
+            color: #000000;
+        }
 
         .page {
             width: 100%;
@@ -197,8 +229,21 @@
         }
         .metric-label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
         .metric-value { font-size: 1.4rem; font-weight: 800; }
+        .metric-hint { display: block; font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
 
         .files { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+        .result-video {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            max-height: 70vh;
+            margin: 10px auto 0;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .plot-img { width: 100%; border-radius: 10px; margin-top: 10px; display: block; background: #111; }
 
         .feedback-box ul { list-style: none; margin-top: 4px; }
         .feedback-box li { padding: 8px 0; border-bottom: 1px solid #2a2a2a; font-size: 0.9rem; }
@@ -215,27 +260,74 @@
         }
 
         @media (max-width: 768px) {
-            nav { padding: 16px 20px; }
-            .page { padding: 24px 16px 40px; }
+            nav {
+                padding: 12px 16px;
+                flex-wrap: nowrap;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .logo img { height: 32px; }
+            .nav-right { gap: 12px; }
+            .nav-link { font-size: 13px; }
+            .nav-user-name {
+                font-size: 12px;
+                max-width: 96px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .btn-logout { padding: 3px 10px; border-radius: 13px; }
+            .lang-btn { padding: 3px 9px; font-size: 12px; }
+            .page { padding: 110px 16px 40px; }
             .page-title { font-size: 1.5rem; }
             .metrics-grid { grid-template-columns: 1fr 1fr; }
+
+            /* Tabel riwayat → kartu di mobile */
+            .table-wrap { background: transparent; border: none; border-radius: 0; }
+            table, tbody, tr, td { display: block; }
+            table { min-width: 0; }
+            thead { display: none; }
+            tr {
+                display: flex;
+                flex-direction: column;
+                background: #1a1a1a;
+                border: 1px solid #333;
+                border-radius: 10px;
+                margin-bottom: 15px;
+                padding: 15px;
+            }
+            td {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                border: none;
+                padding: 5px 0;
+            }
+            td::before { content: attr(data-label); color: #888; margin-right: auto; }
+            html[lang="en"] td::before { content: attr(data-label-en); }
+            td:last-child {
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid #333;
+            }
+            .video-name-cell { max-width: none; white-space: normal; }
         }
     </style>
 </head>
 <body>
     <nav>
-        <a href="/"><img src="/static/logo.png" alt="Gym Catch Logo"></a>
+        <a href="/" class="logo"><img src="/static/logo.png" alt="Gym Catch Logo"></a>
         <div class="nav-right">
             {% if mode == 'detail' %}
                 <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
             {% endif %}
             {% if current_user.is_authenticated %}
                 <span class="nav-user-name">👤 {{ current_user.username }}</span>
-                <a href="/logout" class="nav-link" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
+                <a href="/logout" class="nav-link btn-logout" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
             {% else %}
                 <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
             {% endif %}
-            <div class="lang-toggle">
+            <div class="lang-toggle" id="langToggle">
                 <button type="button" class="lang-btn active" data-lang="id">ID</button>
                 <button type="button" class="lang-btn" data-lang="en">EN</button>
             </div>
@@ -257,23 +349,34 @@
                 <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
                 <span class="big-score">{{ '%.1f'|format(row.score if row.score is not none else 0) }}%</span>
                 <span class="score-label">{{ row.score_label or '' }}</span>
+                <span class="metric-hint" data-id="Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%)." data-en="Combines ROM (40%), consistency (30%), and stability (30%).">Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%).</span>
 
                 <div class="metrics-grid">
                     <div class="metric-card">
                         <span class="metric-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
                         <span class="metric-value">{{ row.reps if row.reps is not none else 'N/A' }}</span>
+                        <span class="metric-hint" data-id="Jumlah gerakan naik-turun yang terdeteksi." data-en="Number of detected up-and-down movements.">Jumlah gerakan naik-turun yang terdeteksi.</span>
                     </div>
                     <div class="metric-card">
                         <span class="metric-label">ROM</span>
                         <span class="metric-value">{% if row.rom is not none %}{{ '%.1f'|format(row.rom) }}&deg;{% else %}N/A{% endif %}</span>
+                        <span class="metric-hint" data-id="Rentang gerak sendi (derajat)." data-en="Joint range of motion (degrees).">Rentang gerak sendi (derajat).</span>
                     </div>
                     <div class="metric-card">
                         <span class="metric-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
                         <span class="metric-value">{{ row.stability if row.stability is not none else 'N/A' }}%</span>
+                        <span class="metric-hint" data-id="Seberapa stabil tubuh; makin kecil goyangan makin tinggi." data-en="How steady the body is; less sway means higher.">Seberapa stabil tubuh; makin kecil goyangan makin tinggi.</span>
                     </div>
                     <div class="metric-card">
                         <span class="metric-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
                         <span class="metric-value">{{ row.consistency if row.consistency is not none else 'N/A' }}</span>
+                        {% if row.consistency is none %}
+                            <span class="metric-hint" data-id="Butuh minimal 3 repetisi untuk dihitung." data-en="Needs at least 3 repetitions to compute.">Butuh minimal 3 repetisi untuk dihitung.</span>
+                        {% elif row.consistency == 0 %}
+                            <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman & tempo." data-en="Repetition similarity (0–1). Repetitions vary a lot — keep depth & tempo consistent.">Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman &amp; tempo.</span>
+                        {% else %}
+                            <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1)." data-en="Repetition similarity (0–1).">Kemiripan antar repetisi (0–1).</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -282,7 +385,7 @@
                 <div class="card" style="margin-top:14px;">
                     <h3 data-id="Video Hasil Analisis" data-en="Analyzed Video">Video Hasil Analisis</h3>
                     <div style="width:100%; margin-top:10px;">
-                        <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" style="width:100%; border-radius:10px;"></video>
+                        <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" class="result-video"></video>
                     </div>
                 </div>
             {% endif %}
@@ -297,6 +400,13 @@
                     {% endfor %}
                 </ul>
             </div>
+
+            {% if files.get('plot') %}
+                <div class="card" style="margin-top:14px;">
+                    <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
+                    <img class="plot-img" src="/output/{{ row.job_id }}/{{ files['plot'] }}" alt="Plot sudut sendi">
+                </div>
+            {% endif %}
 
             <div class="card files-box" style="margin-top:14px;">
                 <h3 data-id="Unduh File" data-en="Download Files">Unduh File</h3>
@@ -335,23 +445,15 @@
                         <tbody>
                             {% for r in rows %}
                                 <tr>
-                                    <td>{{ r.timestamp_label }}</td>
-                                    <td class="video-name-cell">{{ r.video_name }}</td>
-                                    <td>{{ r.movement_label }}</td>
-                                    <td class="score-cell">{{ '%.1f'|format(r.score if r.score is not none else 0) }}<span class="score-label">{{ r.score_label or '' }}</span></td>
-                                    <td>{{ r.reps if r.reps is not none else 'N/A' }}</td>
-                                    <td>
+                                    <td data-label="Waktu" data-label-en="Time">{{ r.timestamp_label }}</td>
+                                    <td class="video-name-cell" data-label="Video" data-label-en="Video">{{ r.video_name }}</td>
+                                    <td data-label="Gerakan" data-label-en="Movement">{{ r.movement_label }}</td>
+                                    <td class="score-cell" data-label="Skor" data-label-en="Score">{{ '%.1f'|format(r.score if r.score is not none else 0) }}<span class="score-label">{{ r.score_label or '' }}</span></td>
+                                    <td data-label="Repetisi" data-label-en="Reps">{{ r.reps if r.reps is not none else 'N/A' }}</td>
+                                    <td data-label="Aksi" data-label-en="Actions">
                                         <div class="actions">
                                             <a class="btn-sm primary" href="/result/{{ r.job_id }}"
-                                               data-id="Lihat Detail" data-en="View Detail">Lihat Detail</a>
-                                            {% if r.video_file %}
-                                                <a class="btn-sm" href="/download/{{ r.job_id }}/{{ r.video_file }}"
-                                                   data-id="Unduh Video" data-en="Download Video">Unduh Video</a>
-                                            {% endif %}
-                                            {% if r.csv_file %}
-                                                <a class="btn-sm" href="/download/{{ r.job_id }}/{{ r.csv_file }}"
-                                                   data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
-                                            {% endif %}
+                                               data-id="Lihat Detail ›" data-en="View Detail ›">Lihat Detail ›</a>
                                             <form method="post" action="/delete/{{ r.job_id }}"
                                                   onsubmit="return confirm('Yakin ingin menghapus?');">
                                                 <button type="submit" class="btn-sm btn-danger"
@@ -380,6 +482,32 @@
 
             document.querySelectorAll("[data-id]").forEach(el => {
                 el.innerHTML = el.getAttribute("data-" + lang) || el.getAttribute("data-id");
+            });
+
+            /* Terjemahan konten dinamis dari DB (score_label & feedback) */
+            const SCORE_LABEL = {
+                "Baik": { id: "Baik", en: "Good" },
+                "Cukup": { id: "Cukup", en: "Fair" },
+                "Perlu Perbaikan": { id: "Perlu Perbaikan", en: "Needs Improvement" }
+            };
+            const FEEDBACK = {
+                "Kedalaman squat kurang. Usahakan turun lebih dalam.": { id: "Kedalaman squat kurang. Usahakan turun lebih dalam.", en: "Squat depth is insufficient. Try to go deeper." },
+                "Kedalaman squat sudah sangat baik.": { id: "Kedalaman squat sudah sangat baik.", en: "Squat depth is already excellent." },
+                "Gerakan kurang konsisten. Perhatikan tempo naik-turun.": { id: "Gerakan kurang konsisten. Perhatikan tempo naik-turun.", en: "Movement is inconsistent. Mind your up-and-down tempo." },
+                "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.": { id: "Tubuh terlalu banyak bergoyang. Fokuskan berat badan di tengah kaki.", en: "Your body sways too much. Focus your weight through the middle of your feet." },
+                "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.": { id: "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.", en: "Push-up depth is insufficient. Lower your chest closer to the floor." },
+                "Kedalaman push-up sudah sangat baik.": { id: "Kedalaman push-up sudah sangat baik.", en: "Push-up depth is already excellent." },
+                "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.": { id: "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.", en: "Push-up movement is inconsistent. Keep a steady down-up tempo." },
+                "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.": { id: "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.", en: "Hips sway too much. Brace your core during push-ups." }
+            };
+
+            document.querySelectorAll(".score-label").forEach(el => {
+                const hit = SCORE_LABEL[el.textContent.trim()];
+                if (hit) el.textContent = hit[lang] || el.textContent;
+            });
+            document.querySelectorAll(".feedback-box li").forEach(el => {
+                const hit = FEEDBACK[el.textContent.trim()];
+                if (hit) el.textContent = hit[lang] || el.textContent;
             });
 
             document.querySelectorAll(".lang-btn").forEach(btn => {
