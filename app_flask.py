@@ -20,6 +20,7 @@ Jalankan:
 
 from __future__ import annotations
 
+import csv
 import json
 import os
 import re
@@ -76,6 +77,14 @@ app.secret_key = os.environ.get("SECRET_KEY", "gymcatch-dev-secret-prototype")
 login_manager = LoginManager()
 login_manager.login_view = "login"
 login_manager.init_app(app)
+
+
+@app.after_request
+def no_cache_html(response):
+    """HTML selalu revalidasi — cegah halaman lama dari cache heuristic browser."""
+    if response.content_type.startswith("text/html"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
 
 
 class User(UserMixin):
@@ -498,6 +507,32 @@ def history():
     return render_template("history.html", mode="list", rows=data)
 
 
+def _read_angle_series(folder: Path):
+    """Baca knee_angle.csv → data deret sudut untuk grafik interaktif (None bila tak ada)."""
+    csv_path = folder / "knee_angle.csv"
+    if not csv_path.exists():
+        return None
+    left: list = []
+    right: list = []
+    try:
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader, None)  # lewati header
+            for row in reader:
+                if len(row) < 3:
+                    continue
+                left.append(float(row[1]) if row[1] else None)
+                right.append(float(row[2]) if row[2] else None)
+    except (OSError, ValueError):
+        return None
+    has_left = any(v is not None for v in left)
+    has_right = any(v is not None for v in right)
+    if not has_left and not has_right:
+        return None
+    mode = "both" if (has_left and has_right) else ("left" if has_left else "right")
+    return {"mode": mode, "left": left, "right": right}
+
+
 @app.route("/result/<job_id>")
 @login_required
 def result_detail(job_id: str):
@@ -547,6 +582,7 @@ def result_detail(job_id: str):
 
     mt = (row["movement_type"] or "squat").lower()
     movement_label = "Push-up" if mt == "pushup" else mt.capitalize()
+    angle_data = _read_angle_series(folder)
     return render_template(
         "history.html",
         mode="detail",
@@ -555,6 +591,7 @@ def result_detail(job_id: str):
         files=files,
         movement_label=movement_label,
         timestamp_label=timestamp_label,
+        angle_data=angle_data,
     )
 
 

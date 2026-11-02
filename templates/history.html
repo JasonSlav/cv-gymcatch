@@ -245,6 +245,8 @@
 
         .plot-img { width: 100%; border-radius: 10px; margin-top: 10px; display: block; background: #111; }
 
+        .chart-wrap { position: relative; height: 320px; }
+
         .feedback-box ul { list-style: none; margin-top: 4px; }
         .feedback-box li { padding: 8px 0; border-bottom: 1px solid #2a2a2a; font-size: 0.9rem; }
         .feedback-box li:last-child { border-bottom: none; }
@@ -401,7 +403,12 @@
                 </ul>
             </div>
 
-            {% if files.get('plot') %}
+            {% if angle_data %}
+                <div class="card" style="margin-top:14px;">
+                    <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
+                    <div class="chart-wrap"><canvas id="angleChart"></canvas></div>
+                </div>
+            {% elif files.get('plot') %}
                 <div class="card" style="margin-top:14px;">
                     <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
                     <img class="plot-img" src="/output/{{ row.job_id }}/{{ files['plot'] }}" alt="Plot sudut sendi">
@@ -424,6 +431,11 @@
                            data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
                     {% endif %}
                 </div>
+            </div>
+
+            <div class="back-row">
+                <a class="btn-sm primary" href="/" data-id="Analisis Video Baru" data-en="New Analysis">Analisis Video Baru</a>
+                <a class="btn-sm" href="/history" data-id="Kembali ke Riwayat" data-en="Back to History">Kembali ke Riwayat</a>
             </div>
 
         {% else %}
@@ -475,6 +487,7 @@
     <footer data-id="Gym Catch - Fakultas Ilmu Keolahragaan, Universitas Negeri Malang"
             data-en="Gym Catch - Faculty of Sports Science, Universitas Negeri Malang">Gym Catch - Fakultas Ilmu Keolahragaan, Universitas Negeri Malang</footer>
 
+    <script src="/static/chart.min.js"></script>
     <script>
         (function () {
             const lang = localStorage.getItem("gc-lang") || "id";
@@ -509,6 +522,64 @@
                 const hit = FEEDBACK[el.textContent.trim()];
                 if (hit) el.textContent = hit[lang] || el.textContent;
             });
+
+            /* Grafik interaktif (data dari server; fallback: PNG statis) */
+            const angleData = {{ angle_data | tojson if angle_data else "null" }};
+            if (angleData && typeof Chart !== "undefined") {
+                const n = Math.max(angleData.left.length, angleData.right.length);
+                const labels = Array.from({ length: n }, (_, i) => i + 1);
+                const datasets = [];
+                if (angleData.mode !== "right") {
+                    datasets.push({
+                        label: lang === "en" ? "Left Side" : "Sisi Kiri",
+                        data: angleData.left,
+                        borderColor: "#00E5FF",
+                        backgroundColor: "rgba(0, 229, 255, 0.2)",
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        spanGaps: false
+                    });
+                }
+                if (angleData.mode !== "left") {
+                    datasets.push({
+                        label: lang === "en" ? "Right Side" : "Sisi Kanan",
+                        data: angleData.right,
+                        borderColor: "#FF4081",
+                        backgroundColor: "rgba(255, 64, 129, 0.15)",
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        spanGaps: false
+                    });
+                }
+                new Chart(document.getElementById("angleChart"), {
+                    type: "line",
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: "index", intersect: false },
+                        plugins: {
+                            legend: {
+                                display: datasets.length > 1,
+                                labels: { color: "#888" }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}°`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: "#888" }, grid: { color: "#222" } },
+                            y: { ticks: { color: "#888" }, grid: { color: "#222" } }
+                        }
+                    }
+                });
+            }
 
             document.querySelectorAll(".lang-btn").forEach(btn => {
                 btn.classList.toggle("active", btn.dataset.lang === lang);

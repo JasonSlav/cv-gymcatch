@@ -350,130 +350,6 @@
             line-height: 1.8;
         }
 
-        /* --- Results Section --- */
-        .results-wrap:empty {
-            display: none;
-        }
-
-        .result-sub {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 18px;
-        }
-
-        .metric-label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-
-        .metric-value {
-            font-size: 1.45rem;
-            font-weight: 700;
-        }
-
-        .result-card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 14px;
-        }
-
-        .result-disclaimer {
-            font-size: 0.72rem;
-            color: #6e6e73;
-            margin-top: 14px;
-        }
-
-        .samples-card {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .samples-card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .samples-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-        }
-
-        .samples-grid figure {
-            margin: 0;
-        }
-
-        .samples-grid img {
-            width: 100%;
-            border-radius: 12px;
-            display: block;
-        }
-
-        .samples-grid figcaption {
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
-
-        .samples-grid img {
-            max-height: 50vh;
-            object-fit: contain;
-        }
-
-        .video-container {
-            width: 100%;
-            max-height: 50vh;
-            display: flex;
-            justify-content: center;
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .video-container video {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain;
-        }
-
-        .plot-card {
-            max-width: 1000px;
-            margin: 20px auto 0 auto;
-        }
-
-        .plot-card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .plot-card img {
-            width: 100%;
-            border-radius: 12px;
-            display: block;
-        }
-
-        .plot-card .chart-wrap {
-            position: relative;
-            height: 320px;
-        }
-
-        .loading-text,
-        .error-text {
-            max-width: 1000px;
-            margin: 0 auto;
-            font-size: 0.95rem;
-        }
-
-        .loading-text {
-            color: var(--text-muted);
-        }
-
         .error-text {
             color: #ff6b6b;
         }
@@ -676,112 +552,6 @@
             100% { transform: translateX(350%); }
         }
 
-        /* --- Halaman Result (SPA) --- */
-        #page-result {
-            padding-top: 110px;
-        }
-
-        .result-container {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 20px;
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .result-card {
-            background-color: var(--bg-card);
-            border: 1px solid #2a2a2a;
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .result-card h3 {
-            font-size: 1.05rem;
-            margin-bottom: 14px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .result-card .big-number {
-            font-size: 2.2rem;
-            font-weight: 800;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .metric-card {
-            background-color: var(--bg-card);
-            border: 1px solid #2a2a2a;
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .metric-card .metric-label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .metric-card .metric-value {
-            font-size: 1.6rem;
-            font-weight: 800;
-        }
-
-        .metric-hint {
-            display: block;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .score-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        .overview-box ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .overview-box li {
-            padding: 8px 0;
-            border-bottom: 1px solid #2a2a2a;
-            font-size: 0.9rem;
-            color: var(--text-main);
-        }
-
-        .overview-box li:last-child {
-            border-bottom: none;
-        }
-
-        .result-disclaimer {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 12px;
-        }
-
-        .result-left,
-        .result-right {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        #chart-full-width {
-            max-width: 1100px;
-            margin: 20px auto 40px auto;
-            padding: 0 20px;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             nav {
@@ -802,9 +572,6 @@
             }
             .btn-logout { padding: 3px 10px; border-radius: 13px; }
             .lang-btn { padding: 3px 9px; font-size: 12px; }
-            #page-result {
-                padding-top: 100px;
-            }
             .hero h1 {
                 font-size: 2rem;
             }
@@ -820,10 +587,6 @@
             .hero-content {
                 margin-top: 0;
             }
-            .result-container {
-                grid-template-columns: 1fr;
-                margin-top: 0;
-            }
             .footer-logo {
                 justify-content: center;
             }
@@ -835,9 +598,6 @@
             }
             .footer-desc {
                 margin: 0 auto 20px auto;
-            }
-            .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
             }
             .samples-grid {
                 grid-template-columns: 1fr;
@@ -909,6 +669,7 @@
                 <button type="button" class="btn-select" id="btnSelect" data-id="Pilih File" data-en="Select files">Pilih File</button>
             </div>
             <p id="upload-error" class="error-text" style="display:none;"></p>
+            <div id="error-msg" style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
 
             <!-- Preview sebelum analisis -->
             <div id="preview-container" style="display:none;">
@@ -1024,13 +785,6 @@
     </footer>
     </div><!-- /#page-landing -->
 
-    <!-- Halaman Result (SPA) -->
-    <div id="page-result" style="display:none;">
-        <div id="hasil-analisis" class="results-wrap"></div>
-    </div>
-
-    <!-- Chart.js (lokal, offline) -->
-    <script src="/static/chart.min.js"></script>
     <script>
         /* ===== I18N: Indonesia (default) & English ===== */
         const T = {
@@ -1147,8 +901,6 @@
         };
 
         let currentLang = localStorage.getItem("gc-lang") || "id";
-        let lastResult = null;
-        let angleChart = null;
 
         function applyLang(lang) {
             if (!T[lang]) lang = "id";
@@ -1167,10 +919,6 @@
             });
 
             localStorage.setItem("gc-lang", lang);
-
-            if (lastResult) {
-                renderResults(lastResult);
-            }
         }
 
         /* Pesan error backend → bahasa aktif (fallback: teks dari server) */
@@ -1180,187 +928,6 @@
                 return t.errors[data.error_key];
             }
             return (data && data.error) || "HTTP error";
-        }
-
-        /* ===== Render hasil analisis ===== */
-        function renderResults(d) {
-            const t = T[currentLang];
-            const m = t.m;
-            const hasil = document.getElementById("hasil-analisis");
-            const na = t.na;
-
-            const label = t.labels[d.score_label] || d.score_label;
-            const feedbacks = (d.feedbacks && d.feedbacks.length)
-                ? d.feedbacks.map(f => `<li>${t.feedbacks[f] || f}</li>`).join("")
-                : `<li>${t.emptyFeedback}</li>`;
-
-            const metric = (lab, val, hint) =>
-                `<div class="metric-card"><span class="metric-label">${lab}</span><span class="metric-value">${val ?? na}</span>${hint ? `<span class="metric-hint">${hint}</span>` : ""}</div>`;
-
-            const consistencyHint = (d.consistency == null)
-                ? t.hints.consistencyNeedReps
-                : t.hints.consistency + (d.consistency === 0 ? " " + t.hints.consistencyZero : "");
-
-            const samples = (d.samples || []).map((src, i) => `
-                <figure>
-                    <img src="${src}?t=${Date.now()}" alt="Sample frame ${i + 1}"
-                         onerror="this.parentElement.style.display='none'">
-                    <figcaption>${m.frames[i] || ""}</figcaption>
-                </figure>`).join("");
-
-            const playable = !!d.is_browser_playable && !!d.video_url;
-            const mediaCard = playable ? `
-                <div class="result-card">
-                    <h3>${m.video}</h3>
-                    <div class="video-container"><video controls src="${d.video_url}?t=${Date.now()}"></video></div>
-                </div>` : `
-                <div class="result-card">
-                    <h3>${m.samples}</h3>
-                    <div class="samples-grid">${samples || "<p class='result-sub'>" + na + "</p>"}</div>
-                </div>`;
-
-            const ad = d.angle_data || null;
-            const leftSeries = ad && Array.isArray(ad.left) ? ad.left : null;
-            const rightSeries = ad && Array.isArray(ad.right) ? ad.right : null;
-            const hasLeft = leftSeries && leftSeries.some(v => v != null);
-            const hasRight = rightSeries && rightSeries.some(v => v != null);
-            const frameCount = Math.max(
-                hasLeft ? leftSeries.length : 0,
-                hasRight ? rightSeries.length : 0
-            );
-
-            let plot;
-            if (frameCount > 0) {
-                // Grafik interaktif Chart.js (fallback ke PNG bila kosong)
-                plot = `
-                <div class="result-card">
-                    <h3>${m.plot}</h3>
-                    <div class="chart-wrap"><canvas id="angleChart"></canvas></div>
-                </div>`;
-            } else if (d.plot) {
-                plot = `
-                <div class="result-card">
-                    <h3>${m.plot}</h3>
-                    <img src="${d.plot}?t=${Date.now()}" alt="${m.plot}"
-                         onerror="this.parentElement.style.display='none'">
-                </div>`;
-            } else {
-                plot = "";
-            }
-
-            const plotMode = ad && ad.mode ? ad.mode
-                : (hasLeft && hasRight ? "both" : (hasLeft ? "left" : "right"));
-
-            hasil.innerHTML = `
-                <div class="result-container">
-                    <div class="result-left">${mediaCard}</div>
-                    <div class="result-right">
-                        <div class="result-card score-card">
-                            <span class="metric-label">${m.score}</span>
-                            <span class="big-number">${d.score}%</span>
-                            <span class="metric-label" style="margin-top:6px;">${label}</span>
-                            <span class="metric-hint">${t.hints.score}</span>
-                        </div>
-                        <div class="metrics-grid">
-                            ${metric(m.reps, d.reps, t.hints.reps)}
-                            ${metric(m.duration, d.duration_sec + "s")}
-                            ${metric(m.rom, d.rom != null ? d.rom + "°" : na, t.hints.rom)}
-                            ${metric(m.consistency, d.consistency != null ? d.consistency : na, consistencyHint)}
-                        </div>
-                        <div class="score-row">
-                            <div class="metric-card">
-                                <span class="metric-label">${m.stabilityLabel}</span>
-                                <span class="metric-value">${d.stability}% ${m.stabilityTag}</span>
-                                <span class="metric-hint">${t.hints.stability}</span>
-                            </div>
-                        </div>
-                        <div class="result-card overview-box">
-                            <h3>${m.overview}</h3>
-                            <ul>${feedbacks}</ul>
-                            <p class="result-disclaimer">${m.disclaimer}</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="chart-full-width">${plot}</div>
-            `;
-
-            /* Render Chart.js setelah canvas ada di DOM (guard: lib gagal load) */
-            if (frameCount > 0 && typeof Chart !== "undefined") {
-                const canvas = document.getElementById("angleChart");
-                const labels = Array.from({ length: frameCount }, (_, i) => i + 1);
-
-                if (angleChart) angleChart.destroy(); // cegah tumpukan saat upload ulang
-
-                const lineStyle = {
-                    tension: 0.3,
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    spanGaps: false
-                };
-
-                const datasets = [];
-                if (plotMode !== "right") {
-                    datasets.push({
-                        label: m.seriesLeft,
-                        data: leftSeries,
-                        borderColor: "#00E5FF",
-                        backgroundColor: "rgba(0, 229, 255, 0.2)",
-                        fill: true,
-                        ...lineStyle
-                    });
-                }
-                if (plotMode !== "left") {
-                    datasets.push({
-                        label: m.seriesRight,
-                        data: rightSeries,
-                        borderColor: "#FF4081",
-                        backgroundColor: "rgba(255, 64, 129, 0.15)",
-                        fill: true,
-                        ...lineStyle
-                    });
-                }
-
-                try {
-                angleChart = new Chart(canvas, {
-                    type: "line",
-                    data: { labels, datasets },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: { mode: "index", intersect: false },
-                        plugins: {
-                            legend: {
-                                display: datasets.length > 1,
-                                labels: { color: "#888" }
-                            },
-                            tooltip: {
-                                enabled: true,
-                                callbacks: {
-                                    label: ctx =>
-                                        ` ${ctx.dataset.label}: ${ctx.parsed.y}°`
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                ticks: { color: "#888" },
-                                grid: { color: "#222" }
-                            },
-                            y: {
-                                ticks: { color: "#888" },
-                                grid: { color: "#222" }
-                            }
-                        }
-                    }
-                });
-                } catch (err) {
-                    // Chart.js gagal render (data tak valid) → fallback gambar PNG
-                    if (d.plot) {
-                        document.getElementById("chart-full-width").innerHTML =
-                            `<div class="result-card"><h3>${m.plot}</h3><img src="${d.plot}?t=${Date.now()}" alt="${m.plot}" onerror="this.parentElement.style.display='none'"></div>`;
-                    }
-                }
-            }
         }
 
         /* ===== Upload & kirim ke backend ===== */
@@ -1373,7 +940,6 @@
 
             const input = document.getElementById("videoInput");
             const btnSelect = document.getElementById("btnSelect");
-            const hasil = document.getElementById("hasil-analisis");
             const dropBox = document.querySelector(".upload-box");
             const progressWrapper = document.getElementById("progress-wrapper");
             const progressText = document.getElementById("progress-text");
@@ -1395,8 +961,13 @@
                     .replace("{done}", done)
                     .replace("{total}", total);
             }
-            const pageLanding = document.getElementById("page-landing");
-            const pageResult = document.getElementById("page-result");
+
+            function showError(msg) {
+                const box = document.getElementById("error-msg");
+                if (!box) return;
+                box.textContent = msg;
+                box.style.display = msg ? "block" : "none";
+            }
             const previewContainer = document.getElementById("preview-container");
             const previewVideo = document.getElementById("preview-video");
             const uploadError = document.getElementById("upload-error");
@@ -1422,31 +993,14 @@
                 previewContainer.style.display = "none";
                 dropBox.style.display = "";
                 uploadError.style.display = "none";
+                showError("");
                 selectedFile = null;
                 input.value = "";
             }
 
-            function showResultPage() {
-                pageLanding.style.display = "none";
-                pageResult.style.display = "block";
-                window.scrollTo(0, 0);
-            }
-
-            function showLandingPage() {
-                if (angleChart) { angleChart.destroy(); angleChart = null; }
-                pageResult.style.display = "none";
-                pageLanding.style.display = "block";
-                hasil.innerHTML = "";
-                resetPreviewState();
-                window.scrollTo(0, 0);
-            }
-
-            const btnNew = document.getElementById("btn-new-analysis");
-            if (btnNew) btnNew.addEventListener("click", showLandingPage);
-
             async function analyzeFile(file) {
                 const t = T[currentLang];
-                hasil.innerHTML = "";
+                showError("");
                 progressWrapper.style.display = "block";
                 // Pastikan bar terlihat (penting di HP — bar ada di bawah section upload).
                 progressWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1486,18 +1040,20 @@
                     try { data = await res.json(); } catch (_) { /* bukan JSON */ }
 
                     if (!res.ok || !data || data.error) {
-                        const msg = data ? errMsg(data) : "HTTP " + res.status;
-                        hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${msg}</p>`;
-                        showResultPage();
-                        return;
+                        throw new Error(data ? errMsg(data) : "HTTP " + res.status);
                     }
 
-                    lastResult = data;
-                    renderResults(data);
-                    showResultPage();
+                    // SPA result dihapus → langsung ke halaman Detail History.
+                    // job_id tidak ada di JSON → ekstrak dari video_url:
+                    // "/output/req_xxx/...webm" → "req_xxx".
+                    const resultJobId = data.job_id
+                        || (data.video_url ? data.video_url.split("/")[2] : null);
+                    if (!resultJobId) {
+                        throw new Error("job_id tidak ditemukan di respons server.");
+                    }
+                    window.location.href = "/result/" + resultJobId;
                 } catch (err) {
-                    hasil.innerHTML = `<p class="error-text">⚠️ ${t.errPrefix}${err.message}</p>`;
-                    showResultPage();
+                    showError(`${t.errPrefix}${err.message}`);
                 } finally {
                     clearInterval(progressTimer);
                     resetProgressUI();
