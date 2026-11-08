@@ -304,24 +304,6 @@
             border-color: var(--text-muted);
         }
 
-        .form-select {
-            width: 100%;
-            background: #141414;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 12px;
-            color: var(--text-main);
-            font-family: var(--font-main);
-            font-size: 0.9rem;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-
-        .form-select:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-        }
-
         .btn-select {
             background-color: #333;
             color: var(--text-main);
@@ -335,6 +317,12 @@
 
         .btn-select:hover {
             background-color: #444;
+        }
+
+        .auto-note {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 10px;
         }
 
         .guide-card h3 {
@@ -655,11 +643,6 @@
         <div class="upload-grid">
             <!-- Left Card -->
             <div class="card upload-box">
-                <select id="movement-select" class="form-select">
-                    <option value="auto" selected data-id="Auto-Detect (AI)" data-en="Auto-Detect (AI)">Auto-Detect (AI)</option>
-                    <option value="squat" data-id="Squat" data-en="Squat">Squat</option>
-                    <option value="pushup" data-id="Push-up" data-en="Push-up">Push-up</option>
-                </select>
                 <div class="icon-circle">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
@@ -667,6 +650,7 @@
                 <p data-id="Seret & jatuhkan file ke sini, atau klik tombol" data-en="Drag & drop your file here, or click the button">Seret & jatuhkan file ke sini, atau klik tombol</p>
                 <input type="file" id="videoInput" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 <button type="button" class="btn-select" id="btnSelect" data-id="Pilih File" data-en="Select files">Pilih File</button>
+                <p class="auto-note" data-id="Pastikan seluruh tubuh terlihat dari samping. Sistem akan otomatis mendeteksi gerakan Anda." data-en="Make sure your whole body is visible from the side. The system will automatically detect your movement.">Pastikan seluruh tubuh terlihat dari samping. Sistem akan otomatis mendeteksi gerakan Anda.</p>
             </div>
             <p id="upload-error" class="error-text" style="display:none;"></p>
             <div id="error-msg" style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
@@ -1005,19 +989,13 @@
                 // Pastikan bar terlihat (penting di HP — bar ada di bawah section upload).
                 progressWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
                 resetProgressUI();
-                // Fase pre-pass auto-detect: server belum mengirim total frame.
-                if (document.getElementById("movement-select").value === "auto") {
-                    progressText.textContent = T[currentLang].detecting;
-                }
+                // Mode 100% otomatis: fase pre-pass deteksi gerakan di server.
+                progressText.textContent = T[currentLang].detecting;
 
                 const jobId = Date.now().toString();
                 const fd = new FormData();
                 fd.append("video", file);
                 fd.append("job_id", jobId);
-                fd.append(
-                    "movement_type",
-                    document.getElementById("movement-select").value
-                );
 
                 let progressTimer = null;
                 try {

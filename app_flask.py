@@ -275,9 +275,9 @@ def analyze():
     if not PROGRESS_JOB_ID_RE.match(job_id):
         job_id = uuid.uuid4().hex[:12]
 
-    # Jenis gerakan dari frontend. Validasi dilakukan get_movement_config
-    # (gerakan tak dikenal → PipelineError → HTTP 422).
-    movement_type = (request.form.get("movement_type") or "squat").strip().lower()
+    # Mode 100% otomatis: jenis gerakan dideteksi server via pre-pass
+    # heuristic ROM (src/auto_detect.py) → hasil deteksi tersimpan ke DB.
+    movement_type = "auto"
 
     def on_progress(done: int, total: int) -> None:
         with progress_lock:
