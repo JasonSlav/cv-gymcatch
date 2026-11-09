@@ -325,6 +325,42 @@
             margin-top: 10px;
         }
 
+        .supported-movements {
+            margin-top: 30px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .movements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .movement-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #222;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border: 1px solid #444;
+        }
+
+        .m-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .m-angle {
+            color: #00E5FF;
+            font-size: 0.8rem;
+        }
+
         .guide-card h3 {
             font-size: 1.2rem;
             font-weight: 600;
@@ -569,6 +605,9 @@
             .upload-grid, .features-grid, .footer-grid {
                 grid-template-columns: 1fr;
             }
+            .movements-grid {
+                grid-template-columns: 1fr 1fr;
+            }
             .hero {
                 height: min(60vh, 500px);
             }
@@ -675,6 +714,24 @@
                     <li data-id="Satu orang dalam frame, tanpa oklusi." data-en="One person in the frame, without occlusion.">Satu orang dalam frame, tanpa oklusi.</li>
                     <li data-id="Rekam minimal 3 repetisi gerakan agar skor konsistensi dapat dihitung." data-en="Record at least 3 repetitions so the consistency score can be computed.">Rekam minimal 3 repetisi gerakan agar skor konsistensi dapat dihitung.</li>
                 </ol>
+            </div>
+        </div>
+
+        <div class="supported-movements">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #fff;" data-id="Gerakan yang Didukung &amp; Sudut Kamera" data-en="Supported Movements &amp; Camera Angle">Gerakan yang Didukung &amp; Sudut Kamera</h3>
+            <div class="movements-grid">
+                <div class="movement-card"><span class="m-name" data-id="Squat" data-en="Squat">Squat</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Push-up" data-en="Push-up">Push-up</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Lunge" data-en="Lunge">Lunge</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Deadlift" data-en="Deadlift">Deadlift</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Plank" data-en="Plank">Plank</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Overhead Press" data-en="Overhead Press">Overhead Press</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Row" data-en="Row">Row</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Calf Raise" data-en="Calf Raise">Calf Raise</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Crunch" data-en="Crunch">Crunch</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Glute Bridge" data-en="Glute Bridge">Glute Bridge</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Bicep Curl" data-en="Bicep Curl">Bicep Curl</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
+                <div class="movement-card"><span class="m-name" data-id="Lateral Raise" data-en="Lateral Raise">Lateral Raise</span><span class="m-angle" data-id="Depan" data-en="Front">Depan</span></div>
             </div>
         </div>
     </section>
