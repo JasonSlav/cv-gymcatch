@@ -26,9 +26,9 @@ jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian. Sistem dira
 
 ### ✅ Masuk Scope (MVP)
 - Input: video 10–15 detik, 1 orang, seluruh tubuh terlihat
-- Gerakan prioritas: **squat** → lalu **push-up**
+- Gerakan: **12 arketype** (awalnya squat → push-up; diperluas via `src/movements/`)
 - Deteksi pose per frame + visualisasi landmark
-- Sudut sendi per frame: lutut (squat), siku (push-up)
+- Sudut sendi per frame sesuai gerakan (lutut/siku/pinggul/bahu/ankle — lihat `src/movements/`)
 - ROM per repetisi
 - Jumlah repetisi (state machine + smoothing)
 - Consistency sederhana (jika ≥3 repetisi)
@@ -39,12 +39,11 @@ jumlah repetisi, konsistensi) yang dapat digunakan untuk penelitian. Sistem dira
 - Dokumentasi asumsi & keterbatasan
 
 ### ❌ Di Luar Scope (Future Work)
-- **Push-up** — implementasi kedua sesuai prioritas di §3 Masuk Scope (belum dikerjakan; butuh aturan sudut siku + state machine baru)
-- **Gerakan lainnya** (lunge, plank, dll.) — lewat modul gerakan terencana `src/movements/` (belum ada; pipeline & UI sudah terpisah dari logika gerakan)
+- **Gerakan di luar 12 arketype** — lewat modul `src/movements/` (cukup file config baru + registrasi; pipeline & UI tak perlu disentuh)
 - Lari / gait analysis
 - Feedback teknik otomatis berbasis AI (kini baru aturan sederhana)
 - Validasi klinis skor/stabilitas terhadap rubrik ahli (skor masih rule-based)
-- Real-time camera, mobile native, cloud, login, database
+- Real-time camera, mobile native, cloud
 - Validasi ilmiah terhadap penilai ahli
 
 ---
@@ -77,31 +76,47 @@ Target: Windows 10, Python 3.12.3
 ```text
 C:\Projects\cv\gymcatch\
 ├─ .venv\                      # virtual environment
-├─ requirements.txt            # dependensi terkunci
+├─ .github\workflows\          # CI GitHub Actions (python-tests.yml)
+├─ requirements.txt            # dependensi produksi (terkunci)
+├─ requirements-dev.txt        # dependensi development (pytest)
+├─ pytest.ini                  # konfigurasi pytest (testpaths = tests)
+├─ LICENSE                     # MIT
+├─ CONTRIBUTING.md             # panduan kontribusi
+├─ .env.example                # contoh SECRET_KEY
 ├─ PROJECT.md                  # dokumen ini
 ├─ README.md                   # panduan instalasi & penggunaan (penguji)
-├─ app.py                      # Streamlit UI — [LEGACY/BACKUP] (cadangan, port 8501)
-├─ app_flask.py                # Backend Flask — entry point BARU (port 5000)
+├─ app_flask.py                # Backend Flask — entry point (port 5000; login, SQLite)
 ├─ run_squat.py                # CLI wrapper tipis di atas src/pipeline.py
 │
 ├─ templates\
-│  └─ index.html               # UI murni HTML/CSS/JS (i18n ID/EN, sesuai mockup)
+│  ├─ index.html               # Beranda (upload, auto-detect, kartu 12 gerakan, i18n ID/EN)
+│  ├─ history.html             # Riwayat & Detail analisis (player video, grafik Chart.js)
+│  ├─ login.html               # halaman masuk
+│  └─ register.html            # halaman daftar
 │
 ├─ static\
 │  ├─ logo.png                 # logo navbar
 │  ├─ fik.png                  # logo FIK (footer)
-│  └─ bg_gym_small.jpg         # background hero
+│  ├─ bg_gym_small.jpg         # background hero
+│  ├─ chart.min.js             # Chart.js lokal (grafik interaktif detail)
+│  └─ Camera/Graphic/File.png  # ikon fitur
 │
 ├─ src\                        # kode modular
 │  ├─ geometry.py              # sudut, normalisasi, interpolasi (murni)
 │  ├─ video_io.py              # baca/tulis video, validasi input
 │  ├─ pose_estimator.py        # MediaPipe Tasks API wrapper + angle_from_landmarks
-│  ├─ metrics.py               # ROM, rep counting, consistency
+│  ├─ metrics.py               # ROM, rep counting, consistency, skor rule-based
 │  ├─ visualize.py             # gambar landmark, grafik
 │  ├─ report.py                # pilih seri, CSV sudut, format summary
-│  └─ pipeline.py              # orkestrasi end-to-end (analyze_video → AnalysisResult)
+│  ├─ auto_detect.py           # Decision Tree auto-detect 12 gerakan (pre-pass 50 frame)
+│  ├─ pipeline.py              # orkestrasi end-to-end (analyze_video → AnalysisResult)
+│  └─ movements\               # konfigurasi gerakan (config-driven)
+│     ├─ __init__.py           # registry get_movement_config()
+│     ├─ base.py               # MovementConfig + FeedbackRules
+│     ├─ squat.py ... glute_bridge.py  # 12 config gerakan
+│     └─ template.py           # template gerakan baru
 │
-├─ tests\                      # unit test (131 test)
+├─ tests\                      # unit test (142 test)
 │  ├─ test_geometry.py
 │  ├─ test_metrics.py
 │  ├─ test_video_io.py
@@ -109,17 +124,19 @@ C:\Projects\cv\gymcatch\
 │  ├─ test_visualize.py
 │  ├─ test_report.py
 │  ├─ test_pipeline.py
-│  └─ test_app.py
+│  └─ test_auto_detect.py
 │
+├─ history.db                  # SQLite (login & riwayat) — di-gitignore
 ├─ models\
 │  └─ pose_landmarker_full.task
 │
-├─ data\                       # video contoh (untuk demo)
-│  └─ squat_sample.mp4
+├─ data\                       # video uji (gitignore kecuali .gitkeep)
 │
-├─ output\                     # hasil analisis
+├─ output\                     # hasil analisis (gitignore)
 │
 └─ legacy\
+   ├─ app_streamlit.py         # UI Streamlit lama — referensi historis
+   ├─ test_app_streamlit.py    # test Streamlit legacy (opsional)
    └─ poc_squat.py             # PoC awal (monolitik) — referensi historis
 ```
 
@@ -200,10 +217,14 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 - [x] Streamlit UI + fallback 3 sampel frame (mengatasi codec video yang tidak didukung browser) + tombol download
 - [x] Dokumentasi akhir: README.md (panduan penguji) + PROJECT.md (asumsi, keterbatasan, log keputusan)
 - [x] Migrasi Frontend dari Streamlit ke Flask + HTML/CSS murni (UI 100% sesuai mockup, i18n ID/EN, integrasi API)
+- [x] Fitur web pendukung: login/registrasi (Flask-Login), riwayat privat per user (SQLite) + hapus riwayat, progress bar polling, preview video sebelum analisis
+- [x] Arsitektur config-driven `src/movements/` — hasil squat refactor 100% identik (byte-identik)
+- [x] 12 arketype gerakan (Squat, Push-up, Lunge, Deadlift, Plank, Overhead Press, Row, Calf Raise, Lateral Raise, Crunch, Glute Bridge)
+- [x] Auto-Detect Decision Tree (`src/auto_detect.py`) — mode 100% otomatis tanpa dropdown; player video & grafik interaktif di halaman detail
 
 ### 📋 Berikutnya
 - [ ] Testing dengan video nyata kondisi buruk (goyang, oklusi, durasi ekstrem)
-- [ ] Uji coba push-up (Future Work)
+- [ ] Kalibrasi ambang Auto-Detect & ROM feedback 12 gerakan dengan video nyata
 
 ---
 
@@ -233,6 +254,7 @@ Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 4. Klaim akurasi klinis **tidak didukung**.
 5. ROM yang dihasilkan bukan pengukuran klinis tervalidasi.
 6. Metrik consistency adalah **proxy visual**, bukan ukuran universal.
+7. Auto-Detect (Decision Tree) dan threshold 12 gerakan adalah **heuristik prototype** — belum dikalibrasi/diuji dengan video nyata untuk semua gerakan.
 
 ### Asumsi
 1. Video memenuhi protokol pengambilan (side view, 1 orang, full body).
@@ -272,7 +294,7 @@ Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 
 1. **Bekerja bertahap**, tidak membangun semua fitur sekaligus.
 2. **Modularitas ketat**: Satu file = satu tanggung jawab (UI, Pipeline, Geometri, dll).
-3. **Selalu jalankan test** setelah implementasi (131 unit test).
+3. **Selalu jalankan test** setelah implementasi (142 unit test).
 4. **Jujur pada hasil**: Jangan klaim fitur berjalan jika belum diuji dengan data nyata.
 5. **Jangan tambah dependensi** di luar yang terkunci tanpa persetujuan.
 6. **Laporkan error/gagal** apa adanya, jangan di-*bypass*.
@@ -295,19 +317,21 @@ Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 | 2026-10-23 | Tombol 🔄 Reset custom **dihapus**; hapus file = X bawaan uploader, hasil disembunyikan otomatis saat file berubah (anti-stale) | Duplikasi kontrol membingungkan; mesin flag Reset memunculkan bug disabled-timing — fewer stateful widgets = fewer Streamlit bugs |
 | 2026-10-23 | Durasi panduan diubah 5–10 → 10–15 detik | Permintaan klien; video lebih panjang memberi lebih banyak frame per repetisi; video demo 11.8s kini sesuai panduan |
 | 2026-10-25 | Migrasi UI dari Streamlit ke Flask + HTML murni | Streamlit terlalu terbatas untuk mencapai desain mockup 100%; Flask memisahkan Frontend (HTML/JS) dan Backend (Python/AI) secara bersih. |
+| 2026-11-09 | Implementasi 12 gerakan arketipe dan Decision Tree Auto-Detect | Sistem 100% otomatis tanpa dropdown; 12 config di `src/movements/` + klasifikasi postur (horizontal, asimetri kiri-kanan, torso, ROM sendi) di `src/auto_detect.py` |
 
 ---
 
 ## 14. Konfigurasi & Roadmap Gerakan
 
-Catatan: arsitektur yang direncanakan di `src/movements/` memungkinkan
-penambahan file baru untuk gerakan lain tanpa menyentuh pipeline utama.
+Arsitektur `src/movements/` memungkinkan penambahan gerakan baru tanpa
+menyentuh pipeline utama.
 
-- Aturan squat kini berada di `src/metrics.py` (state machine + ambang sudut).
-- Gerakan baru direncanakan berupa file aturan sudut & state machine per gerakan di `src/movements/` + rekomendasi umpan balik per gerakan.
-- Didukung saat ini: **Squat** | Pengembangan: Push-up → Lunge → Plank.
+- State machine, konsistensi & skor tetap di `src/metrics.py` (generic).
+- Ambang sudut, indeks landmark & pesan feedback **per gerakan** di `src/movements/<nama>.py` (12 config + `template.py` untuk gerakan baru).
+- Didukung saat ini (12): **Squat, Push-up, Lunge, Deadlift, Plank, Overhead Press, Row, Calf Raise, Crunch, Glute Bridge, Bicep Curl, Lateral Raise** — dideteksi otomatis via Decision Tree `src/auto_detect.py`.
+- Gerakan baru = file config baru + registrasi di `__init__.py`.
 - Validasi ilmiah: perbandingan hasil AI dengan rubrik ahli/instruktur.
 
 ---
 
-*Terakhir diperbarui: 2026-10-25*
+*Terakhir diperbarui: 2026-11-09*

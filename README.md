@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/JasonSlav/cv-gymcatch/actions/workflows/python-tests.yml/badge.svg)
 
-Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Saat ini sistem mendukung analisis gerakan **squat** dan **push-up**, dengan arsitektur config-driven (`src/movements/`) yang siap dikembangkan untuk gerakan lain (seperti *lunge*, *plank*, dll) di masa depan. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
+Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Sistem mendukung **12 gerakan gym** (Squat, Push-up, Lunge, Deadlift, Plank, Overhead Press, Row, Calf Raise, Crunch, Glute Bridge, Bicep Curl, Lateral Raise) via arsitektur config-driven (`src/movements/`), dengan **Auto-Detect** — jenis gerakan dideteksi otomatis dari video tanpa dropdown. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
 
 > ⚠️ **Disclaimer:** Sistem ini adalah prototipe penelitian. Belum divalidasi secara klinis dan tidak boleh digunakan sebagai pengganti penilaian ahli/instruktur.
 
@@ -71,7 +71,7 @@ Hasil analisis (CSV, Grafik, Teks Ringkasan) akan tersimpan di folder `output/`.
 ---
 
 ## 🔌 API Contract
-`POST /analyze` (multipart form: `video`, `movement_type`, `job_id`; wajib login) mengembalikan JSON:
+`POST /analyze` (multipart form: `video`, `job_id`; wajib login — jenis gerakan dideteksi otomatis) mengembalikan JSON:
 ```json
 {
   "score": 77.8,
@@ -102,7 +102,7 @@ Hasil analisis (CSV, Grafik, Teks Ringkasan) akan tersimpan di folder `output/`.
 ```cmd
 pip install -r requirements-dev.txt
 ```
-- Jalankan seluruh unit test (126 test, folder `tests/`):
+- Jalankan seluruh unit test (142 test, folder `tests/`):
 ```cmd
 pytest tests/ -q
 ```
@@ -113,8 +113,9 @@ pytest tests/ -q
 
 ## 🚀 Roadmap & Skalabilitas
 Sistem ini dirancang secara modular. Logika utama (deteksi pose, perhitungan sudut, state machine repetisi) terpisah dari antarmuka (UI).
-- **Gerakan yang Didukung Saat Ini:** Squat & Push-up.
-- **Pengembangan Selanjutnya:** Lunge, Plank (cukup menambah file konfigurasi baru di `src/movements/`).
+- **Gerakan yang Didukung Saat Ini (12):** Squat, Push-up, Lunge, Deadlift, Plank, Overhead Press, Row, Calf Raise, Crunch, Glute Bridge, Bicep Curl, Lateral Raise — satu file config per gerakan di `src/movements/`.
+- **Auto-Detect:** Sistem 100% otomatis — jenis gerakan dideteksi Decision Tree (`src/auto_detect.py`) dari fitur postur video (tubuh mendatar, asimetri kiri-kanan, hip hinge, ROM sendi) tanpa dropdown.
+- **Pengembangan Selanjutnya:** Kalibrasi ambang Auto-Detect dengan video nyata; gerakan baru cukup menambah file konfigurasi di `src/movements/` + registrasi di `__init__.py`.
 - **Validasi Ilmiah:** Perbandingan hasil AI dengan penilaian ahli/instruktur (rubrik) untuk menguji akurasi klinis.
 
 ---
