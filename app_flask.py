@@ -275,9 +275,10 @@ def analyze():
     if not PROGRESS_JOB_ID_RE.match(job_id):
         job_id = uuid.uuid4().hex[:12]
 
-    # Mode 100% otomatis: jenis gerakan dideteksi server via pre-pass
-    # heuristic ROM (src/auto_detect.py) → hasil deteksi tersimpan ke DB.
-    movement_type = "auto"
+    # Jenis gerakan dipilih user via Card Selection UI (kartu di halaman awal).
+    movement_type = (
+        request.form.get("movement_type") or "squat_standard"
+    ).strip().lower()
 
     def on_progress(done: int, total: int) -> None:
         with progress_lock:
@@ -459,6 +460,28 @@ def progress(job_id: str):
     return jsonify({"done": done, "total": total})
 
 
+# Label tampilan untuk badge gerakan (history & detail).
+_MOVEMENT_LABELS = {
+    "squat_standard": "Squat Biasa",
+    "squat_sumo": "Squat Sumo",
+    "squat_plie": "Squat Plie",
+    "pushup_standard": "Push-up Normal",
+    "pushup_wide": "Push-up Lebar",
+    "pushup_diamond": "Push-up Diamond",
+    "pushup_pike": "Push-up Pike",
+    "crunch_standard": "Crunch Biasa",
+    "crunch_swimming": "Crunch Swimming",
+    "crunch_bicycle": "Crunch Bicycle",
+    "back_up": "Back Up",
+}
+
+
+def _movement_label(movement_type: str | None) -> str:
+    """Label ramah untuk badge; fallback capitalize untuk baris DB lama."""
+    key = (movement_type or "").strip().lower()
+    return _MOVEMENT_LABELS.get(key, key.replace("_", " ").capitalize())
+
+
 @app.route("/history")
 @login_required
 def history():
@@ -486,8 +509,7 @@ def history():
         folder = OUTPUT_DIR / r["job_id"]
         video = next((f.name for f in sorted(folder.glob("squat_annotated.*"))), None)
         csv_file = "knee_angle.csv" if (folder / "knee_angle.csv").exists() else None
-        mt = (r["movement_type"] or "squat").lower()
-        movement_label = "Push-up" if mt == "pushup" else mt.capitalize()
+        movement_label = _movement_label(r["movement_type"])
 
         # Format timestamp: ISO → datetime → strftime
         try:
@@ -580,9 +602,7 @@ def result_detail(job_id: str):
         if name:
             files[key] = name
 
-    mt = (row["movement_type"] or "squat").lower()
-    movement_label = "Push-up" if mt == "pushup" else mt.capitalize()
-    angle_data = _read_angle_series(folder)
+    movement_label = _movement_label(row["movement_type"])
     return render_template(
         "history.html",
         mode="detail",

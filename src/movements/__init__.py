@@ -2,41 +2,39 @@
 Registry gerakan. Titik masuk tunggal: get_movement_config(name).
 
 Menambah gerakan baru:
-1. Salin template.py (atau squat.py) → mis. lunge.py
-2. Isi indeks landmark, threshold, dan pesan feedback
+1. Salin template.py (atau squat_standard.py) → mis. lunge.py
+2. Isi indeks landmark, threshold, camera_angle, dan pesan feedback
 3. Daftarkan di _MOVEMENTS di bawah — selesai. Pipeline/metrics/geometry
    tidak perlu disentuh.
 """
 
 from __future__ import annotations
 
+from src.movements.back_up import BACK_UP_CONFIG
 from src.movements.base import FeedbackRules, MovementConfig
-from src.movements.calf_raise import CALF_RAISE_CONFIG
-from src.movements.crunch import CRUNCH_CONFIG
-from src.movements.curl import CURL_CONFIG
-from src.movements.deadlift import DEADLIFT_CONFIG
-from src.movements.glute_bridge import GLUTE_BRIDGE_CONFIG
-from src.movements.lateral_raise import LATERAL_RAISE_CONFIG
-from src.movements.lunge import LUNGE_CONFIG
-from src.movements.overhead_press import OVERHEAD_PRESS_CONFIG
-from src.movements.plank import PLANK_CONFIG
-from src.movements.pushup import PUSHUP_CONFIG
-from src.movements.row import ROW_CONFIG
-from src.movements.squat import SQUAT_CONFIG
+from src.movements.crunch_bicycle import CRUNCH_BICYCLE_CONFIG
+from src.movements.crunch_standard import CRUNCH_STANDARD_CONFIG
+from src.movements.crunch_swimming import CRUNCH_SWIMMING_CONFIG
+from src.movements.pushup_diamond import PUSHUP_DIAMOND_CONFIG
+from src.movements.pushup_pike import PUSHUP_PIKE_CONFIG
+from src.movements.pushup_standard import PUSHUP_STANDARD_CONFIG
+from src.movements.pushup_wide import PUSHUP_WIDE_CONFIG
+from src.movements.squat_plie import SQUAT_PLIE_CONFIG
+from src.movements.squat_standard import SQUAT_STANDARD_CONFIG
+from src.movements.squat_sumo import SQUAT_SUMO_CONFIG
 
 _MOVEMENTS = {
-    "squat": SQUAT_CONFIG,
-    "pushup": PUSHUP_CONFIG,
-    "lunge": LUNGE_CONFIG,
-    "curl": CURL_CONFIG,
-    "deadlift": DEADLIFT_CONFIG,
-    "overhead_press": OVERHEAD_PRESS_CONFIG,
-    "row": ROW_CONFIG,
-    "plank": PLANK_CONFIG,
-    "calf_raise": CALF_RAISE_CONFIG,
-    "lateral_raise": LATERAL_RAISE_CONFIG,
-    "crunch": CRUNCH_CONFIG,
-    "glute_bridge": GLUTE_BRIDGE_CONFIG,
+    "squat_standard": SQUAT_STANDARD_CONFIG,
+    "squat_sumo": SQUAT_SUMO_CONFIG,
+    "squat_plie": SQUAT_PLIE_CONFIG,
+    "pushup_standard": PUSHUP_STANDARD_CONFIG,
+    "pushup_wide": PUSHUP_WIDE_CONFIG,
+    "pushup_diamond": PUSHUP_DIAMOND_CONFIG,
+    "pushup_pike": PUSHUP_PIKE_CONFIG,
+    "crunch_standard": CRUNCH_STANDARD_CONFIG,
+    "crunch_swimming": CRUNCH_SWIMMING_CONFIG,
+    "crunch_bicycle": CRUNCH_BICYCLE_CONFIG,
+    "back_up": BACK_UP_CONFIG,
 }
 
 
@@ -61,16 +59,15 @@ __all__ = [
     "FeedbackRules",
     "MovementConfig",
     "get_movement_config",
-    "SQUAT_CONFIG",
-    "PUSHUP_CONFIG",
-    "LUNGE_CONFIG",
-    "CURL_CONFIG",
-    "DEADLIFT_CONFIG",
-    "OVERHEAD_PRESS_CONFIG",
-    "ROW_CONFIG",
-    "PLANK_CONFIG",
-    "CALF_RAISE_CONFIG",
-    "LATERAL_RAISE_CONFIG",
-    "CRUNCH_CONFIG",
-    "GLUTE_BRIDGE_CONFIG",
+    "SQUAT_STANDARD_CONFIG",
+    "SQUAT_SUMO_CONFIG",
+    "SQUAT_PLIE_CONFIG",
+    "PUSHUP_STANDARD_CONFIG",
+    "PUSHUP_WIDE_CONFIG",
+    "PUSHUP_DIAMOND_CONFIG",
+    "PUSHUP_PIKE_CONFIG",
+    "CRUNCH_STANDARD_CONFIG",
+    "CRUNCH_SWIMMING_CONFIG",
+    "CRUNCH_BICYCLE_CONFIG",
+    "BACK_UP_CONFIG",
 ]

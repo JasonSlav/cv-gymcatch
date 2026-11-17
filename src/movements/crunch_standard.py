@@ -1,17 +1,17 @@
 """
-Konfigurasi gerakan CRUNCH.
+Konfigurasi gerakan CRUNCH BIASA.
 
-Sudut yang dianalisis: sudut torso (shoulder → hip → knee) — mengecil
-saat tubuh bagian atas terangkat.
+Sudut yang dianalisis: sudut torso (shoulder → hip → knee). Kamera: samping.
 """
 
 from __future__ import annotations
 
 from src.movements.base import FeedbackRules, MovementConfig
 
-CRUNCH_CONFIG = MovementConfig(
-    name="crunch",
+CRUNCH_STANDARD_CONFIG = MovementConfig(
+    name="crunch_standard",
     joint_name="torso",
+    camera_angle="side",
 
     # Kiri: shoulder(11) → hip(23) → knee(25)
     parent_idx=11,

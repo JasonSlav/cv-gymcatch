@@ -19,7 +19,6 @@ from typing import Callable, Optional, Sequence
 
 import cv2
 
-from src.auto_detect import AUTO_DETECT_MAX_FRAMES, detect_movement
 from src.metrics import (
     DEFAULT_DOWN_THRESHOLD,
     DEFAULT_UP_THRESHOLD,
@@ -185,50 +184,13 @@ def extract_sample_frames(
     return paths
 
 
-def _detect_movement_auto(
-    video_path, model_path, meta: VideoMeta, eff_w: int, eff_h: int
-) -> str:
-    """
-    Pre-pass auto-detect: inferensi frame pertama, lalu tebak gerakan
-    dari ROM (heuristic — lihat src/auto_detect.py).
-
-    Memakai instance PoseEstimator terpisah: MediaPipe VIDEO mode
-    mensyaratkan timestamp monoton naik per instance, sedangkan loop
-    analisis utama membaca video dari awal lagi.
-    """
-    landmarks_pre: list = []
-    try:
-        estimator = PoseEstimator(model_path=model_path)
-    except PoseEstimatorError as e:
-        raise PipelineError(str(e)) from e
-    try:
-        with estimator:
-            for idx, frame, msec in iter_frames_timestamped(
-                video_path, rotate=meta.rotation
-            ):
-                if idx >= AUTO_DETECT_MAX_FRAMES:
-                    break
-                if msec > 0:
-                    timestamp_ms = int(round(msec))
-                else:
-                    timestamp_ms = (
-                        int(idx / meta.fps * 1000) if meta.fps > 0 else idx * 33
-                    )
-                result = estimator.detect(frame, timestamp_ms)
-                if result.detected:
-                    landmarks_pre.append(result.landmarks)
-    except VideoIOError as e:
-        raise PipelineError(str(e)) from e
-    return detect_movement(landmarks_pre, eff_w, eff_h)
-
-
 def analyze_video(
     video_path,
     model_path=DEFAULT_MODEL_PATH,
     output_dir="output",
     min_visibility: float = DEFAULT_MIN_VISIBILITY,
     progress_callback: Optional[Callable[[int, int], None]] = None,
-    movement_type: str = "squat",
+    movement_type: str = "squat_standard",
 ) -> AnalysisResult:
     """
     Jalankan pipeline end-to-end untuk satu video.
@@ -274,12 +236,7 @@ def analyze_video(
     else:
         eff_w, eff_h = meta.width, meta.height
 
-    # --- Konfigurasi gerakan (config-driven) ---
-    # "auto" belum punya config → deteksi dulu via pre-pass heuristic ROM.
-    if movement_type == "auto":
-        movement_type = _detect_movement_auto(
-            video_path, model_path, meta, eff_w, eff_h
-        )
+    # --- Konfigurasi gerakan (config-driven; dipilih user via Card Selection) ---
     try:
         config = get_movement_config(movement_type)
     except ValueError as e:

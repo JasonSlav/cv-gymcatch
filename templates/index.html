@@ -319,13 +319,7 @@
             background-color: #444;
         }
 
-        .auto-note {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            margin-top: 10px;
-        }
-
-        .supported-movements {
+        .movement-selection {
             margin-top: 30px;
             background: #1a1a1a;
             border: 1px solid #333;
@@ -340,25 +334,36 @@
             gap: 10px;
         }
 
-        .movement-card {
+        .movement-option {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
             background: #222;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            border: 1px solid #444;
-        }
-
-        .m-name {
+            padding: 12px 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: #fff;
+            border: 1px solid #444;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s;
         }
 
-        .m-angle {
-            color: #00E5FF;
-            font-size: 0.8rem;
+        .movement-option:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .movement-option.active {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.08);
+        }
+
+        .camera-guide {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            font-weight: 600;
         }
 
         .guide-card h3 {
@@ -689,7 +694,6 @@
                 <p data-id="Seret & jatuhkan file ke sini, atau klik tombol" data-en="Drag & drop your file here, or click the button">Seret & jatuhkan file ke sini, atau klik tombol</p>
                 <input type="file" id="videoInput" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 <button type="button" class="btn-select" id="btnSelect" data-id="Pilih File" data-en="Select files">Pilih File</button>
-                <p class="auto-note" data-id="Pastikan seluruh tubuh terlihat dari samping. Sistem akan otomatis mendeteksi gerakan Anda." data-en="Make sure your whole body is visible from the side. The system will automatically detect your movement.">Pastikan seluruh tubuh terlihat dari samping. Sistem akan otomatis mendeteksi gerakan Anda.</p>
             </div>
             <p id="upload-error" class="error-text" style="display:none;"></p>
             <div id="error-msg" style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
@@ -717,22 +721,23 @@
             </div>
         </div>
 
-        <div class="supported-movements">
-            <h3 style="text-align: center; margin-bottom: 20px; color: #fff;" data-id="Gerakan yang Didukung &amp; Sudut Kamera" data-en="Supported Movements &amp; Camera Angle">Gerakan yang Didukung &amp; Sudut Kamera</h3>
+        <div class="movement-selection">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #fff;" data-id="Pilih Gerakan" data-en="Select Movement">Pilih Gerakan</h3>
             <div class="movements-grid">
-                <div class="movement-card"><span class="m-name" data-id="Squat" data-en="Squat">Squat</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Push-up" data-en="Push-up">Push-up</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Lunge" data-en="Lunge">Lunge</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Deadlift" data-en="Deadlift">Deadlift</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Plank" data-en="Plank">Plank</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Overhead Press" data-en="Overhead Press">Overhead Press</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Row" data-en="Row">Row</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Calf Raise" data-en="Calf Raise">Calf Raise</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Crunch" data-en="Crunch">Crunch</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Glute Bridge" data-en="Glute Bridge">Glute Bridge</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Bicep Curl" data-en="Bicep Curl">Bicep Curl</span><span class="m-angle" data-id="Samping" data-en="Side">Samping</span></div>
-                <div class="movement-card"><span class="m-name" data-id="Lateral Raise" data-en="Lateral Raise">Lateral Raise</span><span class="m-angle" data-id="Depan" data-en="Front">Depan</span></div>
+                <div class="movement-option active" data-movement="squat_standard" data-angle="side" data-id="Squat Biasa" data-en="Standard Squat">Squat Biasa</div>
+                <div class="movement-option" data-movement="squat_sumo" data-angle="front" data-id="Squat Sumo" data-en="Sumo Squat">Squat Sumo</div>
+                <div class="movement-option" data-movement="squat_plie" data-angle="front" data-id="Squat Plie" data-en="Plie Squat">Squat Plie</div>
+                <div class="movement-option" data-movement="pushup_standard" data-angle="front" data-id="Push-up Normal" data-en="Standard Push-up">Push-up Normal</div>
+                <div class="movement-option" data-movement="pushup_wide" data-angle="front" data-id="Push-up Lebar" data-en="Wide Push-up">Push-up Lebar</div>
+                <div class="movement-option" data-movement="pushup_diamond" data-angle="front" data-id="Push-up Diamond" data-en="Diamond Push-up">Push-up Diamond</div>
+                <div class="movement-option" data-movement="pushup_pike" data-angle="side" data-id="Push-up Pike" data-en="Pike Push-up">Push-up Pike</div>
+                <div class="movement-option" data-movement="crunch_standard" data-angle="side" data-id="Crunch Biasa" data-en="Standard Crunch">Crunch Biasa</div>
+                <div class="movement-option" data-movement="crunch_swimming" data-angle="side" data-id="Crunch Swimming" data-en="Swimming Crunch">Crunch Swimming</div>
+                <div class="movement-option" data-movement="crunch_bicycle" data-angle="side" data-id="Crunch Bicycle" data-en="Bicycle Crunch">Crunch Bicycle</div>
+                <div class="movement-option" data-movement="back_up" data-angle="side" data-id="Back Up" data-en="Back Extension">Back Up</div>
             </div>
+            <p id="camera-guide" class="camera-guide">📸 Rekam dari SAMPING</p>
+            <input type="hidden" id="selected-movement" value="squat_standard">
         </div>
     </section>
 
@@ -831,7 +836,6 @@
         const T = {
             id: {
                 loading: "Menganalisis video… (±15–60 detik, mohon tunggu)",
-                detecting: "Mendeteksi gerakan...",
                 errPrefix: "Gagal menganalisis: ",
                 dropInvalid: "Format file tidak didukung (hanya .mp4/.mov)",
                 progressFrames: "Memproses {done}/{total} frame",
@@ -865,7 +869,40 @@
                     "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.": "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.",
                     "Kedalaman push-up sudah sangat baik.": "Kedalaman push-up sudah sangat baik.",
                     "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.": "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.",
-                    "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.": "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up."
+                    "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.": "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.",
+                    "Kedalaman squat sumo kurang. Buka kaki & turun lebih dalam.": "Kedalaman squat sumo kurang. Buka kaki & turun lebih dalam.",
+                    "Kedalaman squat sumo sudah sangat baik.": "Kedalaman squat sumo sudah sangat baik.",
+                    "Gerakan squat sumo kurang konsisten. Jaga tempo turun-naik.": "Gerakan squat sumo kurang konsisten. Jaga tempo turun-naik.",
+                    "Tubuh terlalu banyak bergoyang. Jaga berat badan seimbang di kedua kaki.": "Tubuh terlalu banyak bergoyang. Jaga berat badan seimbang di kedua kaki.",
+                    "Kedalaman squat plie kurang. Buka pinggul & turun lebih dalam.": "Kedalaman squat plie kurang. Buka pinggul & turun lebih dalam.",
+                    "Kedalaman squat plie sudah sangat baik.": "Kedalaman squat plie sudah sangat baik.",
+                    "Gerakan squat plie kurang konsisten. Jaga tempo turun-naik.": "Gerakan squat plie kurang konsisten. Jaga tempo turun-naik.",
+                    "Kedalaman push-up lebar kurang. Turunkan dada di antara kedua telapak tangan.": "Kedalaman push-up lebar kurang. Turunkan dada di antara kedua telapak tangan.",
+                    "Kedalaman push-up lebar sudah sangat baik.": "Kedalaman push-up lebar sudah sangat baik.",
+                    "Gerakan push-up lebar kurang konsisten. Jaga tempo turun-naik.": "Gerakan push-up lebar kurang konsisten. Jaga tempo turun-naik.",
+                    "Kedalaman push-up diamond kurang. Turunkan dada ke arah kedua tangan.": "Kedalaman push-up diamond kurang. Turunkan dada ke arah kedua tangan.",
+                    "Kedalaman push-up diamond sudah sangat baik.": "Kedalaman push-up diamond sudah sangat baik.",
+                    "Gerakan push-up diamond kurang konsisten. Jaga tempo turun-naik.": "Gerakan push-up diamond kurang konsisten. Jaga tempo turun-naik.",
+                    "Kedalaman pike push-up kurang. Turunkan kepala ke arah lantai.": "Kedalaman pike push-up kurang. Turunkan kepala ke arah lantai.",
+                    "Kedalaman pike push-up sudah sangat baik.": "Kedalaman pike push-up sudah sangat baik.",
+                    "Gerakan pike push-up kurang konsisten. Jaga tempo turun-naik.": "Gerakan pike push-up kurang konsisten. Jaga tempo turun-naik.",
+                    "Pinggul turun terlalu jauh. Jaga bentuk pike tetap tinggi.": "Pinggul turun terlalu jauh. Jaga bentuk pike tetap tinggi.",
+                    "ROM crunch kurang. Angkat tubuh bagian atas lebih tinggi.": "ROM crunch kurang. Angkat tubuh bagian atas lebih tinggi.",
+                    "ROM crunch sudah sangat baik.": "ROM crunch sudah sangat baik.",
+                    "Gerakan crunch kurang konsisten. Jaga tempo angkat & turun terkontrol.": "Gerakan crunch kurang konsisten. Jaga tempo angkat & turun terkontrol.",
+                    "Gerakan memakai momentum leher. Pegang posisi & gunakan otot perut.": "Gerakan memakai momentum leher. Pegang posisi & gunakan otot perut.",
+                    "ROM crunch swimming kurang. Jaga gerakan kaki & tangan tetap luas.": "ROM crunch swimming kurang. Jaga gerakan kaki & tangan tetap luas.",
+                    "ROM crunch swimming sudah sangat baik.": "ROM crunch swimming sudah sangat baik.",
+                    "Gerakan swimming kurang konsisten. Jaga irama kaki-tangan bergantian.": "Gerakan swimming kurang konsisten. Jaga irama kaki-tangan bergantian.",
+                    "Pinggul terlalu banyak bergoyang. Tekan punggung bawah ke matras.": "Pinggul terlalu banyak bergoyang. Tekan punggung bawah ke matras.",
+                    "ROM crunch bicycle kurang. Putar torso hingga siku mendekati lutut lawan.": "ROM crunch bicycle kurang. Putar torso hingga siku mendekati lutut lawan.",
+                    "ROM crunch bicycle sudah sangat baik.": "ROM crunch bicycle sudah sangat baik.",
+                    "Gerakan bicycle kurang konsisten. Jaga tempo pedal & putaran torso.": "Gerakan bicycle kurang konsisten. Jaga tempo pedal & putaran torso.",
+                    "Leher menegang memakai momentum. Fokus putaran torso, bukan kecepatan.": "Leher menegang memakai momentum. Fokus putaran torso, bukan kecepatan.",
+                    "Angkat dada & kaki lebih tinggi saat back extension.": "Angkat dada & kaki lebih tinggi saat back extension.",
+                    "ROM back extension sudah sangat baik.": "ROM back extension sudah sangat baik.",
+                    "Gerakan back extension kurang konsisten. Jaga tempo angkat & turun terkontrol.": "Gerakan back extension kurang konsisten. Jaga tempo angkat & turun terkontrol.",
+                    "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.": "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung."
                 },
                 emptyFeedback: "Tidak ada masalah signifikan terdeteksi.",
                 m: {
@@ -886,7 +923,6 @@
             },
             en: {
                 loading: "Analyzing video… (about 15–60 s, please wait)",
-                detecting: "Detecting movement...",
                 errPrefix: "Analysis failed: ",
                 dropInvalid: "Unsupported file type (.mp4/.mov only)",
                 progressFrames: "Processing {done}/{total} frames",
@@ -920,7 +956,40 @@
                     "Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.": "Push-up depth is insufficient. Lower your chest closer to the floor.",
                     "Kedalaman push-up sudah sangat baik.": "Push-up depth is already excellent.",
                     "Gerakan push-up kurang konsisten. Jaga tempo turun-naik.": "Push-up movement is inconsistent. Keep a steady down-up tempo.",
-                    "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.": "Hips sway too much. Brace your core during push-ups."
+                    "Pinggul terlalu banyak bergoyang. Kencangkan core saat push-up.": "Hips sway too much. Brace your core during push-ups.",
+                    "Kedalaman squat sumo kurang. Buka kaki & turun lebih dalam.": "Sumo squat depth is insufficient. Widen your stance and go deeper.",
+                    "Kedalaman squat sumo sudah sangat baik.": "Sumo squat depth is already excellent.",
+                    "Gerakan squat sumo kurang konsisten. Jaga tempo turun-naik.": "Sumo squat movement is inconsistent. Mind your down-up tempo.",
+                    "Tubuh terlalu banyak bergoyang. Jaga berat badan seimbang di kedua kaki.": "Too much body sway. Keep your weight balanced on both feet.",
+                    "Kedalaman squat plie kurang. Buka pinggul & turun lebih dalam.": "Plie squat depth is insufficient. Turn your hips out and go deeper.",
+                    "Kedalaman squat plie sudah sangat baik.": "Plie squat depth is already excellent.",
+                    "Gerakan squat plie kurang konsisten. Jaga tempo turun-naik.": "Plie squat movement is inconsistent. Mind your down-up tempo.",
+                    "Kedalaman push-up lebar kurang. Turunkan dada di antara kedua telapak tangan.": "Wide push-up depth is insufficient. Lower your chest between your hands.",
+                    "Kedalaman push-up lebar sudah sangat baik.": "Wide push-up depth is already excellent.",
+                    "Gerakan push-up lebar kurang konsisten. Jaga tempo turun-naik.": "Wide push-up movement is inconsistent. Mind your down-up tempo.",
+                    "Kedalaman push-up diamond kurang. Turunkan dada ke arah kedua tangan.": "Diamond push-up depth is insufficient. Lower your chest toward your hands.",
+                    "Kedalaman push-up diamond sudah sangat baik.": "Diamond push-up depth is already excellent.",
+                    "Gerakan push-up diamond kurang konsisten. Jaga tempo turun-naik.": "Diamond push-up movement is inconsistent. Mind your down-up tempo.",
+                    "Kedalaman pike push-up kurang. Turunkan kepala ke arah lantai.": "Pike push-up depth is insufficient. Lower your head toward the floor.",
+                    "Kedalaman pike push-up sudah sangat baik.": "Pike push-up depth is already excellent.",
+                    "Gerakan pike push-up kurang konsisten. Jaga tempo turun-naik.": "Pike push-up movement is inconsistent. Mind your down-up tempo.",
+                    "Pinggul turun terlalu jauh. Jaga bentuk pike tetap tinggi.": "Hips drop too much. Keep the pike shape high.",
+                    "ROM crunch kurang. Angkat tubuh bagian atas lebih tinggi.": "Crunch ROM is insufficient. Lift your upper body higher.",
+                    "ROM crunch sudah sangat baik.": "Crunch ROM is already excellent.",
+                    "Gerakan crunch kurang konsisten. Jaga tempo angkat & turun terkontrol.": "Crunch movement is inconsistent. Keep the lifting and lowering tempo controlled.",
+                    "Gerakan memakai momentum leher. Pegang posisi & gunakan otot perut.": "The movement uses neck momentum. Hold the position and use your abs.",
+                    "ROM crunch swimming kurang. Jaga gerakan kaki & tangan tetap luas.": "Swimming crunch ROM is insufficient. Keep your arm and leg strokes wide.",
+                    "ROM crunch swimming sudah sangat baik.": "Swimming crunch ROM is already excellent.",
+                    "Gerakan swimming kurang konsisten. Jaga irama kaki-tangan bergantian.": "Swimming movement is inconsistent. Keep a steady alternating arm-leg rhythm.",
+                    "Pinggul terlalu banyak bergoyang. Tekan punggung bawah ke matras.": "Hips sway too much. Press your lower back into the mat.",
+                    "ROM crunch bicycle kurang. Putar torso hingga siku mendekati lutut lawan.": "Bicycle crunch ROM is insufficient. Rotate your torso until the elbow nears the opposite knee.",
+                    "ROM crunch bicycle sudah sangat baik.": "Bicycle crunch ROM is already excellent.",
+                    "Gerakan bicycle kurang konsisten. Jaga tempo pedal & putaran torso.": "Bicycle movement is inconsistent. Keep a steady pedaling and torso rotation tempo.",
+                    "Leher menegang memakai momentum. Fokus putaran torso, bukan kecepatan.": "Your neck strains from momentum. Focus on torso rotation, not speed.",
+                    "Angkat dada & kaki lebih tinggi saat back extension.": "Lift your chest and legs higher during the back extension.",
+                    "ROM back extension sudah sangat baik.": "Back extension ROM is already excellent.",
+                    "Gerakan back extension kurang konsisten. Jaga tempo angkat & turun terkontrol.": "Back extension movement is inconsistent. Keep the lifting and lowering tempo controlled.",
+                    "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.": "The movement uses swinging momentum. Lift with control using your back muscles."
                 },
                 emptyFeedback: "No significant issues detected.",
                 m: {
@@ -960,6 +1029,8 @@
             });
 
             localStorage.setItem("gc-lang", lang);
+
+            updateCameraGuide();
         }
 
         /* Pesan error backend → bahasa aktif (fallback: teks dari server) */
@@ -969,6 +1040,20 @@
                 return t.errors[data.error_key];
             }
             return (data && data.error) || "HTTP error";
+        }
+
+        /* Panduan kamera mengikuti kartu gerakan yang dipilih */
+        function updateCameraGuide() {
+            const guide = document.getElementById("camera-guide");
+            const active = document.querySelector(".movement-option.active");
+            const angle = active ? active.dataset.angle : "side";
+            const text = {
+                side: { id: "📸 Rekam dari SAMPING", en: "📸 Record from the SIDE" },
+                front: { id: "📸 Rekam dari DEPAN", en: "📸 Record from the FRONT" },
+            }[angle];
+            if (guide && text) {
+                guide.textContent = text[currentLang] || text.id;
+            }
         }
 
         /* ===== Upload & kirim ke backend ===== */
@@ -1046,13 +1131,15 @@
                 // Pastikan bar terlihat (penting di HP — bar ada di bawah section upload).
                 progressWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
                 resetProgressUI();
-                // Mode 100% otomatis: fase pre-pass deteksi gerakan di server.
-                progressText.textContent = T[currentLang].detecting;
 
                 const jobId = Date.now().toString();
                 const fd = new FormData();
                 fd.append("video", file);
                 fd.append("job_id", jobId);
+                fd.append(
+                    "movement_type",
+                    document.getElementById("selected-movement").value
+                );
 
                 let progressTimer = null;
                 try {
@@ -1098,6 +1185,18 @@
             }
 
             btnSelect.addEventListener("click", () => input.click());
+
+            /* Card Selection: pilih gerakan → update nilai tersembunyi & panduan kamera */
+            const movementCards = document.querySelectorAll(".movement-option");
+            movementCards.forEach(card => {
+                card.addEventListener("click", () => {
+                    movementCards.forEach(c => c.classList.remove("active"));
+                    card.classList.add("active");
+                    document.getElementById("selected-movement").value =
+                        card.dataset.movement;
+                    updateCameraGuide();
+                });
+            });
 
             // Klik area kosong kotak upload juga membuka picker
             // (jangan dobel dengan tombol/select/input/link di dalamnya).

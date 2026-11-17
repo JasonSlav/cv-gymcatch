@@ -1,16 +1,17 @@
 """
-Konfigurasi gerakan PUSH-UP.
+Konfigurasi gerakan PUSH-UP LEBAR.
 
-Sudut yang dianalisis: sudut siku (shoulder → elbow → wrist).
+Sudut yang dianalisis: sudut siku (shoulder → elbow → wrist). Kamera: depan.
 """
 
 from __future__ import annotations
 
 from src.movements.base import FeedbackRules, MovementConfig
 
-PUSHUP_CONFIG = MovementConfig(
-    name="pushup",
+PUSHUP_WIDE_CONFIG = MovementConfig(
+    name="pushup_wide",
     joint_name="elbow",
+    camera_angle="front",
 
     # Kiri: shoulder(11) → elbow(13) → wrist(15)
     parent_idx=11,
@@ -22,16 +23,16 @@ PUSHUP_CONFIG = MovementConfig(
     right_joint_idx=14,
     right_child_idx=16,
 
-    # Lengan lurus > 150°, dada rendah < 90°
+    # Siku atas > 150°, dada turun < 90° (tangan lebih lebar dari bahu)
     up_threshold=150.0,
     down_threshold=90.0,
 
     feedback_rules=FeedbackRules(
         deep_rom_deg=90.0,
         good_rom_deg=120.0,
-        low_rom="Kedalaman push-up kurang. Turunkan dada lebih dekat ke lantai.",
-        good_rom="Kedalaman push-up sudah sangat baik.",
-        low_consistency="Gerakan push-up kurang konsisten. Jaga tempo turun-naik.",
+        low_rom="Kedalaman push-up lebar kurang. Turunkan dada di antara kedua telapak tangan.",
+        good_rom="Kedalaman push-up lebar sudah sangat baik.",
+        low_consistency="Gerakan push-up lebar kurang konsisten. Jaga tempo turun-naik.",
         low_stability=(
             "Pinggul terlalu banyak bergoyang. "
             "Kencangkan core saat push-up."

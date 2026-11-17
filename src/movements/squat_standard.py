@@ -1,16 +1,17 @@
 """
-Konfigurasi gerakan SQUAT.
+Konfigurasi gerakan SQUAT STANDARD.
 
-Sudut yang dianalisis: sudut lutut (hip → knee → ankle).
+Sudut yang dianalisis: sudut lutut (hip → knee → ankle). Kamera: samping.
 """
 
 from __future__ import annotations
 
 from src.movements.base import FeedbackRules, MovementConfig
 
-SQUAT_CONFIG = MovementConfig(
-    name="squat",
+SQUAT_STANDARD_CONFIG = MovementConfig(
+    name="squat_standard",
     joint_name="knee",
+    camera_angle="side",
 
     # Kiri: hip(23) → knee(25) → ankle(27)
     parent_idx=23,

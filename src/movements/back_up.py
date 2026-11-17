@@ -1,17 +1,17 @@
 """
-Konfigurasi gerakan GLUTE BRIDGE.
+Konfigurasi gerakan BACK UP (back extension).
 
-Sudut yang dianalisis: sudut pinggul (shoulder → hip → knee) — mengecil
-saat pinggul terangkat ke atas.
+Sudut yang dianalisis: sudut pinggul (shoulder → hip → knee). Kamera: samping.
 """
 
 from __future__ import annotations
 
 from src.movements.base import FeedbackRules, MovementConfig
 
-GLUTE_BRIDGE_CONFIG = MovementConfig(
-    name="glute_bridge",
+BACK_UP_CONFIG = MovementConfig(
+    name="back_up",
     joint_name="hip",
+    camera_angle="side",
 
     # Kiri: shoulder(11) → hip(23) → knee(25)
     parent_idx=11,
@@ -23,22 +23,22 @@ GLUTE_BRIDGE_CONFIG = MovementConfig(
     right_joint_idx=24,
     right_child_idx=26,
 
-    # Pinggul di matras > 170°, terangkat penuh < 120°
+    # Pinggul di matras > 170°, dada & kaki terangkat < 120°
     up_threshold=170.0,
     down_threshold=120.0,
 
     feedback_rules=FeedbackRules(
         deep_rom_deg=30.0,
         good_rom_deg=42.0,
-        low_rom="Angkat pinggul lebih tinggi hingga tubuh membentuk garis lurus.",
-        good_rom="ROM glute bridge sudah sangat baik.",
+        low_rom="Angkat dada & kaki lebih tinggi saat back extension.",
+        good_rom="ROM back extension sudah sangat baik.",
         low_consistency=(
-            "Gerakan glute bridge kurang konsisten. "
+            "Gerakan back extension kurang konsisten. "
             "Jaga tempo angkat & turun terkontrol."
         ),
         low_stability=(
-            "Pinggul miring ke satu sisi. "
-            "Angkat kedua sisi secara merata."
+            "Gerakan memakai momentum ayunan. "
+            "Angkat terkontrol dengan otot punggung."
         ),
     ),
 )

@@ -56,3 +56,6 @@ class MovementConfig:
     down_threshold: float
 
     feedback_rules: FeedbackRules
+
+    # Rekomendasi sudut kamera perekaman: "side" (samping) / "front" (depan)
+    camera_angle: str = "side"
