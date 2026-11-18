@@ -460,9 +460,182 @@
 
         .chart-wrap { position: relative; height: 320px; margin-top: 10px; }
 
-        .feedback-box ul { list-style: none; margin-top: 4px; }
-        .feedback-box li { padding: 8px 0; border-bottom: 1px solid #2a2a2a; font-size: 0.9rem; }
-        .feedback-box li:last-child { border-bottom: none; }
+        /* --- Detail: layout baru --- */
+        .detail-page { padding-top: 26px; }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .video-card { display: flex; flex-direction: column; }
+
+        .panel-pill {
+            display: inline-block;
+            align-self: flex-start;
+            padding: 5px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .detail-video {
+            display: block;
+            width: 100%;
+            max-height: 460px;
+            border-radius: 12px;
+            background: #000;
+            object-fit: contain;
+        }
+
+        .video-meta { margin-top: 14px; }
+
+        .video-name {
+            font-size: 0.92rem;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .video-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .video-card .movement-badge { margin-bottom: 0; }
+
+        .video-date { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
+
+        .detail-right { display: flex; flex-direction: column; gap: 18px; }
+
+        .score-panel { display: flex; flex-direction: column; gap: 16px; }
+
+        .score-panel-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .score-panel-head .panel-pill { margin-bottom: 0; }
+
+        .score-main { text-align: right; }
+
+        .score-big {
+            display: block;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-big i { font-size: 1.1rem; margin-right: 4px; }
+
+        .score-panel .score-tag { margin-top: 4px; font-size: 0.8rem; }
+
+        .score-bar {
+            width: 100%;
+            height: 12px;
+            border-radius: 999px;
+            background: #232323;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        .fill-good { background: linear-gradient(90deg, rgba(34, 197, 94, 0.35), #22c55e); }
+        .fill-fair { background: linear-gradient(90deg, rgba(0, 200, 215, 0.3), var(--accent-cyan)); }
+        .fill-bad { background: linear-gradient(90deg, rgba(239, 68, 68, 0.35), #ef4444); }
+
+        .detail-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            flex: 1;
+        }
+
+        .metric-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid #242424;
+            border-radius: 20px;
+            padding: 24px 16px;
+            min-height: 130px;
+        }
+
+        .tile-label { font-size: 0.85rem; color: #cfcfd4; }
+
+        .tile-value {
+            font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .detail-block { margin-top: 18px; }
+
+        .feedback-box ul {
+            list-style: disc;
+            padding-left: 22px;
+            margin-top: 4px;
+        }
+
+        .feedback-box li {
+            padding: 4px 0;
+            border-bottom: none;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .feedback-notes {
+            margin-top: 18px;
+            padding-left: 22px;
+            font-size: 0.88rem;
+            font-style: italic;
+            color: #cfcfd4;
+            line-height: 1.7;
+        }
+
+        .feedback-notes strong { font-style: normal; }
+
+        .detail-chart { height: 260px; margin-top: 0; }
+
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+        }
+
+        .btn-save {
+            display: inline-block;
+            background: #1e1e1e;
+            border: 1px solid #383838;
+            color: var(--text-main);
+            border-radius: 999px;
+            padding: 12px 28px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .btn-save:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); background: #232323; }
 
         .card h3 { font-size: 1rem; font-weight: 700; }
 
@@ -533,6 +706,8 @@
         @media (max-width: 900px) {
             .activity-card { grid-template-columns: 1fr; gap: 18px; }
             .chart-box { min-height: 200px; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .detail-video { max-height: 420px; }
         }
 
         @media (max-width: 768px) {
@@ -597,63 +772,77 @@
     </nav>
 
     {% if mode == 'detail' %}
-    <div class="page">
-        <h1 class="page-title" data-id="Detail <span class='text-cyan'>Analisis</span>"
-            data-en="Analysis <span class='text-cyan'>Detail</span>">Detail <span class="text-cyan">Analisis</span></h1>
+    {% set cls = 'good' if row.score_label == 'Baik' else ('fair' if row.score_label == 'Cukup' else 'bad') %}
+    {% set score_val = row.score if row.score is not none else 0 %}
+    <header class="activity-hero">
+        <div class="container">
+            <h1 class="activity-title"
+                data-id="Detail Analisis"
+                data-en="Analysis Detail">Detail Analisis</h1>
+            <p class="activity-sub"
+               data-id="Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik."
+               data-en="Optimize every movement with proper guidance to improve your form, maximize workout effectiveness, and achieve the best results.">Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik.</p>
+        </div>
+    </header>
 
-        <div class="card">
-            <div class="detail-head">
-                <span class="detail-name">{{ row.video_name }}
-                    <span class="detail-badge" data-mtype="{{ row.movement_type or '' }}">{{ movement_label }}</span>
-                </span>
-                <span class="detail-time">{{ timestamp_label }}</span>
+    <div class="page detail-page">
+        <div class="detail-grid">
+            <!-- Video -->
+            <div class="card video-card">
+                <span class="panel-pill" data-id="Video Dianalisis" data-en="Analyzed Video">Video Dianalisis</span>
+                {% if files.get('video') %}
+                    <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" class="detail-video"></video>
+                {% else %}
+                    <p class="chart-empty" data-id="Video tidak tersedia" data-en="Video not available">Video tidak tersedia</p>
+                {% endif %}
+                <div class="video-meta">
+                    <p class="video-name">{{ row.video_name }}</p>
+                    <div class="video-meta-row">
+                        <span class="movement-badge" data-mtype="{{ row.movement_type or '' }}">{{ movement_label }}</span>
+                        <span class="video-date">{{ timestamp_label }}</span>
+                    </div>
+                </div>
             </div>
-            <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
-            <span class="big-score">{{ '%.1f'|format(row.score if row.score is not none else 0) }}%</span>
-            <span class="score-label">{{ row.score_label or '' }}</span>
-            <span class="metric-hint" data-id="Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%)." data-en="Combines ROM (40%), consistency (30%), and stability (30%).">Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%).</span>
 
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <span class="metric-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
-                    <span class="metric-value">{{ row.reps if row.reps is not none else 'N/A' }}</span>
-                    <span class="metric-hint" data-id="Jumlah gerakan naik-turun yang terdeteksi." data-en="Number of detected up-and-down movements.">Jumlah gerakan naik-turun yang terdeteksi.</span>
+            <!-- Skor + metrik -->
+            <div class="detail-right">
+                <div class="card score-panel">
+                    <div class="score-panel-head">
+                        <span class="panel-pill" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
+                        <div class="score-main">
+                            <span class="score-big score-{{ cls }}">{{ '%.1f'|format(score_val) }}%{% if cls == 'bad' %} <i class="fa-solid fa-arrow-down"></i>{% endif %}</span>
+                            <span class="score-tag score-tag-{{ cls }}">{{ row.score_label or '' }}</span>
+                        </div>
+                    </div>
+                    <div class="score-bar">
+                        <span class="score-bar-fill fill-{{ cls }}" style="width: {{ '%.1f'|format(score_val if score_val <= 100 else 100) }}%;"></span>
+                    </div>
                 </div>
-                <div class="metric-card">
-                    <span class="metric-label">ROM</span>
-                    <span class="metric-value">{% if row.rom is not none %}{{ '%.1f'|format(row.rom) }}&deg;{% else %}N/A{% endif %}</span>
-                    <span class="metric-hint" data-id="Rentang gerak sendi (derajat)." data-en="Joint range of motion (degrees).">Rentang gerak sendi (derajat).</span>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
-                    <span class="metric-value">{{ row.stability if row.stability is not none else 'N/A' }}%</span>
-                    <span class="metric-hint" data-id="Seberapa stabil tubuh; makin kecil goyangan makin tinggi." data-en="How steady the body is; less sway means higher.">Seberapa stabil tubuh; makin kecil goyangan makin tinggi.</span>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
-                    <span class="metric-value">{{ row.consistency if row.consistency is not none else 'N/A' }}</span>
-                    {% if row.consistency is none %}
-                        <span class="metric-hint" data-id="Butuh minimal 3 repetisi untuk dihitung." data-en="Needs at least 3 repetitions to compute.">Butuh minimal 3 repetisi untuk dihitung.</span>
-                    {% elif row.consistency == 0 %}
-                        <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman & tempo." data-en="Repetition similarity (0–1). Repetitions vary a lot — keep depth & tempo consistent.">Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman &amp; tempo.</span>
-                    {% else %}
-                        <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1)." data-en="Repetition similarity (0–1).">Kemiripan antar repetisi (0–1).</span>
-                    {% endif %}
+
+                <div class="detail-metrics">
+                    <div class="metric-tile">
+                        <span class="tile-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
+                        <span class="tile-value">{{ row.reps if row.reps is not none else 'N/A' }}</span>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="tile-label">ROM</span>
+                        <span class="tile-value">{% if row.rom is not none %}{{ '%.1f'|format(row.rom) }}{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="tile-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
+                        <span class="tile-value">{% if row.stability is not none %}{{ row.stability|int }}%{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div class="metric-tile">
+                        <span class="tile-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
+                        <span class="tile-value">{% if row.consistency is not none %}{{ '%.1f'|format(row.consistency * 100) }}%{% else %}N/A{% endif %}</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        {% if files.get('video') %}
-            <div class="card" style="margin-top:14px;">
-                <h3 data-id="Video Hasil Analisis" data-en="Analyzed Video">Video Hasil Analisis</h3>
-                <div style="width:100%; margin-top:10px;">
-                    <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" class="result-video"></video>
-                </div>
-            </div>
-        {% endif %}
-
-        <div class="card feedback-box" style="margin-top:14px;">
-            <h3 data-id="Feedback" data-en="Feedback">Feedback</h3>
+        <!-- Feedback + Notes -->
+        <div class="card feedback-box detail-block">
+            <span class="panel-pill" data-id="Feedback" data-en="Feedback">Feedback</span>
             <ul>
                 {% for f in feedbacks %}
                     <li>{{ f }}</li>
@@ -661,36 +850,36 @@
                     <li data-id="Gerakan sudah sangat baik. Pertahankan!" data-en="Excellent movement. Keep it up!">Gerakan sudah sangat baik. Pertahankan!</li>
                 {% endfor %}
             </ul>
+            <p class="feedback-notes">
+                <strong>Notes*</strong>
+                <span data-id=" Jaga postur dan kontrol gerakan di setiap repetisi. Pastikan seluruh tubuh terlihat dalam frame dan kamera stabil agar hasil analisis lebih akurat."
+                      data-en=" Keep your posture controlled throughout each repetition. Make sure your whole body is visible in frame and the camera is steady for more accurate analysis."> Jaga postur dan kontrol gerakan di setiap repetisi. Pastikan seluruh tubuh terlihat dalam frame dan kamera stabil agar hasil analisis lebih akurat.</span>
+            </p>
         </div>
 
+        <!-- Grafik -->
         {% if angle_data %}
-            <div class="card" style="margin-top:14px;">
-                <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
-                <div class="chart-wrap"><canvas id="angleChart"></canvas></div>
+            <div class="card detail-block">
+                <span class="panel-pill" data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</span>
+                <div class="chart-wrap detail-chart"><canvas id="angleChart"></canvas></div>
             </div>
         {% elif files.get('plot') %}
-            <div class="card" style="margin-top:14px;">
-                <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
+            <div class="card detail-block">
+                <span class="panel-pill" data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</span>
                 <img class="plot-img" src="/output/{{ row.job_id }}/{{ files['plot'] }}" alt="Plot sudut sendi">
             </div>
         {% endif %}
 
-        <div class="card files-box" style="margin-top:14px;">
-            <h3 data-id="Unduh File" data-en="Download Files">Unduh File</h3>
-            <div class="files">
-                {% if files.get('video') %}
-                    <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['video'] }}"
-                       data-id="Unduh Video" data-en="Download Video">Unduh Video</a>
-                {% endif %}
-                {% if files.get('plot') %}
-                    <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['plot'] }}"
-                       data-id="Unduh Grafik (PNG)" data-en="Download Plot (PNG)">Unduh Grafik (PNG)</a>
-                {% endif %}
-                {% if files.get('csv') %}
-                    <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['csv'] }}"
-                       data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
-                {% endif %}
-            </div>
+        <!-- Aksi -->
+        <div class="detail-actions">
+            {% if files.get('csv') %}
+                <a class="btn-save" href="/download/{{ row.job_id }}/{{ files['csv'] }}"
+                   data-id="Simpan Aktivitas" data-en="Save Activity">Simpan Aktivitas</a>
+            {% endif %}
+            {% if files.get('video') %}
+                <a class="btn-save" href="/download/{{ row.job_id }}/{{ files['video'] }}"
+                   data-id="Simpan Video" data-en="Save Video">Simpan Video</a>
+            {% endif %}
         </div>
 
         <div class="back-row">
