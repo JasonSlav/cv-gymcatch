@@ -1,4 +1,4 @@
-# PROJECT.md — CV Gym Catch
+# PROJECT.md — CV Koribantes
 
 Sistem Computer Vision untuk Evaluasi Kualitas Gerakan Gym
 Prototype penelitian — bukan produk komersial.
@@ -89,17 +89,19 @@ C:\Projects\cv\gymcatch\
 ├─ run_squat.py                # CLI wrapper tipis di atas src/pipeline.py
 │
 ├─ templates\
-│  ├─ index.html               # Beranda (upload, auto-detect, kartu 12 gerakan, i18n ID/EN)
+│  ├─ index.html               # Beranda (upload, kartu 4 gerakan + modal 11 varian, i18n ID/EN)
 │  ├─ history.html             # Riwayat & Detail analisis (player video, grafik Chart.js)
 │  ├─ login.html               # halaman masuk
 │  └─ register.html            # halaman daftar
 │
 ├─ static\
-│  ├─ logo.png                 # logo navbar
-│  ├─ fik.png                  # logo FIK (footer)
-│  ├─ bg_gym_small.jpg         # background hero
-│  ├─ chart.min.js             # Chart.js lokal (grafik interaktif detail)
-│  └─ Camera/Graphic/File.png  # ikon fitur
+│  ├─ logo_koribantes.png      # logo navbar/footer & halaman auth
+│  ├─ card_squat.png           # kartu kategori Squat
+│  ├─ card_pushup.png          # kartu kategori Push Up
+│  ├─ card_crunch.png          # kartu kategori Crunch
+│  ├─ card_backup.png          # kartu kategori Back Up
+│  ├─ coach-adi-dev.png        # foto pengembang
+│  └─ chart.min.js             # Chart.js lokal (grafik interaktif)
 │
 ├─ src\                        # kode modular
 │  ├─ geometry.py              # sudut, normalisasi, interpolasi (murni)

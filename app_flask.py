@@ -1,5 +1,5 @@
 """
-Backend Flask untuk CV Gym Catch (arsitektur client-server).
+Backend Flask untuk CV Koribantes (arsitektur client-server).
 
 Route:
 - GET  /                    → render templates/index.html

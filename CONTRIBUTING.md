@@ -1,6 +1,6 @@
 # Panduan Kontribusi
 
-Terima kasih ingin berkontribusi pada CV Gym Catch! Ikuti langkah berikut.
+Terima kasih ingin berkontribusi pada CV Koribantes! Ikuti langkah berikut.
 
 ## 1. Fork & Clone
 1. Fork repositori ini ke akun GitHub Anda.

@@ -1,8 +1,8 @@
-# CV Gym Catch — Evaluasi Kualitas Gerakan Gym
+# CV Koribantes — Evaluasi Kualitas Gerakan Gym
 
 ![CI](https://github.com/JasonSlav/cv-gymcatch/actions/workflows/python-tests.yml/badge.svg)
 
-Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Sistem mendukung **12 gerakan gym** (Squat, Push-up, Lunge, Deadlift, Plank, Overhead Press, Row, Calf Raise, Crunch, Glute Bridge, Bicep Curl, Lateral Raise) via arsitektur config-driven (`src/movements/`), dengan **Auto-Detect** — jenis gerakan dideteksi otomatis dari video tanpa dropdown. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
+Prototype sistem Computer Vision untuk menganalisis kualitas gerakan olahraga. Sistem mendukung **11 varian gerakan** dalam 4 kategori (Squat, Push Up, Crunch, Back Up) yang dipilih manual lewat kartu gerakan. Dibangun menggunakan MediaPipe, **Flask**, dan HTML/CSS murni.
 
 > ⚠️ **Disclaimer:** Sistem ini adalah prototipe penelitian. Belum divalidasi secara klinis dan tidak boleh digunakan sebagai pengganti penilaian ahli/instruktur.
 
