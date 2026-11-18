@@ -344,18 +344,23 @@
 
         .movement-footer {
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: space-between;
             gap: 8px;
             margin-top: 8px;
         }
 
         .sample-label {
-            font-size: 0.62rem;
-            color: #666;
+            flex: 1;
+            min-width: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #a1a1a6;
         }
 
         .btn-pick {
+            flex-shrink: 0;
             background: #232323;
             border: 1px solid #3a3a3a;
             color: #ffffff;
@@ -373,8 +378,8 @@
             color: var(--accent-cyan);
         }
 
-        .btn-pick.selected,
-        .btn-pick.selected:hover {
+        .btn-pick.confirmed,
+        .btn-pick.confirmed:hover {
             background: #ffffff;
             border-color: #ffffff;
             color: #000000;
@@ -400,6 +405,7 @@
         }
 
         .upload-box {
+            scroll-margin-top: 110px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -611,6 +617,42 @@
 
         .modal-close:hover { color: #ffffff; }
 
+        .modal-message {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .modal-btn {
+            padding: 9px 20px;
+            border-radius: 999px;
+            border: 1px solid #3a3a3a;
+            background: #1e1e1e;
+            color: #ffffff;
+            font-family: var(--font-main);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .modal-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+        .modal-btn.danger {
+            border-color: rgba(239, 68, 68, 0.55);
+            background: rgba(239, 68, 68, 0.12);
+            color: #ff7b7b;
+        }
+
+        .modal-btn.danger:hover { border-color: #ef4444; background: #ef4444; color: #ffffff; }
+
         .modal-title {
             font-size: 1.1rem;
             font-weight: 700;
@@ -625,6 +667,34 @@
         }
 
         .modal-panel.active { display: grid; }
+
+        /* --- Toast peringatan kartu --- */
+        .card-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            z-index: 1500;
+            max-width: min(420px, calc(100vw - 40px));
+            padding: 12px 20px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 200, 215, 0.55);
+            background: #141414;
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+            opacity: 0;
+            visibility: hidden;
+            transform: translate(-50%, 12px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+        }
+
+        .card-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0);
+        }
 
         .movement-option {
             display: flex;
@@ -886,7 +956,7 @@
         <div class="nav-right">
             {% if current_user.is_authenticated %}
                 <span class="nav-user-name">{{ current_user.username }}</span>
-                <a href="/logout" class="btn-login btn-logout" onclick="return confirm('Yakin ingin logout?');">
+                <a href="/logout" class="btn-login btn-logout" data-logout>
                     <span>Logout</span>
                     <span class="login-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
                 </a>
@@ -933,8 +1003,8 @@
                        data-id="Kedalaman, postur, dan repetisi dianalisis otomatis."
                        data-en="Depth, posture, and repetitions analyzed automatically.">Kedalaman, postur, dan repetisi dianalisis otomatis.</p>
                     <div class="movement-footer">
-                        <span class="sample-label" data-category-label="squat">Pilih Variasi</span>
-                        <button type="button" class="btn-pick" data-open-modal="squat" data-id="Pilih" data-en="Select">Pilih</button>
+                        <span class="sample-label" data-category-label="squat">Variasi Gerakan</span>
+                        <button type="button" class="btn-pick">Pilih</button>
                     </div>
                 </div>
             </article>
@@ -949,8 +1019,8 @@
                        data-id="Sudut sendi, keselarasan, dan kedalaman dianalisis otomatis."
                        data-en="Joint angles, alignment, and depth analyzed automatically.">Sudut sendi, keselarasan, dan kedalaman dianalisis otomatis.</p>
                     <div class="movement-footer">
-                        <span class="sample-label" data-category-label="pushup">Pilih Variasi</span>
-                        <button type="button" class="btn-pick" data-open-modal="pushup" data-id="Pilih" data-en="Select">Pilih</button>
+                        <span class="sample-label" data-category-label="pushup">Variasi Gerakan</span>
+                        <button type="button" class="btn-pick">Pilih</button>
                     </div>
                 </div>
             </article>
@@ -965,8 +1035,8 @@
                        data-id="Sudut torso, rentang gerak, dan irama dianalisis otomatis."
                        data-en="Torso angle, range, and rhythm analyzed automatically.">Sudut torso, rentang gerak, dan irama dianalisis otomatis.</p>
                     <div class="movement-footer">
-                        <span class="sample-label" data-category-label="crunch">Pilih Variasi</span>
-                        <button type="button" class="btn-pick" data-open-modal="crunch" data-id="Pilih" data-en="Select">Pilih</button>
+                        <span class="sample-label" data-category-label="crunch">Variasi Gerakan</span>
+                        <button type="button" class="btn-pick">Pilih</button>
                     </div>
                 </div>
             </article>
@@ -981,8 +1051,8 @@
                        data-id="Ekstensi tulang punggung, rentang, dan kontrol dianalisis otomatis."
                        data-en="Spinal extension, range, and control analyzed automatically.">Ekstensi tulang punggung, rentang, dan kontrol dianalisis otomatis.</p>
                     <div class="movement-footer">
-                        <span class="sample-label" data-category-label="backup">Pilih Variasi</span>
-                        <button type="button" class="btn-pick" data-open-modal="backup" data-id="Pilih" data-en="Select">Pilih</button>
+                        <span class="sample-label" data-category-label="backup">Variasi Gerakan</span>
+                        <button type="button" class="btn-pick">Pilih</button>
                     </div>
                 </div>
             </article>
@@ -1151,6 +1221,22 @@
         </div>
     </div>
 
+    <!-- Modal konfirmasi -->
+    <div id="confirm-modal" class="modal" aria-hidden="true">
+        <div class="modal-backdrop" data-confirm-close></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <button type="button" class="modal-close" data-confirm-close aria-label="Close">&times;</button>
+            <h3 class="modal-title" id="confirm-title"></h3>
+            <p class="modal-message" id="confirm-message"></p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn" data-confirm-close data-id="Batal" data-en="Cancel">Batal</button>
+                <button type="button" class="modal-btn danger" id="confirm-ok"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="card-toast" class="card-toast" role="status" aria-live="polite"></div>
+
     <script>
         /* ===== I18N: Indonesia (default) & English ===== */
         const T = {
@@ -1160,7 +1246,10 @@
                 dropInvalid: "Format file tidak didukung (hanya .mp4/.mov)",
                 progressFrames: "Memproses {done}/{total} frame",
                 na: "N/A",
-                chooseVariation: "Pilih Variasi",
+                chooseVariation: "Variasi Gerakan",
+                pick: "Pilih",
+                selected: "Terpilih",
+                selectThisFirst: "Pilih variasi untuk gerakan ini terlebih dahulu.",
                 noMovement: "Pilih variasi gerakan terlebih dahulu.",
                 hints: {
                     score: "Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%).",
@@ -1249,7 +1338,10 @@
                 dropInvalid: "Unsupported file type (.mp4/.mov only)",
                 progressFrames: "Processing {done}/{total} frames",
                 na: "N/A",
-                chooseVariation: "Choose Variation",
+                chooseVariation: "Movement Variation",
+                pick: "Select",
+                selected: "Selected",
+                selectThisFirst: "Choose a variation for this movement first.",
                 noMovement: "Choose a movement variation first.",
                 hints: {
                     score: "Combines ROM (40%), consistency (30%), and stability (30%).",
@@ -1335,6 +1427,7 @@
         };
 
         let currentLang = localStorage.getItem("gc-lang") || "id";
+        let selectedCategory = null;
 
         function applyLang(lang) {
             if (!T[lang]) lang = "id";
@@ -1355,6 +1448,7 @@
             localStorage.setItem("gc-lang", lang);
 
             updateCardLabels();
+            updatePickButtons();
         }
 
         /* Pesan error backend → bahasa aktif (fallback: teks dari server) */
@@ -1384,14 +1478,38 @@
             });
         }
 
+        function updatePickButtons() {
+            document.querySelectorAll(".btn-pick").forEach(btn => {
+                btn.textContent = btn.classList.contains("confirmed")
+                    ? T[currentLang].selected
+                    : T[currentLang].pick;
+            });
+        }
+
+        function resetConfirmedButtons() {
+            document.querySelectorAll(".btn-pick.confirmed").forEach(btn => {
+                btn.classList.remove("confirmed");
+            });
+            updatePickButtons();
+        }
+
         /* Tandai satu kartu sebagai kategori terpilih */
         function selectCategory(category) {
+            selectedCategory = category;
             document.querySelectorAll(".movement-card").forEach(card => {
-                const on = card.dataset.category === category;
-                card.classList.toggle("selected", on);
-                const btn = card.querySelector(".btn-pick");
-                if (btn) btn.classList.toggle("selected", on);
+                card.classList.toggle("selected", card.dataset.category === category);
             });
+        }
+
+        let toastTimer = null;
+
+        function showToast(message) {
+            const toast = document.getElementById("card-toast");
+            if (!toast) return;
+            toast.textContent = message;
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
         }
 
         /* Modal varian gerakan */
@@ -1542,18 +1660,79 @@
 
             btnSelect.addEventListener("click", () => input.click());
 
-            /* Kartu kategori & tombol Pilih → buka modal varian */
+            /* Kartu kategori → buka modal varian; tombol Pilih → konfirmasi + scroll */
             document.querySelectorAll(".movement-card").forEach(card => {
                 card.addEventListener("click", () => openModal(card.dataset.category));
             });
-            document.querySelectorAll("[data-open-modal]").forEach(btn => {
+            document.querySelectorAll(".btn-pick").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    openModal(btn.dataset.openModal);
+                    const movement = document.getElementById("selected-movement").value;
+                    if (!movement) {
+                        showToast(T[currentLang].noMovement);
+                        return;
+                    }
+                    const card = btn.closest(".movement-card");
+                    if (!card || card.dataset.category !== selectedCategory) {
+                        showToast(T[currentLang].selectThisFirst);
+                        return;
+                    }
+                    btn.classList.add("confirmed");
+                    updatePickButtons();
+                    const uploadBox = document.querySelector(".upload-box");
+                    if (uploadBox) {
+                        uploadBox.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
                 });
             });
             document.querySelectorAll("[data-close-modal]").forEach(el => {
                 el.addEventListener("click", closeModal);
+            });
+
+            /* Modal konfirmasi (logout) */
+            const confirmModal = document.getElementById("confirm-modal");
+            const confirmTitle = document.getElementById("confirm-title");
+            const confirmMessage = document.getElementById("confirm-message");
+            const confirmOk = document.getElementById("confirm-ok");
+
+            function closeConfirmModal() {
+                confirmModal.classList.remove("open");
+                confirmModal.setAttribute("aria-hidden", "true");
+                document.body.style.overflow = "";
+            }
+
+            function openConfirmModal(title, message, okLabel) {
+                confirmTitle.textContent = title;
+                confirmMessage.textContent = message;
+                confirmOk.textContent = okLabel;
+                confirmModal.classList.add("open");
+                confirmModal.setAttribute("aria-hidden", "false");
+                document.body.style.overflow = "hidden";
+                confirmOk.focus();
+            }
+
+            document.querySelectorAll("[data-confirm-close]").forEach(el => {
+                el.addEventListener("click", closeConfirmModal);
+            });
+
+            const logoutLink = document.querySelector("[data-logout]");
+            if (logoutLink) {
+                logoutLink.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const isEn = currentLang === "en";
+                    openConfirmModal(
+                        "Logout",
+                        isEn ? "Are you sure you want to log out?" : "Yakin ingin logout?",
+                        "Logout"
+                    );
+                    confirmOk.dataset.href = logoutLink.getAttribute("href");
+                });
+            }
+
+            confirmOk.addEventListener("click", () => {
+                if (confirmOk.dataset.href) {
+                    window.location.href = confirmOk.dataset.href;
+                }
             });
 
             /* Pilih varian → update nilai tersembunyi, label, dan kartu terpilih */
@@ -1565,6 +1744,7 @@
                     btn.classList.add("active");
                     document.getElementById("selected-movement").value =
                         btn.dataset.movement;
+                    resetConfirmedButtons();
                     const panel = btn.closest(".modal-panel");
                     if (panel) selectCategory(panel.dataset.panel);
                     updateCardLabels();
@@ -1574,7 +1754,12 @@
             });
 
             document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape") closeModal();
+                if (e.key !== "Escape") return;
+                if (confirmModal.classList.contains("open")) {
+                    closeConfirmModal();
+                } else {
+                    closeModal();
+                }
             });
 
             // Klik area kosong kotak upload juga membuka picker
