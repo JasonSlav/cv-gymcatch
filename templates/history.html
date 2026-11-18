@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Catch - Riwayat Analisis</title>
+    <title>Korbitantes - Activity</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #000000;
-            --bg-card: #1a1a1a;
+            --bg-color: #050505;
+            --bg-card: #141414;
+            --bg-card-2: #1a1a1a;
+            --bg-footer: #030303;
             --text-main: #ffffff;
             --text-muted: #a1a1a6;
-            --accent-cyan: #00bfff;
-            --border-color: #333333;
+            --accent-cyan: #00c8d7;
+            --border-color: #2a2a2a;
             --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
 
         body {
             background-color: var(--bg-color);
@@ -24,78 +30,118 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
+        a { text-decoration: none; color: var(--text-main); transition: color 0.3s ease; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .text-cyan { color: var(--accent-cyan); }
+
+        /* --- Navbar --- */
         nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
+            gap: 12px;
+            padding: 14px 40px;
             z-index: 1000;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            background: rgba(10, 10, 10, 0.85);
-            border-bottom: 1px solid #222;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background: rgba(5, 5, 5, 0.78);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .logo {
+        .logo { display: flex; align-items: center; gap: 9px; justify-self: start; }
+
+        .logo-mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d5e0, #00777f);
             display: flex;
             align-items: center;
+            justify-content: center;
+            color: #001416;
+            font-size: 13px;
+            flex-shrink: 0;
         }
 
-        .logo img {
-            height: 40px;
-            width: auto;
-            display: block;
-        }
+        .logo-text { font-weight: 800; font-size: 18px; letter-spacing: 0.3px; line-height: 1; }
 
-        .nav-right {
+        .nav-center {
             display: flex;
-            align-items: center;
-            gap: 18px;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid #262626;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.03);
+            justify-self: center;
         }
 
-        .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
+        .nav-pill {
+            padding: 7px 20px;
+            border-radius: 999px;
             font-size: 14px;
             font-weight: 600;
-            line-height: 1.4;
+            color: var(--text-muted);
+            white-space: nowrap;
+            transition: background 0.2s, color 0.2s;
         }
 
-        .nav-link:hover {
-            color: var(--accent-cyan);
-        }
+        .nav-pill:hover { color: var(--text-main); }
+
+        .nav-pill.active { background: #ffffff; color: #000000; }
+
+        .nav-right { justify-self: end; display: flex; align-items: center; gap: 14px; }
 
         .nav-user-name {
-            color: var(--text-main);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            line-height: 1.4;
+            max-width: 110px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .btn-logout {
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            padding: 3px 12px;
-            border-radius: 14px;
+        .btn-login {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        .btn-logout:hover {
-            background: #ef4444;
-            color: #000;
+        .btn-login .login-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: border-color 0.2s, color 0.2s;
         }
+
+        .btn-login:hover .login-icon { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+        .btn-logout { color: #ff6b6b; }
+        .btn-logout .login-icon { border-color: rgba(255, 107, 107, 0.45); }
+        .btn-logout:hover { color: #ff8f8f; }
 
         .lang-toggle {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 4px;
+            padding: 3px;
             background: rgba(0, 0, 0, 0.55);
         }
 
@@ -103,102 +149,275 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 4px 14px;
+            padding: 3px 11px;
             border-radius: 16px;
             cursor: pointer;
             font-family: var(--font-main);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             line-height: 1.2;
             transition: background 0.2s, color 0.2s;
         }
 
-        .lang-btn:hover {
+        .lang-btn:hover { color: var(--text-main); }
+        .lang-btn.active { background: var(--accent-cyan); color: #000000; }
+
+        /* --- Hero (Activity) --- */
+        .activity-hero {
+            position: relative;
+            padding: 150px 20px 40px;
+            text-align: center;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 55% 65% at 6% 40%, rgba(0, 150, 160, 0.22), transparent 62%),
+                radial-gradient(ellipse 55% 65% at 94% 40%, rgba(0, 150, 160, 0.18), transparent 62%),
+                radial-gradient(ellipse 70% 40% at 50% 0%, rgba(0, 220, 235, 0.06), transparent 60%);
+        }
+
+        .activity-title {
+            font-size: clamp(2.2rem, 6vw, 4.4rem);
+            font-weight: 700;
+            line-height: 1.08;
+            letter-spacing: -1.2px;
+        }
+
+        .activity-sub {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 18px auto 0;
+            max-width: 520px;
+        }
+
+        .search-wrap {
+            position: relative;
+            width: min(560px, 100%);
+            margin: 34px auto 0;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #303030;
+            border-radius: 999px;
+            padding: 14px 52px 14px 24px;
+            font-family: var(--font-main);
+            font-size: 0.92rem;
             color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .lang-btn.active {
-            background: var(--accent-cyan);
-            color: #000000;
+        .search-wrap input::placeholder { color: #6d6d73; }
+        .search-wrap input:focus { border-color: var(--accent-cyan); }
+
+        .search-wrap i {
+            position: absolute;
+            right: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8b8b91;
+            font-size: 1rem;
+            pointer-events: none;
         }
 
+        /* --- Activity list --- */
         .page {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 120px 20px 60px;
+            padding: 30px 20px 60px;
             flex: 1;
         }
 
-        .page-title { font-size: 2rem; font-weight: 800; margin-bottom: 24px; }
-        .page-title .text-cyan { color: var(--accent-cyan); }
+        .activity-list { display: flex; flex-direction: column; gap: 20px; }
+
+        .activity-card {
+            position: relative;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 24px;
+            background: var(--bg-card);
+            border: 1px solid #242424;
+            border-radius: 22px;
+            padding: 24px 26px;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .activity-card:hover { border-color: rgba(0, 200, 215, 0.4); }
+
+        .movement-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .score-block { margin-bottom: 18px; }
+
+        .metric-label {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .score-value {
+            display: block;
+            font-size: 2.1rem;
+            font-weight: 800;
+            line-height: 1.05;
+        }
+
+        .score-value i { font-size: 0.9rem; margin-left: 2px; vertical-align: middle; }
+
+        .score-good { color: #22c55e; }
+        .score-fair { color: var(--accent-cyan); }
+        .score-bad { color: #ef4444; }
+
+        .score-tag {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 0.76rem;
+            font-weight: 600;
+        }
+
+        .score-tag-good { color: #22c55e; }
+        .score-tag-fair { color: var(--accent-cyan); }
+        .score-tag-bad { color: #ef4444; }
+
+        .mini-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 18px;
+        }
+
+        .mini-label {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .mini-value {
+            display: block;
+            font-size: 1.02rem;
+            font-weight: 700;
+        }
+
+        .activity-right { display: flex; flex-direction: column; min-width: 0; }
+
+        .activity-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            padding-right: 46px;
+            margin-bottom: 10px;
+        }
+
+        .activity-name {
+            font-size: 1.12rem;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .activity-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .chart-box {
+            position: relative;
+            flex: 1;
+            min-height: 190px;
+            height: 100%;
+        }
+
+        .chart-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 170px;
+            font-size: 0.8rem;
+            color: #666;
+            border: 1px dashed #2c2c2c;
+            border-radius: 14px;
+        }
+
+        .delete-form {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 2;
+        }
+
+        .btn-trash {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.5);
+            color: #9a9aa0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+
+        .btn-trash:hover { color: #ff6b6b; border-color: #ff6b6b; background: rgba(239, 68, 68, 0.12); }
+
+        .empty-msg {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 0;
+            font-size: 0.9rem;
+        }
+
+        .empty-card {
+            background: var(--bg-card);
+            border: 1px solid #242424;
+            border-radius: 18px;
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* --- Detail mode --- */
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
 
         .card {
             background-color: var(--bg-card);
-            border: 1px solid #2a2a2a;
-            border-radius: 15px;
-            padding: 20px;
+            border: 1px solid #242424;
+            border-radius: 18px;
+            padding: 22px;
         }
 
-        /* --- Mode list --- */
-        .table-wrap {
-            overflow-x: auto;
-            background-color: var(--bg-card);
-            border: 1px solid #2a2a2a;
-            border-radius: 15px;
+        .detail-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
         }
 
-        table { width: 100%; border-collapse: collapse; min-width: 640px; }
+        .detail-name { font-size: 1.2rem; font-weight: 700; }
+        .detail-time { color: var(--text-muted); font-size: 0.85rem; }
 
-        th, td { padding: 14px 18px; text-align: left; font-size: 0.9rem; }
-
-        th {
-            color: var(--text-muted);
-            font-weight: 600;
-            border-bottom: 1px solid #2a2a2a;
-            white-space: nowrap;
-        }
-
-        td { border-bottom: 1px solid #242424; vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-
-        .video-name-cell { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px; }
-        .score-cell { font-weight: 800; color: var(--accent-cyan); white-space: nowrap; }
-        .score-label { font-size: 0.75rem; color: var(--text-muted); margin-left: 6px; }
-
-        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-        .btn-sm {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background: transparent;
-            white-space: nowrap;
-        }
-        .btn-sm:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-        .btn-sm.primary { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-        .btn-sm.primary:hover { background: var(--accent-cyan); color: #000; }
-
-        .btn-danger {
-            border-color: rgba(239, 68, 68, 0.6);
-            color: #f87171;
-            background: transparent;
-            cursor: pointer;
-            font-family: var(--font-main);
-        }
-        .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: #ef4444;
-            color: #f87171;
-        }
-
-        .movement-badge {
+        .detail-badge {
             display: inline-block;
             margin-left: 8px;
             padding: 2px 10px;
@@ -210,24 +429,18 @@
             vertical-align: middle;
         }
 
-        .empty { text-align: center; color: var(--text-muted); padding: 40px 0; }
-
-        /* --- Mode detail --- */
-        .detail-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-        .detail-name { font-size: 1.2rem; font-weight: 700; }
-        .detail-time { color: var(--text-muted); font-size: 0.85rem; }
-
         .big-score { font-size: 2.6rem; font-weight: 800; color: var(--accent-cyan); line-height: 1; }
+        .score-label { font-size: 0.78rem; color: var(--text-muted); margin-left: 6px; }
 
         .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
 
         .metric-card {
-            background-color: #141414;
+            background-color: #1a1a1a;
             border: 1px solid #2a2a2a;
             border-radius: 15px;
             padding: 16px;
         }
-        .metric-label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+
         .metric-value { font-size: 1.4rem; font-weight: 800; }
         .metric-hint { display: block; font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
 
@@ -245,89 +458,136 @@
 
         .plot-img { width: 100%; border-radius: 10px; margin-top: 10px; display: block; background: #111; }
 
-        .chart-wrap { position: relative; height: 320px; }
+        .chart-wrap { position: relative; height: 320px; margin-top: 10px; }
 
         .feedback-box ul { list-style: none; margin-top: 4px; }
         .feedback-box li { padding: 8px 0; border-bottom: 1px solid #2a2a2a; font-size: 0.9rem; }
         .feedback-box li:last-child { border-bottom: none; }
 
-        .back-row { margin-top: 24px; }
+        .card h3 { font-size: 1rem; font-weight: 700; }
 
+        .btn-sm {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: transparent;
+            white-space: nowrap;
+        }
+
+        .btn-sm:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-sm.primary { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-sm.primary:hover { background: var(--accent-cyan); color: #000; }
+
+        .back-row { margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+        /* --- Footer --- */
         footer {
-            padding: 20px;
+            background-color: var(--bg-footer);
+            padding: 60px 0 20px 0;
+            font-size: 0.85rem;
+            border-top: 1px solid #141414;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            margin: 0 auto 40px auto;
+        }
+
+        .footer-logo { display: inline-flex; align-items: center; gap: 9px; }
+
+        .footer-desc {
+            color: var(--text-muted);
+            margin-top: 14px;
+            font-size: 0.72rem;
+            max-width: 320px;
+            line-height: 1.7;
+        }
+
+        .footer-col h4 { margin-bottom: 18px; font-size: 0.85rem; font-weight: 600; }
+
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 13px; }
+        .footer-links a { color: var(--text-muted); font-size: 0.78rem; }
+        .footer-links a:hover { color: var(--text-main); }
+
+        .social-icons { display: flex; gap: 16px; }
+        .social-icons a { color: var(--text-main); font-size: 1.15rem; }
+        .social-icons a:hover { color: var(--accent-cyan); }
+
+        .footer-bottom {
             text-align: center;
-            color: #555;
-            font-size: 0.75rem;
+            padding-top: 20px;
             border-top: 1px solid #1c1c1c;
+            color: #555;
+            font-size: 0.7rem;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            .activity-card { grid-template-columns: 1fr; gap: 18px; }
+            .chart-box { min-height: 200px; }
         }
 
         @media (max-width: 768px) {
-            nav {
-                padding: 12px 16px;
-                flex-wrap: nowrap;
-                white-space: nowrap;
-                overflow: hidden;
-            }
-            .logo img { height: 32px; }
-            .nav-right { gap: 12px; }
-            .nav-link { font-size: 13px; }
-            .nav-user-name {
-                font-size: 12px;
-                max-width: 96px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .btn-logout { padding: 3px 10px; border-radius: 13px; }
-            .lang-btn { padding: 3px 9px; font-size: 12px; }
-            .page { padding: 110px 16px 40px; }
+            nav { padding: 12px 14px; gap: 8px; }
+            .logo-text { font-size: 15px; }
+            .logo-mark { width: 26px; height: 26px; font-size: 12px; }
+            .nav-pill { padding: 6px 13px; font-size: 12px; }
+            .nav-right { gap: 8px; }
+            .nav-user-name { display: none; }
+            .btn-login { font-size: 12px; gap: 6px; }
+            .btn-login .login-icon { width: 22px; height: 22px; font-size: 9px; }
+            .lang-btn { padding: 3px 8px; font-size: 11px; }
+
+            .activity-hero { padding: 125px 16px 26px; }
+            .page { padding: 20px 16px 40px; }
             .page-title { font-size: 1.5rem; }
+            .activity-card { padding: 18px; border-radius: 18px; }
+            .score-value { font-size: 1.8rem; }
             .metrics-grid { grid-template-columns: 1fr 1fr; }
 
-            /* Tabel riwayat → kartu di mobile */
-            .table-wrap { background: transparent; border: none; border-radius: 0; }
-            table, tbody, tr, td { display: block; }
-            table { min-width: 0; }
-            thead { display: none; }
-            tr {
-                display: flex;
-                flex-direction: column;
-                background: #1a1a1a;
-                border: 1px solid #333;
-                border-radius: 10px;
-                margin-bottom: 15px;
-                padding: 15px;
-            }
-            td {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                border: none;
-                padding: 5px 0;
-            }
-            td::before { content: attr(data-label); color: #888; margin-right: auto; }
-            html[lang="en"] td::before { content: attr(data-label-en); }
-            td:last-child {
-                margin-top: 10px;
-                padding-top: 10px;
-                border-top: 1px solid #333;
-            }
-            .video-name-cell { max-width: none; white-space: normal; }
+            .footer-grid { grid-template-columns: 1fr; text-align: center; gap: 32px; }
+            .footer-desc { margin: 14px auto 0; }
+            .social-icons { justify-content: center; }
+        }
+
+        @media (max-width: 480px) {
+            nav .logo-text { display: none; }
         }
     </style>
 </head>
 <body>
+    <!-- Navbar: logo kiri, menu tengah, aksi kanan -->
     <nav>
-        <a href="/" class="logo"><img src="/static/logo.png" alt="Gym Catch Logo"></a>
+        <a href="/" class="logo" aria-label="Korbitantes Home">
+            <span class="logo-mark"><i class="fa-solid fa-bolt"></i></span>
+            <span class="logo-text">Korbitantes</span>
+        </a>
+
+        <div class="nav-center">
+            <a href="/" class="nav-pill">Home</a>
+            <a href="/history" class="nav-pill active">Activity</a>
+        </div>
+
         <div class="nav-right">
-            {% if mode == 'detail' %}
-                <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
-            {% endif %}
             {% if current_user.is_authenticated %}
-                <span class="nav-user-name">👤 {{ current_user.username }}</span>
-                <a href="/logout" class="nav-link btn-logout" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
+                <span class="nav-user-name">{{ current_user.username }}</span>
+                <a href="/logout" class="btn-login btn-logout" onclick="return confirm('Yakin ingin logout?');">
+                    <span>Logout</span>
+                    <span class="login-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                </a>
             {% else %}
-                <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
+                <a href="/login" class="btn-login">
+                    <span>Log In</span>
+                    <span class="login-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                </a>
             {% endif %}
             <div class="lang-toggle" id="langToggle">
                 <button type="button" class="lang-btn active" data-lang="id">ID</button>
@@ -336,156 +596,239 @@
         </div>
     </nav>
 
+    {% if mode == 'detail' %}
     <div class="page">
-        {% if mode == 'detail' %}
-            <h1 class="page-title" data-id="Detail <span class='text-cyan'>Analisis</span>"
-                data-en="Analysis <span class='text-cyan'>Detail</span>">Detail <span class="text-cyan">Analisis</span></h1>
+        <h1 class="page-title" data-id="Detail <span class='text-cyan'>Analisis</span>"
+            data-en="Analysis <span class='text-cyan'>Detail</span>">Detail <span class="text-cyan">Analisis</span></h1>
 
-            <div class="card">
-                <div class="detail-head">
-                    <span class="detail-name">{{ row.video_name }}
-                        <span class="movement-badge">{{ movement_label }}</span>
-                    </span>
-                    <span class="detail-time">{{ timestamp_label }}</span>
-                </div>
-                <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
-                <span class="big-score">{{ '%.1f'|format(row.score if row.score is not none else 0) }}%</span>
-                <span class="score-label">{{ row.score_label or '' }}</span>
-                <span class="metric-hint" data-id="Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%)." data-en="Combines ROM (40%), consistency (30%), and stability (30%).">Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%).</span>
-
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <span class="metric-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
-                        <span class="metric-value">{{ row.reps if row.reps is not none else 'N/A' }}</span>
-                        <span class="metric-hint" data-id="Jumlah gerakan naik-turun yang terdeteksi." data-en="Number of detected up-and-down movements.">Jumlah gerakan naik-turun yang terdeteksi.</span>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-label">ROM</span>
-                        <span class="metric-value">{% if row.rom is not none %}{{ '%.1f'|format(row.rom) }}&deg;{% else %}N/A{% endif %}</span>
-                        <span class="metric-hint" data-id="Rentang gerak sendi (derajat)." data-en="Joint range of motion (degrees).">Rentang gerak sendi (derajat).</span>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
-                        <span class="metric-value">{{ row.stability if row.stability is not none else 'N/A' }}%</span>
-                        <span class="metric-hint" data-id="Seberapa stabil tubuh; makin kecil goyangan makin tinggi." data-en="How steady the body is; less sway means higher.">Seberapa stabil tubuh; makin kecil goyangan makin tinggi.</span>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
-                        <span class="metric-value">{{ row.consistency if row.consistency is not none else 'N/A' }}</span>
-                        {% if row.consistency is none %}
-                            <span class="metric-hint" data-id="Butuh minimal 3 repetisi untuk dihitung." data-en="Needs at least 3 repetitions to compute.">Butuh minimal 3 repetisi untuk dihitung.</span>
-                        {% elif row.consistency == 0 %}
-                            <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman & tempo." data-en="Repetition similarity (0–1). Repetitions vary a lot — keep depth & tempo consistent.">Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman &amp; tempo.</span>
-                        {% else %}
-                            <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1)." data-en="Repetition similarity (0–1).">Kemiripan antar repetisi (0–1).</span>
-                        {% endif %}
-                    </div>
-                </div>
+        <div class="card">
+            <div class="detail-head">
+                <span class="detail-name">{{ row.video_name }}
+                    <span class="detail-badge" data-mtype="{{ row.movement_type or '' }}">{{ movement_label }}</span>
+                </span>
+                <span class="detail-time">{{ timestamp_label }}</span>
             </div>
+            <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
+            <span class="big-score">{{ '%.1f'|format(row.score if row.score is not none else 0) }}%</span>
+            <span class="score-label">{{ row.score_label or '' }}</span>
+            <span class="metric-hint" data-id="Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%)." data-en="Combines ROM (40%), consistency (30%), and stability (30%).">Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%).</span>
 
-            {% if files.get('video') %}
-                <div class="card" style="margin-top:14px;">
-                    <h3 data-id="Video Hasil Analisis" data-en="Analyzed Video">Video Hasil Analisis</h3>
-                    <div style="width:100%; margin-top:10px;">
-                        <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" class="result-video"></video>
-                    </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
+                    <span class="metric-value">{{ row.reps if row.reps is not none else 'N/A' }}</span>
+                    <span class="metric-hint" data-id="Jumlah gerakan naik-turun yang terdeteksi." data-en="Number of detected up-and-down movements.">Jumlah gerakan naik-turun yang terdeteksi.</span>
                 </div>
-            {% endif %}
-
-            <div class="card feedback-box" style="margin-top:14px;">
-                <h3 data-id="Feedback" data-en="Feedback">Feedback</h3>
-                <ul>
-                    {% for f in feedbacks %}
-                        <li>{{ f }}</li>
+                <div class="metric-card">
+                    <span class="metric-label">ROM</span>
+                    <span class="metric-value">{% if row.rom is not none %}{{ '%.1f'|format(row.rom) }}&deg;{% else %}N/A{% endif %}</span>
+                    <span class="metric-hint" data-id="Rentang gerak sendi (derajat)." data-en="Joint range of motion (degrees).">Rentang gerak sendi (derajat).</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
+                    <span class="metric-value">{{ row.stability if row.stability is not none else 'N/A' }}%</span>
+                    <span class="metric-hint" data-id="Seberapa stabil tubuh; makin kecil goyangan makin tinggi." data-en="How steady the body is; less sway means higher.">Seberapa stabil tubuh; makin kecil goyangan makin tinggi.</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
+                    <span class="metric-value">{{ row.consistency if row.consistency is not none else 'N/A' }}</span>
+                    {% if row.consistency is none %}
+                        <span class="metric-hint" data-id="Butuh minimal 3 repetisi untuk dihitung." data-en="Needs at least 3 repetitions to compute.">Butuh minimal 3 repetisi untuk dihitung.</span>
+                    {% elif row.consistency == 0 %}
+                        <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman & tempo." data-en="Repetition similarity (0–1). Repetitions vary a lot — keep depth & tempo consistent.">Kemiripan antar repetisi (0–1). Repetisi sangat bervariasi — samakan kedalaman &amp; tempo.</span>
                     {% else %}
-                        <li data-id="Gerakan sudah sangat baik. Pertahankan!" data-en="Excellent movement. Keep it up!">Gerakan sudah sangat baik. Pertahankan!</li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            {% if angle_data %}
-                <div class="card" style="margin-top:14px;">
-                    <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
-                    <div class="chart-wrap"><canvas id="angleChart"></canvas></div>
-                </div>
-            {% elif files.get('plot') %}
-                <div class="card" style="margin-top:14px;">
-                    <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
-                    <img class="plot-img" src="/output/{{ row.job_id }}/{{ files['plot'] }}" alt="Plot sudut sendi">
-                </div>
-            {% endif %}
-
-            <div class="card files-box" style="margin-top:14px;">
-                <h3 data-id="Unduh File" data-en="Download Files">Unduh File</h3>
-                <div class="files">
-                    {% if files.get('video') %}
-                        <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['video'] }}"
-                           data-id="Unduh Video" data-en="Download Video">Unduh Video</a>
-                    {% endif %}
-                    {% if files.get('plot') %}
-                        <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['plot'] }}"
-                           data-id="Unduh Grafik (PNG)" data-en="Download Plot (PNG)">Unduh Grafik (PNG)</a>
-                    {% endif %}
-                    {% if files.get('csv') %}
-                        <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['csv'] }}"
-                           data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
+                        <span class="metric-hint" data-id="Kemiripan antar repetisi (0–1)." data-en="Repetition similarity (0–1).">Kemiripan antar repetisi (0–1).</span>
                     {% endif %}
                 </div>
             </div>
+        </div>
 
-            <div class="back-row">
-                <a class="btn-sm primary" href="/" data-id="Analisis Video Baru" data-en="New Analysis">Analisis Video Baru</a>
-                <a class="btn-sm" href="/history" data-id="Kembali ke Riwayat" data-en="Back to History">Kembali ke Riwayat</a>
+        {% if files.get('video') %}
+            <div class="card" style="margin-top:14px;">
+                <h3 data-id="Video Hasil Analisis" data-en="Analyzed Video">Video Hasil Analisis</h3>
+                <div style="width:100%; margin-top:10px;">
+                    <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" class="result-video"></video>
+                </div>
             </div>
+        {% endif %}
 
+        <div class="card feedback-box" style="margin-top:14px;">
+            <h3 data-id="Feedback" data-en="Feedback">Feedback</h3>
+            <ul>
+                {% for f in feedbacks %}
+                    <li>{{ f }}</li>
+                {% else %}
+                    <li data-id="Gerakan sudah sangat baik. Pertahankan!" data-en="Excellent movement. Keep it up!">Gerakan sudah sangat baik. Pertahankan!</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% if angle_data %}
+            <div class="card" style="margin-top:14px;">
+                <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
+                <div class="chart-wrap"><canvas id="angleChart"></canvas></div>
+            </div>
+        {% elif files.get('plot') %}
+            <div class="card" style="margin-top:14px;">
+                <h3 data-id="Grafik Sudut" data-en="Angle Graph">Grafik Sudut</h3>
+                <img class="plot-img" src="/output/{{ row.job_id }}/{{ files['plot'] }}" alt="Plot sudut sendi">
+            </div>
+        {% endif %}
+
+        <div class="card files-box" style="margin-top:14px;">
+            <h3 data-id="Unduh File" data-en="Download Files">Unduh File</h3>
+            <div class="files">
+                {% if files.get('video') %}
+                    <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['video'] }}"
+                       data-id="Unduh Video" data-en="Download Video">Unduh Video</a>
+                {% endif %}
+                {% if files.get('plot') %}
+                    <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['plot'] }}"
+                       data-id="Unduh Grafik (PNG)" data-en="Download Plot (PNG)">Unduh Grafik (PNG)</a>
+                {% endif %}
+                {% if files.get('csv') %}
+                    <a class="btn-sm" href="/download/{{ row.job_id }}/{{ files['csv'] }}"
+                       data-id="Unduh Data (CSV)" data-en="Download Data (CSV)">Unduh Data (CSV)</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="back-row">
+            <a class="btn-sm primary" href="/" data-id="Analisis Video Baru" data-en="New Analysis">Analisis Video Baru</a>
+            <a class="btn-sm" href="/history" data-id="Kembali ke Riwayat" data-en="Back to Activity">Kembali ke Riwayat</a>
+        </div>
+    </div>
+
+    {% else %}
+    <header class="activity-hero">
+        <div class="container">
+            <h1 class="activity-title"
+                data-id="Aktivitas {{ current_user.username }}"
+                data-en="{{ current_user.username }} Activity">Aktivitas {{ current_user.username }}</h1>
+            <p class="activity-sub"
+               data-id="Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik."
+               data-en="Optimize every movement with proper guidance to improve your form, maximize workout effectiveness, and achieve the best results.">Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik.</p>
+
+            <div class="search-wrap">
+                <input id="activity-search" type="search" autocomplete="off"
+                       data-ph-id="cari aktivitasmu" data-ph-en="find your activity"
+                       placeholder="cari aktivitasmu">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="page">
+        {% if rows %}
+            <div class="activity-list">
+                {% for r in rows %}
+                    {% set cls = 'good' if r.score_label == 'Baik' else ('fair' if r.score_label == 'Cukup' else 'bad') %}
+                    <article class="activity-card"
+                             data-href="/result/{{ r.job_id }}"
+                             data-search="{{ (r.video_name ~ ' ' ~ r.movement_label ~ ' ' ~ r.date_label)|lower }}"
+                             tabindex="0">
+                        <div class="activity-left">
+                            <span class="movement-badge" data-mtype="{{ r.movement_type or '' }}">{{ r.movement_label }}</span>
+
+                            <div class="score-block">
+                                <span class="metric-label" data-id="Skor Kualitas" data-en="Quality Score">Skor Kualitas</span>
+                                <span class="score-value score-{{ cls }}">{{ '%.1f'|format(r.score if r.score is not none else 0) }}%{% if cls == 'bad' %} <i class="fa-solid fa-arrow-down"></i>{% endif %}</span>
+                                <span class="score-tag score-tag-{{ cls }}">{{ r.score_label or '' }}</span>
+                            </div>
+
+                            <div class="mini-metrics">
+                                <div class="mini-metric">
+                                    <span class="mini-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
+                                    <span class="mini-value">{{ r.reps if r.reps is not none else 'N/A' }}</span>
+                                </div>
+                                <div class="mini-metric">
+                                    <span class="mini-label">ROM</span>
+                                    <span class="mini-value">{% if r.rom is not none %}{{ '%.1f'|format(r.rom) }}{% else %}N/A{% endif %}</span>
+                                </div>
+                                <div class="mini-metric">
+                                    <span class="mini-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
+                                    <span class="mini-value">{% if r.consistency is not none %}{{ '%.1f'|format(r.consistency * 100) }}%{% else %}N/A{% endif %}</span>
+                                </div>
+                                <div class="mini-metric">
+                                    <span class="mini-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
+                                    <span class="mini-value">{% if r.stability is not none %}{{ r.stability|int }}%{% else %}N/A{% endif %}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="activity-right">
+                            <div class="activity-head">
+                                <h2 class="activity-name">{{ r.video_name }}</h2>
+                                <span class="activity-date">{{ r.date_label }}</span>
+                            </div>
+                            <div class="chart-box">
+                                {% if angle_map.get(r.job_id) %}
+                                    <canvas class="activity-chart" data-job="{{ r.job_id }}"></canvas>
+                                {% else %}
+                                    <p class="chart-empty" data-id="Grafik tidak tersedia" data-en="Chart not available">Grafik tidak tersedia</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <form class="delete-form" method="post" action="/delete/{{ r.job_id }}"
+                              onsubmit="return confirm('Yakin ingin menghapus?');">
+                            <button type="submit" class="btn-trash" title="Hapus" aria-label="Hapus">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </article>
+                {% endfor %}
+            </div>
+            <p id="search-empty" class="empty-msg" hidden
+               data-id="Tidak ada aktivitas yang cocok."
+               data-en="No matching activity found.">Tidak ada aktivitas yang cocok.</p>
         {% else %}
-            <h1 class="page-title"><span data-id="Riwayat" data-en="History">Riwayat</span> <span class="text-cyan" data-id="Analisis" data-en="Analysis">Analisis</span></h1>
-
-            {% if rows %}
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th data-id="Waktu" data-en="Time">Waktu</th>
-                                <th data-id="Nama Video" data-en="Video Name">Nama Video</th>
-                                <th data-id="Gerakan" data-en="Movement">Gerakan</th>
-                                <th data-id="Skor" data-en="Score">Skor</th>
-                                <th data-id="Repetisi" data-en="Reps">Repetisi</th>
-                                <th data-id="Aksi" data-en="Actions">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for r in rows %}
-                                <tr>
-                                    <td data-label="Waktu" data-label-en="Time">{{ r.timestamp_label }}</td>
-                                    <td class="video-name-cell" data-label="Video" data-label-en="Video">{{ r.video_name }}</td>
-                                    <td data-label="Gerakan" data-label-en="Movement">{{ r.movement_label }}</td>
-                                    <td class="score-cell" data-label="Skor" data-label-en="Score">{{ '%.1f'|format(r.score if r.score is not none else 0) }}<span class="score-label">{{ r.score_label or '' }}</span></td>
-                                    <td data-label="Repetisi" data-label-en="Reps">{{ r.reps if r.reps is not none else 'N/A' }}</td>
-                                    <td data-label="Aksi" data-label-en="Actions">
-                                        <div class="actions">
-                                            <a class="btn-sm primary" href="/result/{{ r.job_id }}"
-                                               data-id="Lihat Detail ›" data-en="View Detail ›">Lihat Detail ›</a>
-                                            <form method="post" action="/delete/{{ r.job_id }}"
-                                                  onsubmit="return confirm('Yakin ingin menghapus?');">
-                                                <button type="submit" class="btn-sm btn-danger"
-                                                        data-id="Hapus" data-en="Delete">Hapus</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="card empty" data-id="Belum ada riwayat analisis." data-en="No analysis history yet.">Belum ada riwayat analisis.</div>
-            {% endif %}
+            <div class="empty-card" data-id="Belum ada riwayat analisis." data-en="No analysis history yet.">Belum ada riwayat analisis.</div>
         {% endif %}
     </div>
 
-    <footer data-id="Gym Catch - Fakultas Ilmu Keolahragaan, Universitas Negeri Malang"
-            data-en="Gym Catch - Faculty of Sports Science, Universitas Negeri Malang">Gym Catch - Fakultas Ilmu Keolahragaan, Universitas Negeri Malang</footer>
+    {% if rows %}
+    <script id="angle-data" type="application/json">{{ angle_map|tojson }}</script>
+    {% endif %}
+    {% endif %}
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <span class="logo-mark"><i class="fa-solid fa-bolt"></i></span>
+                        <span class="logo-text">Korbitantes</span>
+                    </div>
+                    <p class="footer-desc"
+                       data-id="Dikembangkan oleh Dr. Surya Adi Saputra, S.Pd, M.Pd, AIFO untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif."
+                       data-en="Developed by Dr. Surya Adi Saputra, S.Pd, M.Pd, AIFO to support movement evaluation and performance improvement through innovative technology.">Dikembangkan oleh Dr. Surya Adi Saputra, S.Pd, M.Pd, AIFO untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif.</p>
+                </div>
+
+                <div class="footer-col">
+                    <h4 data-id="Sumber Daya" data-en="Resources">Sumber Daya</h4>
+                    <ul class="footer-links">
+                        <li><a href="/#about" data-id="Tentang Kami" data-en="About Us">Tentang Kami</a></li>
+                        <li><a href="mailto:?subject=Korbitantes%20Contact" data-id="Kontak" data-en="Contact">Kontak</a></li>
+                        <li><a href="#" data-id="Pusat Bantuan" data-en="Help Center">Pusat Bantuan</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4 data-id="Ikuti Kami di" data-en="Follow Us On">Ikuti Kami di</h4>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="https://github.com/JasonSlav/cv-gymcatch" target="_blank" rel="noopener" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"
+                 data-id="© 2026 Korbitantes. Hak cipta dilindungi."
+                 data-en="© 2026 Korbitantes. All rights reserved.">© 2026 Korbitantes. Hak cipta dilindungi.</div>
+        </div>
+    </footer>
 
     <script src="/static/chart.min.js"></script>
     <script>
@@ -493,16 +836,45 @@
             const lang = localStorage.getItem("gc-lang") || "id";
             document.documentElement.lang = lang;
 
+            /* Teks statis i18n */
             document.querySelectorAll("[data-id]").forEach(el => {
                 el.innerHTML = el.getAttribute("data-" + lang) || el.getAttribute("data-id");
             });
 
-            /* Terjemahan konten dinamis dari DB (score_label & feedback) */
+            /* Placeholder pencarian */
+            const searchInput = document.getElementById("activity-search");
+            if (searchInput) {
+                searchInput.placeholder =
+                    searchInput.getAttribute("data-ph-" + lang) ||
+                    searchInput.getAttribute("data-ph-id") ||
+                    searchInput.placeholder;
+            }
+
+            /* Terjemahan konten dinamis dari DB (score_label, movement, feedback) */
             const SCORE_LABEL = {
                 "Baik": { id: "Baik", en: "Good" },
                 "Cukup": { id: "Cukup", en: "Fair" },
                 "Perlu Perbaikan": { id: "Perlu Perbaikan", en: "Needs Improvement" }
             };
+
+            const MOVEMENT_EN = {
+                squat_standard: "Standard Squat",
+                squat_sumo: "Sumo Squat",
+                squat_plie: "Plie Squat",
+                pushup_standard: "Standard Push-up",
+                pushup_wide: "Wide Push-up",
+                pushup_diamond: "Diamond Push-up",
+                pushup_pike: "Pike Push-up",
+                crunch_standard: "Standard Crunch",
+                crunch_swimming: "Swimming Crunch",
+                crunch_bicycle: "Bicycle Crunch",
+                back_up: "Back Extension",
+                squat: "Squat",
+                pushup: "Push-up",
+                crunch: "Crunch",
+                backup: "Back Up"
+            };
+
             const FEEDBACK = {
                 "Kedalaman squat kurang. Usahakan turun lebih dalam.": { id: "Kedalaman squat kurang. Usahakan turun lebih dalam.", en: "Squat depth is insufficient. Try to go deeper." },
                 "Kedalaman squat sudah sangat baik.": { id: "Kedalaman squat sudah sangat baik.", en: "Squat depth is already excellent." },
@@ -547,18 +919,26 @@
                 "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.": { id: "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.", en: "The movement uses swinging momentum. Lift with control using your back muscles." }
             };
 
-            document.querySelectorAll(".score-label").forEach(el => {
+            document.querySelectorAll(".score-tag, .score-label").forEach(el => {
                 const hit = SCORE_LABEL[el.textContent.trim()];
                 if (hit) el.textContent = hit[lang] || el.textContent;
             });
+
+            if (lang === "en") {
+                document.querySelectorAll("[data-mtype]").forEach(el => {
+                    const key = (el.dataset.mtype || "").trim().toLowerCase();
+                    if (MOVEMENT_EN[key]) el.textContent = MOVEMENT_EN[key];
+                });
+            }
+
             document.querySelectorAll(".feedback-box li").forEach(el => {
                 const hit = FEEDBACK[el.textContent.trim()];
                 if (hit) el.textContent = hit[lang] || el.textContent;
             });
 
-            /* Grafik interaktif (data dari server; fallback: PNG statis) */
-            const angleData = {{ angle_data | tojson if angle_data else "null" }};
-            if (angleData && typeof Chart !== "undefined") {
+            /* Grafik */
+            function buildChart(canvas, angleData) {
+                if (!angleData || typeof Chart === "undefined") return;
                 const n = Math.max(angleData.left.length, angleData.right.length);
                 const labels = Array.from({ length: n }, (_, i) => i + 1);
                 const datasets = [];
@@ -567,7 +947,7 @@
                         label: lang === "en" ? "Left Side" : "Sisi Kiri",
                         data: angleData.left,
                         borderColor: "#00E5FF",
-                        backgroundColor: "rgba(0, 229, 255, 0.2)",
+                        backgroundColor: "rgba(0, 229, 255, 0.18)",
                         fill: true,
                         tension: 0.3,
                         borderWidth: 2,
@@ -580,7 +960,7 @@
                         label: lang === "en" ? "Right Side" : "Sisi Kanan",
                         data: angleData.right,
                         borderColor: "#FF4081",
-                        backgroundColor: "rgba(255, 64, 129, 0.15)",
+                        backgroundColor: "rgba(255, 64, 129, 0.14)",
                         fill: true,
                         tension: 0.3,
                         borderWidth: 2,
@@ -588,17 +968,25 @@
                         spanGaps: false
                     });
                 }
-                new Chart(document.getElementById("angleChart"), {
+                new Chart(canvas, {
                     type: "line",
                     data: { labels, datasets },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        animation: false,
                         interaction: { mode: "index", intersect: false },
                         plugins: {
                             legend: {
                                 display: datasets.length > 1,
-                                labels: { color: "#888" }
+                                position: "top",
+                                align: "end",
+                                labels: {
+                                    color: "#888",
+                                    boxWidth: 10,
+                                    boxHeight: 10,
+                                    font: { size: 10 }
+                                }
                             },
                             tooltip: {
                                 callbacks: {
@@ -607,13 +995,68 @@
                             }
                         },
                         scales: {
-                            x: { ticks: { color: "#888" }, grid: { color: "#222" } },
-                            y: { ticks: { color: "#888" }, grid: { color: "#222" } }
+                            x: {
+                                ticks: {
+                                    color: "#777",
+                                    maxRotation: 60,
+                                    minRotation: 45,
+                                    autoSkip: true,
+                                    font: { size: 9 }
+                                },
+                                grid: { display: false }
+                            },
+                            y: {
+                                ticks: { color: "#777", font: { size: 9 } },
+                                grid: { color: "#222" }
+                            }
                         }
                     }
                 });
             }
 
+            const angleMapEl = document.getElementById("angle-data");
+            if (angleMapEl) {
+                let angleMap = {};
+                try { angleMap = JSON.parse(angleMapEl.textContent || "{}"); } catch (_) { angleMap = {}; }
+                document.querySelectorAll(".activity-chart").forEach(canvas => {
+                    const data = angleMap[canvas.dataset.job];
+                    if (data) buildChart(canvas, data);
+                });
+            }
+
+            const angleData = {{ (angle_data | tojson) if mode == 'detail' and angle_data else "null" }};
+            if (angleData) buildChart(document.getElementById("angleChart"), angleData);
+
+            /* Klik kartu → halaman detail */
+            document.querySelectorAll(".activity-card").forEach(card => {
+                card.addEventListener("click", (e) => {
+                    if (e.target.closest("form, button, a")) return;
+                    window.location.href = card.dataset.href;
+                });
+                card.addEventListener("keydown", (e) => {
+                    if ((e.key === "Enter" || e.key === " ") && e.target === card) {
+                        e.preventDefault();
+                        window.location.href = card.dataset.href;
+                    }
+                });
+            });
+
+            /* Pencarian aktivitas */
+            if (searchInput) {
+                const emptyMsg = document.getElementById("search-empty");
+                searchInput.addEventListener("input", () => {
+                    const q = searchInput.value.trim().toLowerCase();
+                    let visible = 0;
+                    document.querySelectorAll(".activity-card").forEach(card => {
+                        const hit = !q || (card.dataset.search || "").includes(q);
+                        card.style.display = hit ? "" : "none";
+                        if (hit) visible++;
+                    });
+                    if (emptyMsg) emptyMsg.hidden = visible > 0;
+                });
+            }
+
+            /* Toggle bahasa (reload agar semua konten dinamis ikut) */
             document.querySelectorAll(".lang-btn").forEach(btn => {
                 btn.classList.toggle("active", btn.dataset.lang === lang);
                 btn.addEventListener("click", () => {

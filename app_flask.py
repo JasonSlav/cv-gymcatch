@@ -490,8 +490,9 @@ def history():
     try:
         rows = conn.execute(
             "SELECT id, job_id, timestamp, video_name, score, score_label, reps,"
-            " folder_path, movement_type FROM analyses WHERE user_id = ?"
-            " ORDER BY timestamp DESC, id DESC",
+            " rom, consistency, stability, folder_path, movement_type"
+            " FROM analyses WHERE user_id = ?"
+            " ORDER BY timestamp DESC, id DESC LIMIT 50",
             (current_user.get_id(),),
         ).fetchall()
     finally:
@@ -505,28 +506,36 @@ def history():
     lang = "id"  # Default ID (bisa di-upgrade i18n nanti)
 
     data = []
+    angle_map = {}
     for r in rows:
         folder = OUTPUT_DIR / r["job_id"]
         video = next((f.name for f in sorted(folder.glob("squat_annotated.*"))), None)
         csv_file = "knee_angle.csv" if (folder / "knee_angle.csv").exists() else None
         movement_label = _movement_label(r["movement_type"])
+        angle_data = _read_angle_series(folder)
+        angle_map[r["job_id"]] = angle_data
 
         # Format timestamp: ISO → datetime → strftime
         try:
             dt = datetime.fromisoformat(r["timestamp"])
             month_idx = dt.month - 1
             date_str = dt.strftime(f"%d {bulan_map[lang][month_idx]} %Y, %H:%M")
+            date_only = dt.strftime(f"%d {bulan_map[lang][month_idx]} %Y")
         except Exception:
             date_str = r["timestamp"]
+            date_only = r["timestamp"]
         data.append({
             **dict(r),
             "video_file": video,
             "csv_file": csv_file,
             "movement_label": movement_label,
             "timestamp_label": date_str,
+            "date_label": date_only,
         })
 
-    return render_template("history.html", mode="list", rows=data)
+    return render_template(
+        "history.html", mode="list", rows=data, angle_map=angle_map
+    )
 
 
 def _read_angle_series(folder: Path):
