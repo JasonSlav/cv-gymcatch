@@ -391,6 +391,124 @@
 
         .btn-trash:hover { color: #ff6b6b; border-color: #ff6b6b; background: rgba(239, 68, 68, 0.12); }
 
+        /* --- Modal --- */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .modal.open { visibility: visible; opacity: 1; }
+
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.68);
+            backdrop-filter: blur(9px);
+            -webkit-backdrop-filter: blur(9px);
+        }
+
+        .modal-dialog {
+            position: relative;
+            width: min(480px, 100%);
+            background: #121212;
+            border: 1px solid #2c2c2c;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+            transform: translateY(14px);
+            transition: transform 0.25s ease;
+        }
+
+        .modal.open .modal-dialog { transform: translateY(0); }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: #ffffff; }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            padding-right: 24px;
+        }
+
+        .modal-message {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .modal-btn {
+            padding: 9px 20px;
+            border-radius: 999px;
+            border: 1px solid #3a3a3a;
+            background: #1e1e1e;
+            color: #ffffff;
+            font-family: var(--font-main);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .modal-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+        .modal-btn.danger {
+            border-color: rgba(239, 68, 68, 0.55);
+            background: rgba(239, 68, 68, 0.12);
+            color: #ff7b7b;
+        }
+
+        .modal-btn.danger:hover { border-color: #ef4444; background: #ef4444; color: #ffffff; }
+
+        .modal-btn.primary {
+            border-color: rgba(0, 200, 215, 0.55);
+            background: rgba(0, 200, 215, 0.12);
+            color: var(--accent-cyan);
+        }
+
+        .modal-btn.primary:hover { border-color: var(--accent-cyan); background: var(--accent-cyan); color: #000000; }
+
+        .modal-input {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 1px solid #3a3a3a;
+            background: #0f0f0f;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .modal-input:focus { border-color: var(--accent-cyan); }
+
         .empty-msg {
             text-align: center;
             color: var(--text-muted);
@@ -770,7 +888,7 @@
         <div class="nav-right">
             {% if current_user.is_authenticated %}
                 <span class="nav-user-name">{{ current_user.username }}</span>
-                <a href="/logout" class="btn-login btn-logout" onclick="return confirm('Yakin ingin logout?');">
+                <a href="/logout" class="btn-login btn-logout" data-logout>
                     <span>Logout</span>
                     <span class="login-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
                 </a>
@@ -981,8 +1099,7 @@
                                     title="Ganti nama / Rename" aria-label="Ganti nama">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <form method="post" action="/delete/{{ r.job_id }}"
-                                  onsubmit="return confirm('Yakin ingin menghapus?');">
+                            <form method="post" action="/delete/{{ r.job_id }}" data-name="{{ r.video_name }}">
                                 <button type="submit" class="btn-trash" title="Hapus" aria-label="Hapus">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
@@ -1040,6 +1157,39 @@
                  data-en="© 2026 Koribantes. All rights reserved.">© 2026 Koribantes. Hak cipta dilindungi.</div>
         </div>
     </footer>
+
+    <!-- Modal konfirmasi -->
+    <div id="confirm-modal" class="modal" aria-hidden="true">
+        <div class="modal-backdrop" data-confirm-close></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <button type="button" class="modal-close" data-confirm-close aria-label="Close">&times;</button>
+            <h3 class="modal-title" id="confirm-title"></h3>
+            <p class="modal-message" id="confirm-message"></p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn" data-confirm-close
+                        data-id="Batal" data-en="Cancel">Batal</button>
+                <button type="button" class="modal-btn" id="confirm-ok"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ganti nama -->
+    <div id="rename-modal" class="modal" aria-hidden="true">
+        <div class="modal-backdrop" data-rename-close></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="rename-title">
+            <button type="button" class="modal-close" data-rename-close aria-label="Close">&times;</button>
+            <h3 class="modal-title" id="rename-title"></h3>
+            <form id="rename-form" method="post">
+                <input class="modal-input" id="rename-input" type="text" name="video_name"
+                       maxlength="200" autocomplete="off">
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn" data-rename-close
+                            data-id="Batal" data-en="Cancel">Batal</button>
+                    <button type="submit" class="modal-btn primary" id="rename-save"></button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="/static/chart.min.js"></script>
     <script>
@@ -1252,24 +1402,123 @@
                 });
             });
 
+            /* ===== Modal konfirmasi & ganti nama ===== */
+            const confirmModal = document.getElementById("confirm-modal");
+            const confirmTitle = document.getElementById("confirm-title");
+            const confirmMessage = document.getElementById("confirm-message");
+            const confirmOk = document.getElementById("confirm-ok");
+            const renameModal = document.getElementById("rename-modal");
+            const renameForm = document.getElementById("rename-form");
+            const renameInput = document.getElementById("rename-input");
+            const renameTitle = document.getElementById("rename-title");
+            const renameSave = document.getElementById("rename-save");
+            let pendingDeleteForm = null;
+            let lastTrigger = null;
+
+            function openModalEl(el, focusEl) {
+                lastTrigger = document.activeElement;
+                el.classList.add("open");
+                el.setAttribute("aria-hidden", "false");
+                document.body.style.overflow = "hidden";
+                if (focusEl) focusEl.focus();
+            }
+
+            function closeModalEl(el) {
+                el.classList.remove("open");
+                el.setAttribute("aria-hidden", "true");
+                document.body.style.overflow = "";
+                if (lastTrigger && typeof lastTrigger.focus === "function") {
+                    lastTrigger.focus();
+                }
+                lastTrigger = null;
+            }
+
+            function openConfirmModal(title, message, okLabel, danger) {
+                confirmTitle.textContent = title;
+                confirmMessage.textContent = message;
+                confirmOk.textContent = okLabel;
+                confirmOk.classList.toggle("danger", !!danger);
+                openModalEl(confirmModal, confirmOk);
+            }
+
+            document.querySelectorAll("[data-confirm-close]").forEach(el => {
+                el.addEventListener("click", () => closeModalEl(confirmModal));
+            });
+            document.querySelectorAll("[data-rename-close]").forEach(el => {
+                el.addEventListener("click", () => closeModalEl(renameModal));
+            });
+
+            /* Logout */
+            const logoutLink = document.querySelector("[data-logout]");
+            if (logoutLink) {
+                logoutLink.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    openConfirmModal(
+                        "Logout",
+                        lang === "en"
+                            ? "Are you sure you want to log out?"
+                            : "Yakin ingin logout?",
+                        "Logout",
+                        false
+                    );
+                    confirmOk.dataset.action = "logout";
+                    confirmOk.dataset.href = logoutLink.getAttribute("href");
+                });
+            }
+
+            /* Hapus aktivitas */
+            document.querySelectorAll(".card-actions form").forEach(form => {
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    pendingDeleteForm = form;
+                    const name = form.dataset.name || "";
+                    openConfirmModal(
+                        lang === "en" ? "Delete activity?" : "Hapus aktivitas?",
+                        lang === "en"
+                            ? 'Delete "' + name + '"? This cannot be undone.'
+                            : 'Hapus "' + name + '"? Tindakan ini tidak bisa dibatalkan.',
+                        lang === "en" ? "Delete" : "Hapus",
+                        true
+                    );
+                    confirmOk.dataset.action = "delete";
+                });
+            });
+
+            confirmOk.addEventListener("click", () => {
+                if (confirmOk.dataset.action === "logout") {
+                    window.location.href = confirmOk.dataset.href;
+                } else if (pendingDeleteForm) {
+                    pendingDeleteForm.submit();
+                }
+            });
+
             /* Ganti nama tampilan riwayat */
             document.querySelectorAll(".btn-rename").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const label = lang === "en" ? "Rename file" : "Ganti nama file";
-                    const value = window.prompt(label, btn.dataset.name);
-                    if (value === null || !value.trim()) return;
-                    const form = document.createElement("form");
-                    form.method = "post";
-                    form.action = "/rename/" + encodeURIComponent(btn.dataset.job);
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = "video_name";
-                    input.value = value.trim();
-                    form.appendChild(input);
-                    document.body.appendChild(form);
-                    form.submit();
+                    renameTitle.textContent = lang === "en" ? "Rename File" : "Ganti Nama File";
+                    renameSave.textContent = lang === "en" ? "Save" : "Simpan";
+                    renameInput.value = btn.dataset.name;
+                    renameForm.action = "/rename/" + encodeURIComponent(btn.dataset.job);
+                    openModalEl(renameModal, renameInput);
+                    renameInput.select();
                 });
+            });
+
+            renameForm.addEventListener("submit", (e) => {
+                if (!renameInput.value.trim()) {
+                    e.preventDefault();
+                    renameInput.focus();
+                }
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key !== "Escape") return;
+                if (renameModal.classList.contains("open")) {
+                    closeModalEl(renameModal);
+                } else if (confirmModal.classList.contains("open")) {
+                    closeModalEl(confirmModal);
+                }
             });
 
             /* Pencarian aktivitas */
