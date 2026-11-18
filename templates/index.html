@@ -98,10 +98,12 @@
         }
 
         .logo-img {
-            height: 34px;
+            height: 56px;
             width: auto;
             display: block;
         }
+
+        .footer-logo .logo-img { height: 42px; }
 
         .nav-center {
             display: flex;
@@ -303,26 +305,18 @@
 
         .movement-media {
             position: relative;
-            aspect-ratio: 3 / 4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
+            min-height: 240px;
             background:
                 radial-gradient(circle at 50% 34%, rgba(0, 200, 215, 0.16), transparent 66%),
                 linear-gradient(160deg, #242424, #0d0d0d);
         }
 
-        .movement-fallback {
-            font-size: 54px;
-            color: rgba(255, 255, 255, 0.26);
-        }
-
         .movement-img {
-            position: absolute;
-            inset: 0;
+            display: block;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            margin: 0 auto;
         }
 
         .movement-body {
@@ -834,7 +828,7 @@
             }
             .logo-text { font-size: 15px; }
             .logo-mark { width: 26px; height: 26px; font-size: 12px; }
-            .logo-img { height: 26px; }
+            .logo-img { height: 36px; }
             .nav-pill { padding: 6px 13px; font-size: 12px; }
             .nav-right { gap: 8px; }
             .nav-user-name { display: none; }
@@ -929,7 +923,6 @@
         <div class="movement-cards">
             <article class="movement-card" data-category="squat" tabindex="0">
                 <div class="movement-media">
-                    <i class="fa-solid fa-dumbbell movement-fallback"></i>
                     <img class="movement-img" src="/static/card_squat.png" alt="" onerror="this.remove()">
                 </div>
                 <div class="movement-body">
@@ -947,7 +940,6 @@
 
             <article class="movement-card" data-category="pushup" tabindex="0">
                 <div class="movement-media">
-                    <i class="fa-solid fa-hand-fist movement-fallback"></i>
                     <img class="movement-img" src="/static/card_pushup.png" alt="" onerror="this.remove()">
                 </div>
                 <div class="movement-body">
@@ -965,7 +957,6 @@
 
             <article class="movement-card" data-category="crunch" tabindex="0">
                 <div class="movement-media">
-                    <i class="fa-solid fa-fire movement-fallback"></i>
                     <img class="movement-img" src="/static/card_crunch.png" alt="" onerror="this.remove()">
                 </div>
                 <div class="movement-body">
@@ -983,7 +974,6 @@
 
             <article class="movement-card" data-category="backup" tabindex="0">
                 <div class="movement-media">
-                    <i class="fa-solid fa-arrow-up movement-fallback"></i>
                     <img class="movement-img" src="/static/card_backup.png" alt="" onerror="this.remove()">
                 </div>
                 <div class="movement-body">
