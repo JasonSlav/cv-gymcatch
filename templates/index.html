@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Catch - Unlock Your Best Form</title>
+    <title>Korbitantes - Unlock Your Best Form</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* CSS Variables for Colors */
         :root {
-            --bg-color: #000000;
-            --bg-card: #1a1a1a;
-            --bg-footer: #050505;
+            --bg-color: #050505;
+            --bg-card: #141414;
+            --bg-card-2: #1a1a1a;
+            --bg-footer: #030303;
             --text-main: #ffffff;
             --text-muted: #a1a1a6;
-            --accent-cyan: #00bfff; /* Light blue/cyan color */
-            --border-color: #333333;
+            --accent-cyan: #00c8d7;
+            --border-color: #2a2a2a;
             --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
@@ -26,6 +27,8 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: var(--font-main);
@@ -47,9 +50,7 @@
             padding: 0 20px;
         }
 
-        .text-cyan {
-            color: var(--accent-cyan);
-        }
+        .text-cyan { color: var(--accent-cyan); }
 
         /* --- Navbar --- */
         nav {
@@ -57,71 +58,125 @@
             top: 0;
             left: 0;
             width: 100%;
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
+            gap: 12px;
+            padding: 14px 40px;
             z-index: 1000;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            background: rgba(10, 10, 10, 0.85);
-            border-bottom: 1px solid #222;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background: rgba(5, 5, 5, 0.78);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .logo {
             display: flex;
             align-items: center;
+            gap: 9px;
+            justify-self: start;
         }
 
-        .logo img {
-            height: 40px;
-            width: auto;
-            display: block;
+        .logo-mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d5e0, #00777f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #001416;
+            font-size: 13px;
+            flex-shrink: 0;
         }
 
-        .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
+        .logo-text {
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid #262626;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.03);
+            justify-self: center;
+        }
+
+        .nav-pill {
+            padding: 7px 20px;
+            border-radius: 999px;
             font-size: 14px;
             font-weight: 600;
-            line-height: 1.4;
+            color: var(--text-muted);
+            white-space: nowrap;
+            transition: background 0.2s, color 0.2s;
         }
 
-        .nav-link:hover {
-            color: var(--accent-cyan);
+        .nav-pill:hover { color: var(--text-main); }
+
+        .nav-pill.active {
+            background: #ffffff;
+            color: #000000;
         }
 
         .nav-right {
+            justify-self: end;
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 14px;
         }
 
         .nav-user-name {
-            color: var(--text-main);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            line-height: 1.4;
+            max-width: 110px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .btn-logout {
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            padding: 3px 12px;
-            border-radius: 14px;
-        }
-        .btn-logout:hover {
-            background: #ef4444;
-            color: #000;
+        .btn-login {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        /* --- Language Toggle (kanan atas) --- */
+        .btn-login .login-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-login:hover .login-icon {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .btn-logout { color: #ff6b6b; }
+        .btn-logout .login-icon { border-color: rgba(255, 107, 107, 0.45); }
+        .btn-logout:hover { color: #ff8f8f; }
+
+        /* --- Language Toggle --- */
         .lang-toggle {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 4px;
+            padding: 3px;
             background: rgba(0, 0, 0, 0.55);
         }
 
@@ -129,20 +184,18 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 4px 14px;
+            padding: 3px 11px;
             border-radius: 16px;
             cursor: pointer;
             font-family: var(--font-main);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             line-height: 1.2;
             transition: background 0.2s, color 0.2s;
         }
 
-        .lang-btn:hover {
-            color: var(--text-main);
-        }
+        .lang-btn:hover { color: var(--text-main); }
 
         .lang-btn.active {
             background: var(--accent-cyan);
@@ -152,77 +205,196 @@
         /* --- Hero Section --- */
         .hero {
             position: relative;
-            height: calc(100vh - 90px);
+            min-height: 94vh;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('/static/bg_gym_small.jpg') center/cover no-repeat;
-            padding-top: 100px;
+            padding: 150px 20px 110px;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 55% 65% at 6% 42%, rgba(0, 150, 160, 0.22), transparent 62%),
+                radial-gradient(ellipse 55% 65% at 94% 42%, rgba(0, 150, 160, 0.18), transparent 62%),
+                radial-gradient(ellipse 70% 40% at 50% 0%, rgba(0, 220, 235, 0.06), transparent 60%),
+                #050505;
         }
 
         .hero-content {
-            max-width: 800px;
-            padding: 0 20px;
+            max-width: 900px;
+            padding: 0 10px;
         }
 
         .hero h1 {
-            font-size: 4rem;
+            font-size: clamp(2.7rem, 7vw, 5.2rem);
             font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.1;
+            line-height: 1.05;
+            letter-spacing: -1.5px;
         }
 
         .hero p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--text-muted);
-            margin-bottom: 40px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 26px auto 38px;
+            max-width: 560px;
         }
 
         .btn-outline {
             display: inline-block;
             padding: 10px 30px;
-            border: 1px solid var(--text-main);
-            border-radius: 30px;
-            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 999px;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.3s ease;
         }
 
         .btn-outline:hover {
-            background-color: var(--text-main);
-            color: var(--bg-color);
+            background-color: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
         }
 
-        /* --- Upload Section --- */
-        .upload-section {
-            padding: 80px 0;
+        /* --- Section titles --- */
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 46px;
+        }
+
+        /* --- Movement Section --- */
+        .movement-section {
+            padding: 90px 0 50px;
             text-align: center;
         }
 
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 50px;
+        .movement-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 1040px;
+            margin: 0 auto 44px;
         }
 
+        .movement-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            cursor: pointer;
+            background: linear-gradient(180deg, #1c1c1c, #0f0f0f);
+            border: 1px solid #262626;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .movement-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 200, 215, 0.45);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .movement-media {
+            position: relative;
+            aspect-ratio: 3 / 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at 50% 34%, rgba(0, 200, 215, 0.16), transparent 66%),
+                linear-gradient(160deg, #242424, #0d0d0d);
+        }
+
+        .movement-fallback {
+            font-size: 54px;
+            color: rgba(255, 255, 255, 0.26);
+        }
+
+        .movement-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movement-body {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 14px 16px 16px;
+        }
+
+        .movement-body h3 {
+            font-size: 1.02rem;
+            font-weight: 700;
+        }
+
+        .movement-sub {
+            font-size: 0.68rem;
+            color: #7c7c82;
+            line-height: 1.45;
+        }
+
+        .card-variant {
+            align-self: flex-start;
+            margin-top: 2px;
+            font-size: 0.66rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 200, 215, 0.35);
+            border-radius: 999px;
+            padding: 2px 9px;
+            background: rgba(0, 200, 215, 0.06);
+        }
+
+        .movement-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .sample-label {
+            font-size: 0.62rem;
+            color: #666;
+        }
+
+        .btn-discover {
+            background: #232323;
+            border: 1px solid #3a3a3a;
+            color: #ffffff;
+            border-radius: 999px;
+            padding: 4px 13px;
+            font-size: 0.66rem;
+            font-weight: 600;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-discover:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* --- Upload Section --- */
         .upload-grid {
             display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 20px;
-            max-width: 900px;
+            grid-template-columns: 1fr 1.45fr;
+            gap: 18px;
+            max-width: 1040px;
             margin: 0 auto;
+            text-align: left;
         }
 
         .card {
             background-color: var(--bg-card);
             border-radius: 20px;
-            padding: 40px;
-            text-align: left;
-            border: 1px solid #2a2a2a;
+            padding: 34px;
+            border: 1px solid #242424;
         }
 
         .upload-box {
@@ -231,40 +403,59 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            border: 1px dashed #444;
-            border-radius: 15px;
-            padding: 40px 20px;
+            border: 1px dashed #3d3d3d;
+            border-radius: 16px;
+            padding: 36px 20px;
             height: 100%;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
         }
 
         .upload-box.drag-over {
             border-color: var(--accent-cyan);
-            background: rgba(0, 229, 255, 0.06);
+            background: rgba(0, 200, 215, 0.06);
         }
 
         .icon-circle {
-            width: 60px;
-            height: 60px;
-            border: 1px solid var(--accent-cyan);
+            width: 58px;
+            height: 58px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 22px;
             color: var(--text-main);
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .upload-box h3 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .upload-box p {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
             margin-bottom: 20px;
+        }
+
+        .btn-select {
+            background-color: #2e2e2e;
+            color: var(--text-main);
+            padding: 9px 24px;
+            border-radius: 999px;
+            border: 1px solid #3d3d3d;
+            font-family: var(--font-main);
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .btn-select:hover {
+            background-color: #3a3a3a;
+            border-color: #555;
         }
 
         .preview-actions {
@@ -277,268 +468,50 @@
             background: var(--accent-cyan);
             color: #000;
             border: none;
-            border-radius: 20px;
+            border-radius: 999px;
             padding: 10px 22px;
             font-family: var(--font-main);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 700;
             cursor: pointer;
         }
 
-        .btn-primary:hover {
-            filter: brightness(1.15);
-        }
+        .btn-primary:hover { filter: brightness(1.12); }
 
         .btn-secondary {
             background: #2a2a2a;
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
+            border-radius: 999px;
             padding: 10px 22px;
             font-family: var(--font-main);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             cursor: pointer;
         }
 
-        .btn-secondary:hover {
-            border-color: var(--text-muted);
-        }
-
-        .btn-select {
-            background-color: #333;
-            color: var(--text-main);
-            padding: 10px 25px;
-            border-radius: 20px;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-select:hover {
-            background-color: #444;
-        }
-
-        .movement-selection {
-            margin-top: 30px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 15px;
-            padding: 20px;
-            width: 100%;
-        }
-
-        .movements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 10px;
-        }
-
-        .movement-option {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #222;
-            padding: 12px 10px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid #444;
-            cursor: pointer;
-            text-align: center;
-            transition: border-color 0.2s, background 0.2s;
-        }
-
-        .movement-option:hover {
-            border-color: var(--accent-cyan);
-        }
-
-        .movement-option.active {
-            border-color: var(--accent-cyan);
-            background: rgba(0, 229, 255, 0.08);
-        }
-
-        .camera-guide {
-            text-align: center;
-            margin-top: 14px;
-            font-size: 0.85rem;
-            color: var(--accent-cyan);
-            font-weight: 600;
-        }
+        .btn-secondary:hover { border-color: var(--text-muted); }
 
         .guide-card h3 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .guide-card ol {
             list-style-position: inside;
             color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.8;
+            font-size: 0.88rem;
+            line-height: 1.85;
         }
 
-        .error-text {
-            color: #ff6b6b;
-        }
+        .error-text { color: #ff6b6b; }
 
-        /* --- Features Section --- */
-        .features-section {
-            padding: 80px 0;
+        .camera-guide {
             text-align: center;
-        }
-
-        .features-section .section-title {
-            line-height: 1.2;
-        }
-
-        .features-section .subtitle {
-            color: var(--text-muted);
-            margin-bottom: 50px;
-            font-size: 0.95rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .feature-card {
-            background-color: var(--bg-card);
-            border-radius: 20px;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 1px solid #2a2a2a;
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            margin-bottom: 20px;
-        }
-
-        .feature-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-
-        .feature-card p {
+            margin: 0 0 16px 0;
             font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        /* --- About Us Section --- */
-        .about-section {
-            background-color: #111111; /* Slightly lighter black */
-            padding: 80px 0;
-            text-align: center;
-            border-top: 1px solid #222;
-        }
-
-        .about-section p {
-            max-width: 800px;
-            margin: 0 auto;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.8;
-        }
-
-        /* --- Footer --- */
-        footer {
-            background-color: var(--bg-footer);
-            padding: 60px 0 20px 0;
-            font-size: 0.85rem;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 40px;
-            max-width: 1000px;
-            margin: 0 auto 40px auto;
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        .footer-fik {
-            height: 56px;
-            width: auto;
-            display: block;
-        }
-
-        .footer-desc {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            font-size: 0.75rem;
-            max-width: 300px;
-        }
-
-        .footer-address {
-            color: var(--text-muted);
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 0.75rem;
-        }
-
-        .footer-address i {
-            color: var(--text-main);
-            margin-top: 3px;
-        }
-
-        .footer-col h4 {
-            margin-bottom: 20px;
-            font-size: 0.9rem;
+            color: var(--accent-cyan);
             font-weight: 600;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 15px;
-        }
-
-        .footer-links a {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .footer-links a:hover {
-            color: var(--text-main);
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .social-icons a {
-            color: var(--text-main);
-            font-size: 1.2rem;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #222;
-            color: #555;
-            font-size: 0.7rem;
         }
 
         /* --- Progress bar (analisis) --- */
@@ -581,83 +554,338 @@
             100% { transform: translateX(350%); }
         }
 
-        /* Responsive Design */
+        /* --- Variant Modal --- */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .modal.open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.68);
+            backdrop-filter: blur(9px);
+            -webkit-backdrop-filter: blur(9px);
+        }
+
+        .modal-dialog {
+            position: relative;
+            width: min(560px, 100%);
+            background: #121212;
+            border: 1px solid #2c2c2c;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+            transform: translateY(14px);
+            transition: transform 0.25s ease;
+        }
+
+        .modal.open .modal-dialog { transform: translateY(0); }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: #ffffff; }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            padding-right: 24px;
+        }
+
+        .modal-panel {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .modal-panel.active { display: grid; }
+
+        .movement-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1c1c1c;
+            padding: 13px 10px;
+            border-radius: 12px;
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            border: 1px solid #3a3a3a;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s, color 0.2s;
+        }
+
+        .movement-option:hover { border-color: var(--accent-cyan); }
+
+        .movement-option.active {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 200, 215, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        /* --- About Us Section --- */
+        .about-section {
+            padding: 90px 0;
+            text-align: center;
+            border-top: 1px solid #1c1c1c;
+            background:
+                radial-gradient(ellipse 60% 50% at 50% 0%, rgba(0, 150, 160, 0.09), transparent 62%),
+                #0a0a0a;
+        }
+
+        .about-section p {
+            max-width: 820px;
+            margin: 0 auto 32px;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.9;
+        }
+
+        .btn-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #333333;
+            border-radius: 999px;
+            padding: 9px 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #141414;
+            margin-bottom: 26px;
+            transition: border-color 0.2s;
+        }
+
+        .btn-contact:hover { border-color: var(--accent-cyan); }
+
+        .about-socials {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 1.15rem;
+        }
+
+        .about-socials a { color: #cfcfd4; }
+        .about-socials a:hover { color: var(--accent-cyan); }
+
+        /* --- Developed By Section --- */
+        .dev-section {
+            padding: 80px 0 90px;
+            text-align: center;
+        }
+
+        .dev-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            max-width: 360px;
+            margin: 0 auto;
+            background: #141414;
+            border: 1px solid #242424;
+            border-radius: 22px;
+            padding: 30px 26px;
+        }
+
+        .dev-photo {
+            width: 124px;
+            height: 124px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 46px;
+            color: rgba(255, 255, 255, 0.35);
+            background:
+                radial-gradient(circle at 50% 30%, rgba(0, 200, 215, 0.25), transparent 70%),
+                linear-gradient(160deg, #242424, #0d0d0d);
+            border: 1px solid #2e2e2e;
+        }
+
+        .dev-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .dev-role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* --- Footer --- */
+        footer {
+            background-color: var(--bg-footer);
+            padding: 60px 0 20px 0;
+            font-size: 0.85rem;
+            border-top: 1px solid #141414;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            margin: 0 auto 40px auto;
+        }
+
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .footer-desc {
+            color: var(--text-muted);
+            margin-top: 14px;
+            font-size: 0.72rem;
+            max-width: 320px;
+            line-height: 1.7;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 18px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li { margin-bottom: 13px; }
+
+        .footer-links a {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .footer-links a:hover { color: var(--text-main); }
+
+        .social-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-icons a {
+            color: var(--text-main);
+            font-size: 1.15rem;
+        }
+
+        .social-icons a:hover { color: var(--accent-cyan); }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #1c1c1c;
+            color: #555;
+            font-size: 0.7rem;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 1024px) {
+            .movement-cards {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 680px;
+            }
+        }
+
         @media (max-width: 768px) {
             nav {
-                padding: 12px 16px;
-                flex-wrap: nowrap;
-                white-space: nowrap;
-                overflow: hidden;
+                padding: 12px 14px;
+                gap: 8px;
             }
-            .logo img { height: 32px; }
-            .nav-right { gap: 12px; }
-            .nav-link { font-size: 13px; }
-            .nav-user-name {
-                font-size: 12px;
-                max-width: 96px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .btn-logout { padding: 3px 10px; border-radius: 13px; }
-            .lang-btn { padding: 3px 9px; font-size: 12px; }
-            .hero h1 {
-                font-size: 2rem;
-            }
-            .btn-select {
-                width: 100%;
-            }
-            .upload-grid, .features-grid, .footer-grid {
-                grid-template-columns: 1fr;
-            }
-            .movements-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+            .logo-text { font-size: 15px; }
+            .logo-mark { width: 26px; height: 26px; font-size: 12px; }
+            .nav-pill { padding: 6px 13px; font-size: 12px; }
+            .nav-right { gap: 8px; }
+            .nav-user-name { display: none; }
+            .btn-login { font-size: 12px; gap: 6px; }
+            .btn-login .login-icon { width: 22px; height: 22px; font-size: 9px; }
+            .lang-btn { padding: 3px 8px; font-size: 11px; }
+
             .hero {
-                height: min(60vh, 500px);
+                min-height: 78vh;
+                padding: 130px 16px 80px;
             }
-            .hero-content {
-                margin-top: 0;
-            }
-            .footer-logo {
-                justify-content: center;
-            }
+            .hero h1 { letter-spacing: -0.5px; }
+            .movement-section { padding: 60px 0 40px; }
+            .upload-grid { grid-template-columns: 1fr; }
+            .section-title { margin-bottom: 32px; }
+            .card { padding: 24px; }
+            .movement-cards { margin-bottom: 32px; }
+
+            .modal-panel { grid-template-columns: 1fr; }
+            .modal-dialog { padding: 24px 20px; }
+
             .footer-grid {
-                text-align: center;
-            }
-            .footer-address, .social-icons {
-                justify-content: center;
-            }
-            .footer-desc {
-                margin: 0 auto 20px auto;
-            }
-            .samples-grid {
                 grid-template-columns: 1fr;
+                text-align: center;
+                gap: 32px;
             }
-            .card {
-                padding: 24px;
-            }
-            .section-title {
-                font-size: 1.8rem;
-                margin-bottom: 30px;
+            .footer-desc { margin: 14px auto 0; }
+            .social-icons { justify-content: center; }
+        }
+
+        @media (max-width: 480px) {
+            nav .logo-text { display: none; }
+            .movement-cards {
+                grid-template-columns: 1fr;
+                max-width: 340px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navbar: logo kiri (klik = beranda) + semua link di kanan (konsisten history.html) -->
+    <!-- Navbar: logo kiri, menu tengah, aksi kanan -->
     <nav>
-        <a href="/" class="logo">
-            <img src="/static/logo.png" alt="Gym Catch Logo">
+        <a href="/" class="logo" aria-label="Korbitantes Home">
+            <span class="logo-mark"><i class="fa-solid fa-bolt"></i></span>
+            <span class="logo-text">Korbitantes</span>
         </a>
+
+        <div class="nav-center">
+            <a href="/" class="nav-pill active">Home</a>
+            <a href="/history" class="nav-pill">Activity</a>
+        </div>
+
         <div class="nav-right">
-            <a href="/history" class="nav-link" data-id="Riwayat" data-en="History">Riwayat</a>
             {% if current_user.is_authenticated %}
-                <span class="nav-user-name">👤 {{ current_user.username }}</span>
-                <a href="/logout" class="nav-link btn-logout" data-id="Logout" data-en="Logout" onclick="return confirm('Yakin ingin logout?');">Logout</a>
+                <span class="nav-user-name">{{ current_user.username }}</span>
+                <a href="/logout" class="btn-login btn-logout" onclick="return confirm('Yakin ingin logout?');">
+                    <span>Logout</span>
+                    <span class="login-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                </a>
             {% else %}
-                <a href="/login" class="nav-link" data-id="Masuk" data-en="Sign In">Masuk</a>
+                <a href="/login" class="btn-login">
+                    <span>Log In</span>
+                    <span class="login-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                </a>
             {% endif %}
             <div class="lang-toggle" id="langToggle">
                 <button type="button" class="lang-btn active" data-lang="id">ID</button>
@@ -670,20 +898,97 @@
     <!-- Hero Section -->
     <header class="hero">
         <div class="hero-content">
-            <h1 data-id-html="Wujudkan &lt;span class='text-cyan'&gt;Bentuk Terbaikmu&lt;/span&gt;"
-                data-en-html="Unlock Your &lt;span class='text-cyan'&gt;Best Form&lt;/span&gt;">Wujudkan <span class="text-cyan">Bentuk Terbaikmu</span></h1>
+            <h1 data-id="Wujudkan Bentuk Terbaikmu"
+                data-en="Unlock Your Best Form">Wujudkan Bentuk Terbaikmu</h1>
             <p data-id="Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik."
-               data-en="Optimize every movement with proper guidance to improve your form, maximize workout effectiveness, and achieve the best results">Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik.</p>
-            <a href="#upload" class="btn-outline" data-id="Selengkapnya" data-en="Learn More">Selengkapnya</a>
+               data-en="Optimize every movement with proper guidance to improve your form, maximize workout effectiveness, and achieve the best results.">Optimalkan setiap gerakan dengan panduan yang tepat untuk memperbaiki bentuk tubuhmu, meningkatkan efektivitas latihan, dan meraih hasil terbaik.</p>
+            <a href="#choose-movement" class="btn-outline" data-id="Selengkapnya" data-en="Learn More">Selengkapnya</a>
         </div>
     </header>
 
-    <!-- Upload Section -->
-    <section class="upload-section container" id="upload">
+    <!-- Choose & Upload Movement -->
+    <section class="movement-section container" id="choose-movement">
         <h2 class="section-title"
-            data-id-html="&lt;span class='text-cyan'&gt;Unggah file&lt;/span&gt; untuk memulai"
-            data-en-html="&lt;span class='text-cyan'&gt;Upload a file&lt;/span&gt; to start"><span class="text-cyan">Unggah file</span> untuk memulai</h2>
+            data-id="analisis gerakanmu"
+            data-en="analyze your movement">analisis gerakanmu</h2>
 
+        <!-- 4 kartu kategori gerakan -->
+        <div class="movement-cards">
+            <article class="movement-card" data-category="squat" tabindex="0">
+                <div class="movement-media">
+                    <i class="fa-solid fa-dumbbell movement-fallback"></i>
+                    <img class="movement-img" src="/static/card_squat.png" alt="" onerror="this.remove()">
+                </div>
+                <div class="movement-body">
+                    <h3 data-id="Squat" data-en="Squat">Squat</h3>
+                    <p class="movement-sub"
+                       data-id="Kedalaman, postur, dan repetisi dianalisis otomatis."
+                       data-en="Depth, posture, and repetitions analyzed automatically.">Kedalaman, postur, dan repetisi dianalisis otomatis.</p>
+                    <span class="card-variant" data-category-badge="squat">Squat Biasa</span>
+                    <div class="movement-footer">
+                        <span class="sample-label">Sample +</span>
+                        <button type="button" class="btn-discover" data-open-modal="squat" data-id="Discover" data-en="Discover">Discover</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="movement-card" data-category="pushup" tabindex="0">
+                <div class="movement-media">
+                    <i class="fa-solid fa-hand-fist movement-fallback"></i>
+                    <img class="movement-img" src="/static/card_pushup.png" alt="" onerror="this.remove()">
+                </div>
+                <div class="movement-body">
+                    <h3 data-id="Push Up" data-en="Push Up">Push Up</h3>
+                    <p class="movement-sub"
+                       data-id="Sudut sendi, keselarasan, dan kedalaman dianalisis otomatis."
+                       data-en="Joint angles, alignment, and depth analyzed automatically.">Sudut sendi, keselarasan, dan kedalaman dianalisis otomatis.</p>
+                    <span class="card-variant" data-category-badge="pushup">Push-up Normal</span>
+                    <div class="movement-footer">
+                        <span class="sample-label">Sample +</span>
+                        <button type="button" class="btn-discover" data-open-modal="pushup" data-id="Discover" data-en="Discover">Discover</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="movement-card" data-category="crunch" tabindex="0">
+                <div class="movement-media">
+                    <i class="fa-solid fa-fire movement-fallback"></i>
+                    <img class="movement-img" src="/static/card_crunch.png" alt="" onerror="this.remove()">
+                </div>
+                <div class="movement-body">
+                    <h3 data-id="Crunch" data-en="Crunch">Crunch</h3>
+                    <p class="movement-sub"
+                       data-id="Sudut torso, rentang gerak, dan irama dianalisis otomatis."
+                       data-en="Torso angle, range, and rhythm analyzed automatically.">Sudut torso, rentang gerak, dan irama dianalisis otomatis.</p>
+                    <span class="card-variant" data-category-badge="crunch">Crunch Biasa</span>
+                    <div class="movement-footer">
+                        <span class="sample-label">Sample +</span>
+                        <button type="button" class="btn-discover" data-open-modal="crunch" data-id="Discover" data-en="Discover">Discover</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="movement-card" data-category="backup" tabindex="0">
+                <div class="movement-media">
+                    <i class="fa-solid fa-arrow-up movement-fallback"></i>
+                    <img class="movement-img" src="/static/card_backup.png" alt="" onerror="this.remove()">
+                </div>
+                <div class="movement-body">
+                    <h3 data-id="Back Up" data-en="Back Up">Back Up</h3>
+                    <p class="movement-sub"
+                       data-id="Ekstensi tulang punggung, rentang, dan kontrol dianalisis otomatis."
+                       data-en="Spinal extension, range, and control analyzed automatically.">Ekstensi tulang punggung, rentang, dan kontrol dianalisis otomatis.</p>
+                    <span class="card-variant" data-category-badge="backup">Back Up</span>
+                    <div class="movement-footer">
+                        <span class="sample-label">Sample +</span>
+                        <button type="button" class="btn-discover" data-open-modal="backup" data-id="Discover" data-en="Discover">Discover</button>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Upload + Panduan Perekaman -->
+        <p id="camera-guide" class="camera-guide">Rekam dari SAMPING</p>
         <div class="upload-grid">
             <!-- Left Card -->
             <div class="card upload-box">
@@ -695,8 +1000,6 @@
                 <input type="file" id="videoInput" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 <button type="button" class="btn-select" id="btnSelect" data-id="Pilih File" data-en="Select files">Pilih File</button>
             </div>
-            <p id="upload-error" class="error-text" style="display:none;"></p>
-            <div id="error-msg" style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
 
             <!-- Preview sebelum analisis -->
             <div id="preview-container" style="display:none;">
@@ -721,24 +1024,10 @@
             </div>
         </div>
 
-        <div class="movement-selection">
-            <h3 style="text-align: center; margin-bottom: 20px; color: #fff;" data-id="Pilih Gerakan" data-en="Select Movement">Pilih Gerakan</h3>
-            <div class="movements-grid">
-                <div class="movement-option active" data-movement="squat_standard" data-angle="side" data-id="Squat Biasa" data-en="Standard Squat">Squat Biasa</div>
-                <div class="movement-option" data-movement="squat_sumo" data-angle="front" data-id="Squat Sumo" data-en="Sumo Squat">Squat Sumo</div>
-                <div class="movement-option" data-movement="squat_plie" data-angle="front" data-id="Squat Plie" data-en="Plie Squat">Squat Plie</div>
-                <div class="movement-option" data-movement="pushup_standard" data-angle="front" data-id="Push-up Normal" data-en="Standard Push-up">Push-up Normal</div>
-                <div class="movement-option" data-movement="pushup_wide" data-angle="front" data-id="Push-up Lebar" data-en="Wide Push-up">Push-up Lebar</div>
-                <div class="movement-option" data-movement="pushup_diamond" data-angle="front" data-id="Push-up Diamond" data-en="Diamond Push-up">Push-up Diamond</div>
-                <div class="movement-option" data-movement="pushup_pike" data-angle="side" data-id="Push-up Pike" data-en="Pike Push-up">Push-up Pike</div>
-                <div class="movement-option" data-movement="crunch_standard" data-angle="side" data-id="Crunch Biasa" data-en="Standard Crunch">Crunch Biasa</div>
-                <div class="movement-option" data-movement="crunch_swimming" data-angle="side" data-id="Crunch Swimming" data-en="Swimming Crunch">Crunch Swimming</div>
-                <div class="movement-option" data-movement="crunch_bicycle" data-angle="side" data-id="Crunch Bicycle" data-en="Bicycle Crunch">Crunch Bicycle</div>
-                <div class="movement-option" data-movement="back_up" data-angle="side" data-id="Back Up" data-en="Back Extension">Back Up</div>
-            </div>
-            <p id="camera-guide" class="camera-guide">📸 Rekam dari SAMPING</p>
-            <input type="hidden" id="selected-movement" value="squat_standard">
-        </div>
+        <p id="upload-error" class="error-text" style="display:none;"></p>
+        <div id="error-msg" style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
+
+        <input type="hidden" id="selected-movement" value="squat_standard">
     </section>
 
     <!-- Progress analisis (ditampilkan saat fetch berjalan) -->
@@ -747,42 +1036,40 @@
         <div class="progress-bar-container"><div class="progress-bar-fill indeterminate" id="progress-fill"></div></div>
     </div>
 
-    <!-- Features Section -->
-    <section class="features-section container">
-        <h2 class="section-title"
-            data-id-html="Gerakanmu&lt;br&gt;&lt;span class='text-cyan'&gt;Visi Kami&lt;/span&gt;"
-            data-en-html="Your Motion&lt;br&gt;&lt;span class='text-cyan'&gt;Our Vision&lt;/span&gt;">Gerakanmu<br><span class="text-cyan">Visi Kami</span></h2>
-        <p class="subtitle"
-           data-id="Pengalaman analisis gerakan yang lebih cerdas untuk mengevaluasi, meningkatkan, dan mengoptimalkan performamu"
-           data-en="Experience smarter movement analysis designed to evaluate, improve, and optimize your performance">Pengalaman analisis gerakan yang lebih cerdas untuk mengevaluasi, meningkatkan, dan mengoptimalkan performamu</p>
+    <!-- About Us Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <h2 class="section-title"
+                data-id="Tentang Kami"
+                data-en="About Us">Tentang Kami</h2>
+            <p data-id="Kami percaya bahwa setiap gerakan dapat diperbaiki ketika dipahami dengan baik melalui analisis gerakan. Kami membantu pengguna menemukan cara bergerak, berlatih, dan berperforma yang lebih baik dengan memberikan wawasan mendalam terhadap pola gerakan mereka, mengidentifikasi area yang perlu diperbaiki, serta mendukung kemajuan berkelanjutan menuju tujuan mereka. Baik Anda baru memulai perjalanan kebugaran maupun ingin meningkatkan performa secara keseluruhan, Korbitantes menyediakan analisis gerakan yang objektif untuk mendukung latihan yang lebih efektif. Dengan mengubah data gerakan menjadi wawasan yang bermakna, Korbitantes membantu pengguna memahami performa mereka, mengenali area yang perlu diperbaiki, dan mengambil keputusan yang tepat yang berkontribusi pada kemajuan yang stabil dan terukur."
+               data-en="We believe that every movement can be improved when it is properly understood through movement analysis. We help users discover better ways to move, train, and perform by providing deeper insights into their movement patterns, identifying areas for improvement, and supporting continuous progress toward their goals. Whether you are just beginning your fitness journey or aiming to improve your overall performance, Korbitantes provides objective movement analysis to support more effective training. By transforming movement data into meaningful insights, Korbitantes helps users understand their performance, recognize areas for improvement, and make informed decisions that contribute to steady and measurable progress.">Kami percaya bahwa setiap gerakan dapat diperbaiki ketika dipahami dengan baik melalui analisis gerakan. Kami membantu pengguna menemukan cara bergerak, berlatih, dan berperforma yang lebih baik dengan memberikan wawasan mendalam terhadap pola gerakan mereka, mengidentifikasi area yang perlu diperbaiki, serta mendukung kemajuan berkelanjutan menuju tujuan mereka. Baik Anda baru memulai perjalanan kebugaran maupun ingin meningkatkan performa secara keseluruhan, Korbitantes menyediakan analisis gerakan yang objektif untuk mendukung latihan yang lebih efektif. Dengan mengubah data gerakan menjadi wawasan yang bermakna, Korbitantes membantu pengguna memahami performa mereka, mengenali area yang perlu diperbaiki, dan mengambil keputusan yang tepat yang berkontribusi pada kemajuan yang stabil dan terukur.</p>
 
-        <div class="features-grid">
-            <div class="feature-card">
-                <img src="/static/Camera.png" alt="Rekam Gerakan" class="feature-icon">
-                <h3 data-id="Rekam Gerakan" data-en="Capture Movement">Rekam Gerakan</h3>
-                <p data-id="Rekam Setiap Gerakan" data-en="Record Every Movement">Rekam Setiap Gerakan</p>
-            </div>
-            <div class="feature-card">
-                <img src="/static/Graphic.png" alt="Analisis Gerakan" class="feature-icon">
-                <h3 data-id="Analisis Gerakan" data-en="Analyze Motion">Analisis Gerakan</h3>
-                <p data-id="Pahami Setiap Detail" data-en="Understand Every Detail">Pahami Setiap Detail</p>
-            </div>
-            <div class="feature-card">
-                <img src="/static/File.png" alt="Evaluasi Performa" class="feature-icon">
-                <h3 data-id="Evaluasi Performa" data-en="Evaluate Performance">Evaluasi Performa</h3>
-                <p data-id="Tingkatkan Setiap Performa" data-en="Improve Every Performance">Tingkatkan Setiap Performa</p>
+            <a href="mailto:?subject=Korbitantes%20Contact" class="btn-contact">
+                <span data-id="Hubungi Kami" data-en="More Contact">Hubungi Kami</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+
+            <div class="about-socials">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://github.com/JasonSlav/cv-gymcatch" target="_blank" rel="noopener" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
             </div>
         </div>
     </section>
 
-    <!-- About Us Section -->
-    <section class="about-section">
+    <!-- Developed By Section -->
+    <section class="dev-section">
         <div class="container">
             <h2 class="section-title"
-                data-id-html="Tentang &lt;span class='text-cyan'&gt;Kami&lt;/span&gt;"
-                data-en-html="About &lt;span class='text-cyan'&gt;Us&lt;/span&gt;">Tentang <span class="text-cyan">Kami</span></h2>
-            <p data-id="Kami percaya setiap gerakan dapat diperbaiki ketika dipahami dengan baik melalui analisis gerakan. Kami membantu pengguna menemukan cara bergerak, berlatih, dan berperforma yang lebih baik dengan memberikan wawasan mendalam terhadap pola gerakan, mengidentifikasi area perbaikan, serta mendukung progres berkelanjutan menuju tujuan mereka."
-               data-en="We believe that every movement can be improved when it is properly understood through movement analysis, we help users discover better ways to move, train, and perform by providing deeper insights into their movement patterns, identifying areas for improvement, and supporting continuous progress toward their goals.">Kami percaya setiap gerakan dapat diperbaiki ketika dipahami dengan baik melalui analisis gerakan. Kami membantu pengguna menemukan cara bergerak, berlatih, dan berperforma yang lebih baik dengan memberikan wawasan mendalam terhadap pola gerakan, mengidentifikasi area perbaikan, serta mendukung progres berkelanjutan menuju tujuan mereka.</p>
+                data-id="Dikembangkan Oleh"
+                data-en="Developed By">Dikembangkan Oleh</h2>
+            <div class="dev-card">
+                <div class="dev-photo"><i class="fa-solid fa-user"></i></div>
+                <p class="dev-name">Dr. Surya Adi Saputra, S.Pd, M.Pd, AIFO</p>
+                <p class="dev-role" data-id="Dosen FIK UM" data-en="FIK UM Lecturer">Dosen FIK UM</p>
+            </div>
         </div>
     </section>
 
@@ -793,23 +1080,20 @@
                 <!-- Column 1 -->
                 <div class="footer-col">
                     <div class="footer-logo">
-                        <img class="footer-fik" src="/static/fik.png" alt="Faculty of Sports Science, Universitas Negeri Malang">
+                        <span class="logo-mark"><i class="fa-solid fa-bolt"></i></span>
+                        <span class="logo-text">Korbitantes</span>
                     </div>
                     <p class="footer-desc"
-                       data-id="Dikembangkan oleh Fakultas Ilmu Keolahragaan, Universitas Negeri Malang untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif."
-                       data-en="Developed by Faculty of Sports Science, Universitas Negeri Malang to support movement evaluation and performance improvement through innovative technology.">Dikembangkan oleh Fakultas Ilmu Keolahragaan, Universitas Negeri Malang untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif.</p>
-                    <div class="footer-address">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <p>Jl. Ambarawa No.5, Sumbersari, Kec. Lowokwaru, Kota Malang, Jawa Timur 65145</p>
-                    </div>
+                       data-id="Dikembangkan oleh Dr. Surya Adi Saputra, S.Pd, M.Pd, AIFO untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif."
+                       data-en="Developed by Dr. Surya Adi Saputra, S.Pd, M.Pd, AIFO to support movement evaluation and performance improvement through innovative technology.">Dikembangkan oleh Dr. Surya Adi Saputra, S.Pd, M.Pd, AIFO untuk mendukung evaluasi gerakan dan peningkatan performa melalui teknologi inovatif.</p>
                 </div>
 
                 <!-- Column 2 -->
                 <div class="footer-col">
                     <h4 data-id="Sumber Daya" data-en="Resources">Sumber Daya</h4>
                     <ul class="footer-links">
-                        <li><a href="#" data-id="Tentang Kami" data-en="About Us">Tentang Kami</a></li>
-                        <li><a href="#" data-id="Kontak" data-en="Contact">Kontak</a></li>
+                        <li><a href="#about" data-id="Tentang Kami" data-en="About Us">Tentang Kami</a></li>
+                        <li><a href="mailto:?subject=Korbitantes%20Contact" data-id="Kontak" data-en="Contact">Kontak</a></li>
                         <li><a href="#" data-id="Pusat Bantuan" data-en="Help Center">Pusat Bantuan</a></li>
                     </ul>
                 </div>
@@ -818,18 +1102,52 @@
                 <div class="footer-col">
                     <h4 data-id="Ikuti Kami di" data-en="Follow Us On">Ikuti Kami di</h4>
                     <div class="social-icons">
-                        <a href="https://github.com/JasonSlav/cv-gymcatch" target="_blank" rel="noopener" aria-label="GitHub">
-                            <i class="fa-brands fa-github"></i>
-                        </a>
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="https://github.com/JasonSlav/cv-gymcatch" target="_blank" rel="noopener" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom"
-                 data-id="© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. Hak cipta dilindungi."
-                 data-en="© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. All rights reserved.">© 2026 Gym Catch - Faculty of Sports Science, Universitas Negeri Malang. Hak cipta dilindungi.</div>
+                 data-id="© 2026 Korbitantes. Hak cipta dilindungi."
+                 data-en="© 2026 Korbitantes. All rights reserved.">© 2026 Korbitantes. Hak cipta dilindungi.</div>
         </div>
     </footer>
     </div><!-- /#page-landing -->
+
+    <!-- Modal varian gerakan -->
+    <div id="variant-modal" class="modal" aria-hidden="true">
+        <div class="modal-backdrop" data-close-modal></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
+            <h3 class="modal-title" id="modal-title"
+                data-id="Pilih Variasi Gerakan"
+                data-en="Choose a Movement Variant">Pilih Variasi Gerakan</h3>
+
+            <div class="modal-panel" data-panel="squat">
+                <button type="button" class="movement-option active" data-movement="squat_standard" data-angle="side" data-id="Squat Biasa" data-en="Standard Squat">Squat Biasa</button>
+                <button type="button" class="movement-option" data-movement="squat_sumo" data-angle="front" data-id="Squat Sumo" data-en="Sumo Squat">Squat Sumo</button>
+                <button type="button" class="movement-option" data-movement="squat_plie" data-angle="front" data-id="Squat Plie" data-en="Plie Squat">Squat Plie</button>
+            </div>
+
+            <div class="modal-panel" data-panel="pushup">
+                <button type="button" class="movement-option active" data-movement="pushup_standard" data-angle="front" data-id="Push-up Normal" data-en="Standard Push-up">Push-up Normal</button>
+                <button type="button" class="movement-option" data-movement="pushup_wide" data-angle="front" data-id="Push-up Lebar" data-en="Wide Push-up">Push-up Lebar</button>
+                <button type="button" class="movement-option" data-movement="pushup_diamond" data-angle="front" data-id="Push-up Diamond" data-en="Diamond Push-up">Push-up Diamond</button>
+                <button type="button" class="movement-option" data-movement="pushup_pike" data-angle="side" data-id="Push-up Pike" data-en="Pike Push-up">Push-up Pike</button>
+            </div>
+
+            <div class="modal-panel" data-panel="crunch">
+                <button type="button" class="movement-option active" data-movement="crunch_standard" data-angle="side" data-id="Crunch Biasa" data-en="Standard Crunch">Crunch Biasa</button>
+                <button type="button" class="movement-option" data-movement="crunch_swimming" data-angle="side" data-id="Crunch Swimming" data-en="Swimming Crunch">Crunch Swimming</button>
+                <button type="button" class="movement-option" data-movement="crunch_bicycle" data-angle="side" data-id="Crunch Bicycle" data-en="Bicycle Crunch">Crunch Bicycle</button>
+            </div>
+
+            <div class="modal-panel" data-panel="backup">
+                <button type="button" class="movement-option active" data-movement="back_up" data-angle="side" data-id="Back Up" data-en="Back Extension">Back Up</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         /* ===== I18N: Indonesia (default) & English ===== */
@@ -1031,6 +1349,7 @@
             localStorage.setItem("gc-lang", lang);
 
             updateCameraGuide();
+            updateCardBadges();
         }
 
         /* Pesan error backend → bahasa aktif (fallback: teks dari server) */
@@ -1042,18 +1361,51 @@
             return (data && data.error) || "HTTP error";
         }
 
-        /* Panduan kamera mengikuti kartu gerakan yang dipilih */
+        /* Panduan kamera mengikuti varian gerakan yang dipilih */
         function updateCameraGuide() {
             const guide = document.getElementById("camera-guide");
             const active = document.querySelector(".movement-option.active");
             const angle = active ? active.dataset.angle : "side";
             const text = {
-                side: { id: "📸 Rekam dari SAMPING", en: "📸 Record from the SIDE" },
-                front: { id: "📸 Rekam dari DEPAN", en: "📸 Record from the FRONT" },
+                side: { id: "Rekam dari SAMPING", en: "Record from the SIDE" },
+                front: { id: "Rekam dari DEPAN", en: "Record from the FRONT" },
             }[angle];
             if (guide && text) {
                 guide.textContent = text[currentLang] || text.id;
             }
+        }
+
+        /* Badge pada tiap kartu menampilkan varian yang sedang aktif */
+        function updateCardBadges() {
+            document.querySelectorAll("[data-panel]").forEach(panel => {
+                const badge = document.querySelector(
+                    '[data-category-badge="' + panel.dataset.panel + '"]'
+                );
+                const active = panel.querySelector(".movement-option.active");
+                if (badge && active) {
+                    badge.textContent =
+                        active.getAttribute("data-" + currentLang) ||
+                        active.getAttribute("data-id");
+                }
+            });
+        }
+
+        /* Modal varian gerakan */
+        function openModal(category) {
+            document.querySelectorAll(".modal-panel").forEach(panel => {
+                panel.classList.toggle("active", panel.dataset.panel === category);
+            });
+            const modal = document.getElementById("variant-modal");
+            modal.classList.add("open");
+            modal.setAttribute("aria-hidden", "false");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("variant-modal");
+            modal.classList.remove("open");
+            modal.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = "";
         }
 
         /* ===== Upload & kirim ke backend ===== */
@@ -1186,16 +1538,37 @@
 
             btnSelect.addEventListener("click", () => input.click());
 
-            /* Card Selection: pilih gerakan → update nilai tersembunyi & panduan kamera */
-            const movementCards = document.querySelectorAll(".movement-option");
-            movementCards.forEach(card => {
-                card.addEventListener("click", () => {
-                    movementCards.forEach(c => c.classList.remove("active"));
-                    card.classList.add("active");
-                    document.getElementById("selected-movement").value =
-                        card.dataset.movement;
-                    updateCameraGuide();
+            /* Kartu kategori & tombol Discover → buka modal varian */
+            document.querySelectorAll(".movement-card").forEach(card => {
+                card.addEventListener("click", () => openModal(card.dataset.category));
+            });
+            document.querySelectorAll("[data-open-modal]").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    openModal(btn.dataset.openModal);
                 });
+            });
+            document.querySelectorAll("[data-close-modal]").forEach(el => {
+                el.addEventListener("click", closeModal);
+            });
+
+            /* Pilih varian → update nilai tersembunyi, badge, panduan kamera */
+            document.querySelectorAll(".movement-option").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    document.querySelectorAll(".movement-option").forEach(b => {
+                        b.classList.remove("active");
+                    });
+                    btn.classList.add("active");
+                    document.getElementById("selected-movement").value =
+                        btn.dataset.movement;
+                    updateCameraGuide();
+                    updateCardBadges();
+                    closeModal();
+                });
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") closeModal();
             });
 
             // Klik area kosong kotak upload juga membuka picker
