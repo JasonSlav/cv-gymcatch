@@ -603,6 +603,7 @@ def result_detail(job_id: str):
             files[key] = name
 
     movement_label = _movement_label(row["movement_type"])
+    angle_data = _read_angle_series(folder)
     return render_template(
         "history.html",
         mode="detail",
