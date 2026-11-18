@@ -337,16 +337,9 @@
             line-height: 1.45;
         }
 
-        .card-variant {
-            align-self: flex-start;
-            margin-top: 2px;
-            font-size: 0.66rem;
-            font-weight: 600;
-            color: var(--accent-cyan);
-            border: 1px solid rgba(0, 200, 215, 0.35);
-            border-radius: 999px;
-            padding: 2px 9px;
-            background: rgba(0, 200, 215, 0.06);
+        .movement-card.selected {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 1px rgba(0, 200, 215, 0.6), 0 18px 40px rgba(0, 0, 0, 0.45);
         }
 
         .movement-footer {
@@ -362,7 +355,7 @@
             color: #666;
         }
 
-        .btn-discover {
+        .btn-pick {
             background: #232323;
             border: 1px solid #3a3a3a;
             color: #ffffff;
@@ -372,13 +365,22 @@
             font-weight: 600;
             font-family: var(--font-main);
             cursor: pointer;
-            transition: border-color 0.2s, color 0.2s;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
         }
 
-        .btn-discover:hover {
+        .btn-pick:hover {
             border-color: var(--accent-cyan);
             color: var(--accent-cyan);
         }
+
+        .btn-pick.selected,
+        .btn-pick.selected:hover {
+            background: #ffffff;
+            border-color: #ffffff;
+            color: #000000;
+        }
+
+        .movement-card.selected .sample-label { color: #ffffff; }
 
         /* --- Upload Section --- */
         .upload-grid {
@@ -930,10 +932,9 @@
                     <p class="movement-sub"
                        data-id="Kedalaman, postur, dan repetisi dianalisis otomatis."
                        data-en="Depth, posture, and repetitions analyzed automatically.">Kedalaman, postur, dan repetisi dianalisis otomatis.</p>
-                    <span class="card-variant" data-category-badge="squat">Squat Biasa</span>
                     <div class="movement-footer">
-                        <span class="sample-label">Sample +</span>
-                        <button type="button" class="btn-discover" data-open-modal="squat" data-id="Discover" data-en="Discover">Discover</button>
+                        <span class="sample-label" data-category-label="squat">Pilih Variasi</span>
+                        <button type="button" class="btn-pick" data-open-modal="squat" data-id="Pilih" data-en="Select">Pilih</button>
                     </div>
                 </div>
             </article>
@@ -947,10 +948,9 @@
                     <p class="movement-sub"
                        data-id="Sudut sendi, keselarasan, dan kedalaman dianalisis otomatis."
                        data-en="Joint angles, alignment, and depth analyzed automatically.">Sudut sendi, keselarasan, dan kedalaman dianalisis otomatis.</p>
-                    <span class="card-variant" data-category-badge="pushup">Push-up Normal</span>
                     <div class="movement-footer">
-                        <span class="sample-label">Sample +</span>
-                        <button type="button" class="btn-discover" data-open-modal="pushup" data-id="Discover" data-en="Discover">Discover</button>
+                        <span class="sample-label" data-category-label="pushup">Pilih Variasi</span>
+                        <button type="button" class="btn-pick" data-open-modal="pushup" data-id="Pilih" data-en="Select">Pilih</button>
                     </div>
                 </div>
             </article>
@@ -964,10 +964,9 @@
                     <p class="movement-sub"
                        data-id="Sudut torso, rentang gerak, dan irama dianalisis otomatis."
                        data-en="Torso angle, range, and rhythm analyzed automatically.">Sudut torso, rentang gerak, dan irama dianalisis otomatis.</p>
-                    <span class="card-variant" data-category-badge="crunch">Crunch Biasa</span>
                     <div class="movement-footer">
-                        <span class="sample-label">Sample +</span>
-                        <button type="button" class="btn-discover" data-open-modal="crunch" data-id="Discover" data-en="Discover">Discover</button>
+                        <span class="sample-label" data-category-label="crunch">Pilih Variasi</span>
+                        <button type="button" class="btn-pick" data-open-modal="crunch" data-id="Pilih" data-en="Select">Pilih</button>
                     </div>
                 </div>
             </article>
@@ -981,17 +980,18 @@
                     <p class="movement-sub"
                        data-id="Ekstensi tulang punggung, rentang, dan kontrol dianalisis otomatis."
                        data-en="Spinal extension, range, and control analyzed automatically.">Ekstensi tulang punggung, rentang, dan kontrol dianalisis otomatis.</p>
-                    <span class="card-variant" data-category-badge="backup">Back Up</span>
                     <div class="movement-footer">
-                        <span class="sample-label">Sample +</span>
-                        <button type="button" class="btn-discover" data-open-modal="backup" data-id="Discover" data-en="Discover">Discover</button>
+                        <span class="sample-label" data-category-label="backup">Pilih Variasi</span>
+                        <button type="button" class="btn-pick" data-open-modal="backup" data-id="Pilih" data-en="Select">Pilih</button>
                     </div>
                 </div>
             </article>
         </div>
 
         <!-- Upload + Panduan Perekaman -->
-        <p id="camera-guide" class="camera-guide">Rekam dari SAMPING</p>
+        <p id="camera-guide" class="camera-guide"
+           data-id="Anda bisa mulai mencoba melakukan perekaman dari arah samping maupun depan untuk analisis yang lebih optimal."
+           data-en="You can start recording from the side or the front for a more optimal analysis.">Anda bisa mulai mencoba melakukan perekaman dari arah samping maupun depan untuk analisis yang lebih optimal.</p>
         <div class="upload-grid">
             <!-- Left Card -->
             <div class="card upload-box">
@@ -1030,7 +1030,7 @@
         <p id="upload-error" class="error-text" style="display:none;"></p>
         <div id="error-msg" style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
 
-        <input type="hidden" id="selected-movement" value="squat_standard">
+        <input type="hidden" id="selected-movement" value="">
     </section>
 
     <!-- Progress analisis (ditampilkan saat fetch berjalan) -->
@@ -1127,26 +1127,26 @@
                 data-en="Choose a Movement Variant">Pilih Variasi Gerakan</h3>
 
             <div class="modal-panel" data-panel="squat">
-                <button type="button" class="movement-option active" data-movement="squat_standard" data-angle="side" data-id="Squat Biasa" data-en="Standard Squat">Squat Biasa</button>
+                <button type="button" class="movement-option" data-movement="squat_standard" data-angle="side" data-id="Squat Biasa" data-en="Standard Squat">Squat Biasa</button>
                 <button type="button" class="movement-option" data-movement="squat_sumo" data-angle="front" data-id="Squat Sumo" data-en="Sumo Squat">Squat Sumo</button>
                 <button type="button" class="movement-option" data-movement="squat_plie" data-angle="front" data-id="Squat Plie" data-en="Plie Squat">Squat Plie</button>
             </div>
 
             <div class="modal-panel" data-panel="pushup">
-                <button type="button" class="movement-option active" data-movement="pushup_standard" data-angle="front" data-id="Push-up Normal" data-en="Standard Push-up">Push-up Normal</button>
+                <button type="button" class="movement-option" data-movement="pushup_standard" data-angle="front" data-id="Push-up Normal" data-en="Standard Push-up">Push-up Normal</button>
                 <button type="button" class="movement-option" data-movement="pushup_wide" data-angle="front" data-id="Push-up Lebar" data-en="Wide Push-up">Push-up Lebar</button>
                 <button type="button" class="movement-option" data-movement="pushup_diamond" data-angle="front" data-id="Push-up Diamond" data-en="Diamond Push-up">Push-up Diamond</button>
                 <button type="button" class="movement-option" data-movement="pushup_pike" data-angle="side" data-id="Push-up Pike" data-en="Pike Push-up">Push-up Pike</button>
             </div>
 
             <div class="modal-panel" data-panel="crunch">
-                <button type="button" class="movement-option active" data-movement="crunch_standard" data-angle="side" data-id="Crunch Biasa" data-en="Standard Crunch">Crunch Biasa</button>
+                <button type="button" class="movement-option" data-movement="crunch_standard" data-angle="side" data-id="Crunch Biasa" data-en="Standard Crunch">Crunch Biasa</button>
                 <button type="button" class="movement-option" data-movement="crunch_swimming" data-angle="side" data-id="Crunch Swimming" data-en="Swimming Crunch">Crunch Swimming</button>
                 <button type="button" class="movement-option" data-movement="crunch_bicycle" data-angle="side" data-id="Crunch Bicycle" data-en="Bicycle Crunch">Crunch Bicycle</button>
             </div>
 
             <div class="modal-panel" data-panel="backup">
-                <button type="button" class="movement-option active" data-movement="back_up" data-angle="side" data-id="Back Up" data-en="Back Extension">Back Up</button>
+                <button type="button" class="movement-option" data-movement="back_up" data-angle="side" data-id="Back Up" data-en="Back Extension">Back Up</button>
             </div>
         </div>
     </div>
@@ -1160,6 +1160,8 @@
                 dropInvalid: "Format file tidak didukung (hanya .mp4/.mov)",
                 progressFrames: "Memproses {done}/{total} frame",
                 na: "N/A",
+                chooseVariation: "Pilih Variasi",
+                noMovement: "Pilih variasi gerakan terlebih dahulu.",
                 hints: {
                     score: "Gabungan ROM (40%), konsistensi (30%), dan stabilitas (30%).",
                     reps: "Jumlah gerakan naik-turun yang terdeteksi.",
@@ -1247,6 +1249,8 @@
                 dropInvalid: "Unsupported file type (.mp4/.mov only)",
                 progressFrames: "Processing {done}/{total} frames",
                 na: "N/A",
+                chooseVariation: "Choose Variation",
+                noMovement: "Choose a movement variation first.",
                 hints: {
                     score: "Combines ROM (40%), consistency (30%), and stability (30%).",
                     reps: "Number of detected up-and-down movements.",
@@ -1350,8 +1354,7 @@
 
             localStorage.setItem("gc-lang", lang);
 
-            updateCameraGuide();
-            updateCardBadges();
+            updateCardLabels();
         }
 
         /* Pesan error backend → bahasa aktif (fallback: teks dari server) */
@@ -1363,32 +1366,31 @@
             return (data && data.error) || "HTTP error";
         }
 
-        /* Panduan kamera mengikuti varian gerakan yang dipilih */
-        function updateCameraGuide() {
-            const guide = document.getElementById("camera-guide");
-            const active = document.querySelector(".movement-option.active");
-            const angle = active ? active.dataset.angle : "side";
-            const text = {
-                side: { id: "Rekam dari SAMPING", en: "Record from the SIDE" },
-                front: { id: "Rekam dari DEPAN", en: "Record from the FRONT" },
-            }[angle];
-            if (guide && text) {
-                guide.textContent = text[currentLang] || text.id;
-            }
+        /* Label footer kartu: varian terpilih atau ajakan memilih */
+        function updateCardLabels() {
+            document.querySelectorAll(".movement-card").forEach(card => {
+                const label = card.querySelector(".sample-label");
+                if (!label) return;
+                const panel = document.querySelector(
+                    '.modal-panel[data-panel="' + card.dataset.category + '"]'
+                );
+                const active = card.classList.contains("selected") && panel
+                    ? panel.querySelector(".movement-option.active")
+                    : null;
+                label.textContent = active
+                    ? (active.getAttribute("data-" + currentLang) ||
+                        active.getAttribute("data-id"))
+                    : T[currentLang].chooseVariation;
+            });
         }
 
-        /* Badge pada tiap kartu menampilkan varian yang sedang aktif */
-        function updateCardBadges() {
-            document.querySelectorAll("[data-panel]").forEach(panel => {
-                const badge = document.querySelector(
-                    '[data-category-badge="' + panel.dataset.panel + '"]'
-                );
-                const active = panel.querySelector(".movement-option.active");
-                if (badge && active) {
-                    badge.textContent =
-                        active.getAttribute("data-" + currentLang) ||
-                        active.getAttribute("data-id");
-                }
+        /* Tandai satu kartu sebagai kategori terpilih */
+        function selectCategory(category) {
+            document.querySelectorAll(".movement-card").forEach(card => {
+                const on = card.dataset.category === category;
+                card.classList.toggle("selected", on);
+                const btn = card.querySelector(".btn-pick");
+                if (btn) btn.classList.toggle("selected", on);
             });
         }
 
@@ -1540,7 +1542,7 @@
 
             btnSelect.addEventListener("click", () => input.click());
 
-            /* Kartu kategori & tombol Discover → buka modal varian */
+            /* Kartu kategori & tombol Pilih → buka modal varian */
             document.querySelectorAll(".movement-card").forEach(card => {
                 card.addEventListener("click", () => openModal(card.dataset.category));
             });
@@ -1554,7 +1556,7 @@
                 el.addEventListener("click", closeModal);
             });
 
-            /* Pilih varian → update nilai tersembunyi, badge, panduan kamera */
+            /* Pilih varian → update nilai tersembunyi, label, dan kartu terpilih */
             document.querySelectorAll(".movement-option").forEach(btn => {
                 btn.addEventListener("click", () => {
                     document.querySelectorAll(".movement-option").forEach(b => {
@@ -1563,8 +1565,10 @@
                     btn.classList.add("active");
                     document.getElementById("selected-movement").value =
                         btn.dataset.movement;
-                    updateCameraGuide();
-                    updateCardBadges();
+                    const panel = btn.closest(".modal-panel");
+                    if (panel) selectCategory(panel.dataset.panel);
+                    updateCardLabels();
+                    showError("");
                     closeModal();
                 });
             });
@@ -1582,6 +1586,11 @@
 
             const btnConfirm = document.getElementById("btn-confirm-analyze");
             if (btnConfirm) btnConfirm.addEventListener("click", () => {
+                const movement = document.getElementById("selected-movement").value;
+                if (!movement) {
+                    showError(T[currentLang].noMovement);
+                    return;
+                }
                 const file = selectedFile;
                 resetPreviewState();
                 if (file) analyzeFile(file);

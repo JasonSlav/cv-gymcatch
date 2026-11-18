@@ -8,6 +8,8 @@ Route:
 - GET  /history             → daftar riwayat analisis (SQLite)
 - GET  /result/<job_id>     → detail satu riwayat
 - GET  /download/<job_id>/<file> → unduh file dari output/<job_id>/
+- POST /delete/<job_id>     → hapus riwayat + folder hasil
+- POST /rename/<job_id>     → ubah nama tampilan riwayat
 - GET  /output/<filename>   → sajikan file hasil analisis dari folder output/
 
 Logika AI tetap di src/ (tidak disentuh). app.py (Streamlit) dibiarkan
@@ -667,6 +669,29 @@ def delete_analysis(job_id: str):
     # Hapus folder hasil (video, plot, CSV, sampel). ignore_errors agar
     # kegagalan filesystem tidak mematikan request.
     shutil.rmtree(OUTPUT_DIR / job_id, ignore_errors=True)
+    return redirect(url_for("history"))
+
+
+@app.route("/rename/<job_id>", methods=["POST"])
+@login_required
+def rename_analysis(job_id: str):
+    """Ubah nama tampilan riwayat milik user (file fisik tidak diubah)."""
+    if not JOB_ID_RE.match(job_id) or not _owns_job(job_id):
+        abort(404)
+
+    new_name = (request.form.get("video_name") or "").strip()[:200]
+    if not new_name:
+        return redirect(url_for("history"))
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            "UPDATE analyses SET video_name = ? WHERE job_id = ? AND user_id = ?",
+            (new_name, job_id, current_user.get_id()),
+        )
+        conn.commit()
+    finally:
+        conn.close()
     return redirect(url_for("history"))
 
 

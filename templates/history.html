@@ -321,7 +321,7 @@
             align-items: baseline;
             justify-content: space-between;
             gap: 12px;
-            padding-right: 46px;
+            padding-right: 88px;
             margin-bottom: 10px;
         }
 
@@ -358,13 +358,19 @@
             border-radius: 14px;
         }
 
-        .delete-form {
+        .card-actions {
             position: absolute;
             top: 16px;
             right: 16px;
             z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        .card-actions form { display: flex; }
+
+        .btn-rename,
         .btn-trash {
             width: 32px;
             height: 32px;
@@ -375,6 +381,12 @@
             cursor: pointer;
             font-size: 0.8rem;
             transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+
+        .btn-rename:hover {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            background: rgba(0, 200, 215, 0.12);
         }
 
         .btn-trash:hover { color: #ff6b6b; border-color: #ff6b6b; background: rgba(239, 68, 68, 0.12); }
@@ -963,12 +975,19 @@
                             </div>
                         </div>
 
-                        <form class="delete-form" method="post" action="/delete/{{ r.job_id }}"
-                              onsubmit="return confirm('Yakin ingin menghapus?');">
-                            <button type="submit" class="btn-trash" title="Hapus" aria-label="Hapus">
-                                <i class="fa-solid fa-trash"></i>
+                        <div class="card-actions">
+                            <button type="button" class="btn-rename"
+                                    data-job="{{ r.job_id }}" data-name="{{ r.video_name }}"
+                                    title="Ganti nama / Rename" aria-label="Ganti nama">
+                                <i class="fa-solid fa-pen"></i>
                             </button>
-                        </form>
+                            <form method="post" action="/delete/{{ r.job_id }}"
+                                  onsubmit="return confirm('Yakin ingin menghapus?');">
+                                <button type="submit" class="btn-trash" title="Hapus" aria-label="Hapus">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </article>
                 {% endfor %}
             </div>
@@ -1230,6 +1249,26 @@
                         e.preventDefault();
                         window.location.href = card.dataset.href;
                     }
+                });
+            });
+
+            /* Ganti nama tampilan riwayat */
+            document.querySelectorAll(".btn-rename").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const label = lang === "en" ? "Rename file" : "Ganti nama file";
+                    const value = window.prompt(label, btn.dataset.name);
+                    if (value === null || !value.trim()) return;
+                    const form = document.createElement("form");
+                    form.method = "post";
+                    form.action = "/rename/" + encodeURIComponent(btn.dataset.job);
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "video_name";
+                    input.value = value.trim();
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
                 });
             });
 
