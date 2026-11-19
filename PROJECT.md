@@ -118,7 +118,7 @@ C:\Projects\cv\gymcatch\
 │     ├─ squat.py ... glute_bridge.py  # 12 config gerakan
 │     └─ template.py           # template gerakan baru
 │
-├─ tests\                      # unit test (142 test)
+├─ tests\                      # unit test (167 test)
 │  ├─ test_geometry.py
 │  ├─ test_metrics.py
 │  ├─ test_video_io.py
@@ -190,6 +190,22 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 - Tampilkan yang valid; kalau hanya satu, tampilkan satu
 - **Tidak** memaksa hitung sisi yang visibility-nya rendah
 
+### 6.7 Back Up / Back Extension (Provisional)
+- Landmark: shoulder (11/12) → hip (23/24) → knee (25/26).
+- Sudut ini adalah **proxy ekstensi batang tubuh berbasis hip**, bukan
+  pengukuran langsung lumbar spine.
+- `up_threshold=170°`, `down_threshold=160°` — provisional berdasarkan
+  1 video (5 repetisi; rentang sudut 149–180°). Threshold lama 120° tidak
+  pernah tercapai pada video tersebut.
+- `rom_reference=42°` — provisional dan diselaraskan dengan
+  `good_rom_deg`; **bukan** standar ROM ideal atau standar klinis.
+- `movement_control` adalah diagnostik kontrol gerakan (terutama direction
+  consistency fase angkat/turun). Reversal, normalized jerk, dan tempo
+  menjadi indikator pendukung. Metrik ini **tidak masuk skor 40/30/30**,
+  bukan pengukuran momentum fisik, dan bukan validasi klinis.
+- Validasi berikutnya membutuhkan minimal **3 video berlabel** dengan
+  variasi ROM, tempo, kontrol gerakan, dan kemampuan subjek.
+
 ---
 
 ## 7. Parameter yang Dihasilkan
@@ -201,6 +217,7 @@ Landmark MediaPipe: 23 (L hip), 25 (L knee), 27 (L ankle)
 | Jumlah repetisi | ✅ Wajib | State machine |
 | Consistency | ⚠️ Opsional | Jika ≥3 repetisi |
 | Stability | ⚠️ Proxy | Goyangan pinggul (px), rule-based |
+| Movement control | ⚠️ Diagnostik | Back Up; terpisah dari skor total |
 | Skor kualitas 0–100 | ⚠️ Rule-based | Aturan sederhana, bukan validasi klinis |
 | Feedback teknis | ⚠️ Rule-based | Saran otomatis dari ambang metrik |
 
@@ -257,6 +274,7 @@ Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 5. ROM yang dihasilkan bukan pengukuran klinis tervalidasi.
 6. Metrik consistency adalah **proxy visual**, bukan ukuran universal.
 7. Auto-Detect (Decision Tree) dan threshold 12 gerakan adalah **heuristik prototype** — belum dikalibrasi/diuji dengan video nyata untuk semua gerakan.
+8. Threshold Back Up 160°, `rom_reference` 42°, dan movement control adalah **provisional**; baru diuji pada 1 video dan bukan standar klinis.
 
 ### Asumsi
 1. Video memenuhi protokol pengambilan (side view, 1 orang, full body).
@@ -296,7 +314,7 @@ Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 
 1. **Bekerja bertahap**, tidak membangun semua fitur sekaligus.
 2. **Modularitas ketat**: Satu file = satu tanggung jawab (UI, Pipeline, Geometri, dll).
-3. **Selalu jalankan test** setelah implementasi (142 unit test).
+3. **Selalu jalankan test** setelah implementasi (167 unit test).
 4. **Jujur pada hasil**: Jangan klaim fitur berjalan jika belum diuji dengan data nyata.
 5. **Jangan tambah dependensi** di luar yang terkunci tanpa persetujuan.
 6. **Laporkan error/gagal** apa adanya, jangan di-*bypass*.
@@ -320,6 +338,7 @@ Ditampilkan sebagai panduan di UI (halaman Flask `index.html` & app.py legacy):
 | 2026-10-23 | Durasi panduan diubah 5–10 → 10–15 detik | Permintaan klien; video lebih panjang memberi lebih banyak frame per repetisi; video demo 11.8s kini sesuai panduan |
 | 2026-10-25 | Migrasi UI dari Streamlit ke Flask + HTML murni | Streamlit terlalu terbatas untuk mencapai desain mockup 100%; Flask memisahkan Frontend (HTML/JS) dan Backend (Python/AI) secara bersih. |
 | 2026-11-09 | Implementasi 12 gerakan arketipe dan Decision Tree Auto-Detect | Sistem 100% otomatis tanpa dropdown; 12 config di `src/movements/` + klasifikasi postur (horizontal, asimetri kiri-kanan, torso, ROM sendi) di `src/auto_detect.py` |
+| 2026-11-19 | Back Up: threshold 160°, `rom_reference` 42°, movement control diagnostik, output `joint_angle.*` | Kalibrasi provisional dari 1 video (5 repetisi, sudut 149–180°); movement control tidak masuk skor dan bukan validasi klinis. Perlu minimal 3 video berlabel. |
 
 ---
 

@@ -19,7 +19,7 @@ from typing import List, Optional, Sequence
 
 import numpy as np
 
-from src.movements.base import FeedbackRules
+from src.movements.base import FeedbackRules, MovementControlRules
 
 
 # --- Konstanta state machine ---
@@ -289,6 +289,202 @@ def compute_consistency(
     return float(max(0.0, min(1.0, consistency)))
 
 
+# --- Movement control (diagnostik, bukan validasi klinis) ---
+
+def _phase_control(
+    smoothed: np.ndarray,
+    times: np.ndarray,
+    lo: int,
+    hi: int,
+    expected_sign: int,
+    rules: MovementControlRules,
+) -> Optional[dict]:
+    """Hitung kontrol satu fase (lo s.d. hi) dari angular velocity."""
+    velocities: List[float] = []
+    mid_times: List[float] = []
+    for i in range(lo, hi):
+        a0 = smoothed[i]
+        a1 = smoothed[i + 1]
+        t0 = times[i]
+        t1 = times[i + 1]
+        if not (
+            np.isfinite(a0) and np.isfinite(a1)
+            and np.isfinite(t0) and np.isfinite(t1)
+        ):
+            continue
+        dt = float(t1 - t0)
+        if dt <= 0.0 or dt > rules.max_gap_sec:
+            continue
+        velocities.append(float((a1 - a0) / dt))
+        mid_times.append(float((t0 + t1) / 2.0))
+
+    if len(velocities) < rules.min_phase_samples:
+        return None
+
+    v = np.asarray(velocities, dtype=float)
+    mt = np.asarray(mid_times, dtype=float)
+
+    # Indikator utama: arah velocity sesuai fase (atau berada di deadband).
+    inside_deadband = np.abs(v) <= rules.velocity_deadband_deg_s
+    direction_ok = (v * expected_sign > 0.0) | inside_deadband
+    direction_consistency = float(np.mean(direction_ok))
+
+    # Indikator pendukung: perubahan arah yang jelas di luar deadband.
+    signs = np.where(np.abs(v) > rules.velocity_deadband_deg_s, np.sign(v), 0.0)
+    active_signs = signs[signs != 0.0]
+    reversals = (
+        int(np.count_nonzero(np.diff(active_signs) != 0.0))
+        if len(active_signs) > 1
+        else 0
+    )
+
+    # Indikator pendukung: normalized jerk (RMS jerk * T^3 / amplitudo).
+    normalized_jerk: Optional[float] = None
+    if len(v) >= 3 and len(mt) >= 3:
+        dt_mid = np.diff(mt)
+        valid_dt = dt_mid > 0.0
+        if np.all(valid_dt):
+            acc = np.diff(v) / dt_mid
+            acc_t = (mt[:-1] + mt[1:]) / 2.0
+            dt_acc = np.diff(acc_t)
+            if len(acc) >= 2 and np.all(dt_acc > 0.0):
+                jerk = np.diff(acc) / dt_acc
+                duration = float(times[hi] - times[lo])
+                amplitude = abs(float(smoothed[hi] - smoothed[lo]))
+                if duration > 0.0 and amplitude > 1e-6:
+                    normalized_jerk = float(
+                        np.sqrt(np.mean(jerk ** 2)) * duration ** 3 / amplitude
+                    )
+
+    duration = (
+        float(times[hi] - times[lo])
+        if np.isfinite(times[lo]) and np.isfinite(times[hi])
+        else None
+    )
+    return {
+        "samples": len(velocities),
+        "direction_consistency": float(max(0.0, min(1.0, direction_consistency))),
+        "reversals": reversals,
+        "normalized_jerk": normalized_jerk,
+        "duration_sec": duration,
+        "mean_speed_deg_s": float(np.mean(np.abs(v))),
+        "peak_speed_deg_s": float(np.max(np.abs(v))),
+    }
+
+
+def compute_movement_control(
+    angles: Sequence[Optional[float]],
+    timestamps_sec: Optional[Sequence[Optional[float]]],
+    rep_result: Optional[RepCountResult],
+    rules: MovementControlRules,
+    fps: Optional[float] = None,
+) -> Optional[dict]:
+    """Diagnostik kontrol gerakan dari arah, kelancaran, dan fase repetisi.
+
+    Skor utama memakai direction consistency (tidak memakai kecepatan
+    absolut). Reversal, normalized jerk, dan tempo hanya indikator
+    pendukung/diagnostik. Return None bila data tidak cukup.
+
+    Catatan: fungsi ini bukan pengukuran momentum fisik dan bukan validasi
+    klinis.
+    """
+    if rep_result is None or not rep_result.reps:
+        return None
+    if rules.max_gap_sec <= 0.0 or rules.min_phase_samples < 1:
+        return None
+
+    smoothed = smooth_angles(angles, window=DEFAULT_SMOOTH_WINDOW)
+    n = len(smoothed)
+    if n == 0:
+        return None
+
+    times = np.full(n, np.nan, dtype=float)
+    if timestamps_sec is not None and len(timestamps_sec) == n:
+        for i, ts in enumerate(timestamps_sec):
+            if ts is None:
+                continue
+            try:
+                value = float(ts)
+            except (TypeError, ValueError):
+                continue
+            if np.isfinite(value):
+                times[i] = value
+    elif fps is not None and float(fps) > 0.0:
+        times = np.arange(n, dtype=float) / float(fps)
+    else:
+        return None
+
+    phase_controls: List[dict] = []
+    lift_durations: List[float] = []
+    lower_durations: List[float] = []
+    reps_used = 0
+
+    for rep in rep_result.reps:
+        start, valley, end = rep.start_idx, rep.valley_idx, rep.end_idx
+        if not (0 <= start < valley < end < n):
+            continue
+        a_start = smoothed[start]
+        a_valley = smoothed[valley]
+        a_end = smoothed[end]
+        if not (np.isfinite(a_start) and np.isfinite(a_valley) and np.isfinite(a_end)):
+            continue
+
+        # Back Up: fase angkat menurunkan sudut, fase turun menaikkan sudut.
+        if not (a_start > a_valley and a_end > a_valley):
+            continue
+
+        rep_used = False
+        lift = _phase_control(smoothed, times, start, valley, -1, rules)
+        if lift is not None:
+            phase_controls.append(lift)
+            if lift["duration_sec"] is not None:
+                lift_durations.append(lift["duration_sec"])
+            rep_used = True
+
+        lower = _phase_control(smoothed, times, valley, end, 1, rules)
+        if lower is not None:
+            phase_controls.append(lower)
+            if lower["duration_sec"] is not None:
+                lower_durations.append(lower["duration_sec"])
+            rep_used = True
+
+        if rep_used:
+            reps_used += 1
+
+    if not phase_controls:
+        return None
+
+    score = 100.0 * float(
+        np.mean([p["direction_consistency"] for p in phase_controls])
+    )
+
+    tempo_cvs: List[float] = []
+    for durations in (lift_durations, lower_durations):
+        if len(durations) >= 3:
+            mean_duration = float(np.mean(durations))
+            if mean_duration > 1e-6:
+                tempo_cvs.append(float(np.std(durations) / mean_duration))
+    tempo_cv = float(np.mean(tempo_cvs)) if tempo_cvs else None
+
+    jerk_values = [
+        p["normalized_jerk"] for p in phase_controls
+        if p["normalized_jerk"] is not None
+    ]
+    return {
+        "score": float(max(0.0, min(100.0, score))),
+        "direction_consistency": float(
+            np.mean([p["direction_consistency"] for p in phase_controls])
+        ),
+        "reversal_count": int(sum(p["reversals"] for p in phase_controls)),
+        "normalized_jerk": (
+            float(np.mean(jerk_values)) if jerk_values else None
+        ),
+        "tempo_cv": tempo_cv,
+        "reps_used": reps_used,
+        "phases": list(phase_controls),
+    }
+
+
 # --- Scoring rule-based (prototype, bukan validasi klinis) ---
 
 # Landmark MediaPipe (indeks 33 titik)
@@ -389,6 +585,7 @@ def generate_rule_based_feedback(
         + cons_val * 30.0
         + (stab_val / 100.0) * 30.0
     )
+    score = max(0.0, min(100.0, score))
 
     if score >= SCORE_GOOD_THRESHOLD:
         label = "Baik"

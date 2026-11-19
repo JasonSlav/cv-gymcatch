@@ -57,10 +57,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from src.pipeline import DEFAULT_MODEL_PATH, PipelineError, analyze_video
+from src.report import find_angle_csv, find_angle_plot
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "output"
-DB_PATH = BASE_DIR / "history.db"
+DB_PATH = Path(os.environ.get("GYMCATCH_DB_PATH", str(BASE_DIR / "history.db")))
 MAX_FILE_SIZE_MB = 50
 ALLOWED_EXTENSIONS = {".mp4", ".mov"}
 JOB_ID_RE = re.compile(r"^req_[0-9a-f]{12}$")
@@ -159,9 +160,9 @@ def _to_output_url(path) -> str:
     return "/output/" + Path(path).relative_to(OUTPUT_DIR).as_posix()
 
 
-def init_db() -> None:
+def init_db(db_path=None) -> None:
     """Buat/migrasi tabel (idempotent) — users + analyses(user_id)."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path or DB_PATH)
     try:
         conn.execute(
             """
@@ -190,7 +191,8 @@ def init_db() -> None:
                 user_id INTEGER,
                 movement_type TEXT DEFAULT 'squat',
                 duration_sec REAL,
-                exercise_type TEXT DEFAULT 'dynamic'
+                exercise_type TEXT DEFAULT 'dynamic',
+                movement_control REAL
             )
             """
         )
@@ -212,6 +214,10 @@ def init_db() -> None:
             conn.execute(
                 "ALTER TABLE analyses ADD COLUMN exercise_type TEXT"
                 " DEFAULT 'dynamic'"
+            )
+        if "movement_control" not in cols:
+            conn.execute(
+                "ALTER TABLE analyses ADD COLUMN movement_control REAL"
             )
         # Migrasi profil: kolom full_name & email (default string kosong).
         user_cols = {r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
@@ -651,8 +657,8 @@ def analyze():
                     "INSERT INTO analyses (job_id, timestamp, video_name, score,"
                     " score_label, reps, rom, stability, consistency, feedbacks,"
                     " folder_path, user_id, movement_type, duration_sec,"
-                    " exercise_type)"
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    " exercise_type, movement_control)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         job_id,
                         datetime.now().isoformat(timespec="seconds"),
@@ -673,6 +679,11 @@ def analyze():
                         result.movement_type,
                         round(result.duration_sec, 1),
                         result.exercise_type,
+                        (
+                            round(result.movement_control, 1)
+                            if result.movement_control is not None
+                            else None
+                        ),
                     ),
                 )
                 conn.commit()
@@ -694,6 +705,12 @@ def analyze():
                 else None
             ),
             "duration_sec": round(result.duration_sec, 1),
+            "movement_control": (
+                round(result.movement_control, 1)
+                if result.movement_control is not None
+                else None
+            ),
+            "movement_control_details": result.movement_control_details,
             "side": primary.side,
             "movement_type": result.movement_type,
             "exercise_type": result.exercise_type,
@@ -776,7 +793,8 @@ def history():
     for r in rows:
         folder = OUTPUT_DIR / r["job_id"]
         video = next((f.name for f in sorted(folder.glob("squat_annotated.*"))), None)
-        csv_file = "knee_angle.csv" if (folder / "knee_angle.csv").exists() else None
+        angle_csv = find_angle_csv(folder)
+        csv_file = angle_csv.name if angle_csv else None
         movement_label = _movement_label(r["movement_type"])
         angle_data = _read_angle_series(folder)
         angle_map[r["job_id"]] = angle_data
@@ -805,9 +823,9 @@ def history():
 
 
 def _read_angle_series(folder: Path):
-    """Baca knee_angle.csv → data deret sudut untuk grafik interaktif (None bila tak ada)."""
-    csv_path = folder / "knee_angle.csv"
-    if not csv_path.exists():
+    """Baca joint_angle.csv (fallback knee_angle.csv) untuk grafik interaktif."""
+    csv_path = find_angle_csv(folder)
+    if csv_path is None:
         return None
     left: list = []
     right: list = []
@@ -868,14 +886,17 @@ def result_detail(job_id: str):
 
     folder = OUTPUT_DIR / job_id
     files = {}
-    for key, pattern in (
-        ("video", "squat_annotated.*"),
-        ("plot", "knee_angle.png"),
-        ("csv", "knee_angle.csv"),
-    ):
-        name = next((f.name for f in sorted(folder.glob(pattern))), None)
-        if name:
-            files[key] = name
+    video_name = next(
+        (f.name for f in sorted(folder.glob("squat_annotated.*"))), None
+    )
+    if video_name:
+        files["video"] = video_name
+    angle_plot = find_angle_plot(folder)
+    if angle_plot is not None:
+        files["plot"] = angle_plot.name
+    angle_csv = find_angle_csv(folder)
+    if angle_csv is not None:
+        files["csv"] = angle_csv.name
 
     movement_label = _movement_label(row["movement_type"])
     angle_data = _read_angle_series(folder)

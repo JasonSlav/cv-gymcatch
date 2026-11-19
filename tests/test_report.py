@@ -9,6 +9,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.report import (  # noqa: E402
     choose_display_series,
+    find_angle_csv,
+    find_angle_plot,
     format_summary_text,
     write_angles_csv,
 )
@@ -160,3 +162,30 @@ def test_format_summary_handles_empty_side_results():
         frame_count=10, process_sec=1.0, side_results=[],
     )
     assert "tidak ada sisi" in text
+
+# --- resolver file output ---
+
+def test_find_angle_csv_prefers_new_name(tmp_path):
+    (tmp_path / "joint_angle.csv").write_text("new", encoding="utf-8")
+    (tmp_path / "knee_angle.csv").write_text("old", encoding="utf-8")
+    assert find_angle_csv(tmp_path).name == "joint_angle.csv"
+
+
+def test_find_angle_csv_falls_back_to_legacy(tmp_path):
+    (tmp_path / "knee_angle.csv").write_text("old", encoding="utf-8")
+    assert find_angle_csv(tmp_path).name == "knee_angle.csv"
+
+
+def test_find_angle_csv_missing_returns_none(tmp_path):
+    assert find_angle_csv(tmp_path) is None
+
+
+def test_find_angle_plot_prefers_new_and_falls_back(tmp_path):
+    (tmp_path / "knee_angle.png").write_text("old", encoding="utf-8")
+    assert find_angle_plot(tmp_path).name == "knee_angle.png"
+    (tmp_path / "joint_angle.png").write_text("new", encoding="utf-8")
+    assert find_angle_plot(tmp_path).name == "joint_angle.png"
+
+
+def test_find_angle_plot_missing_returns_none(tmp_path):
+    assert find_angle_plot(tmp_path) is None

@@ -16,6 +16,32 @@ from typing import Optional, Sequence, Tuple
 import numpy as np
 
 
+JOINT_ANGLE_CSV = "joint_angle.csv"
+JOINT_ANGLE_PNG = "joint_angle.png"
+LEGACY_KNEE_CSV = "knee_angle.csv"
+LEGACY_KNEE_PNG = "knee_angle.png"
+
+
+def find_angle_csv(folder) -> Optional[Path]:
+    """Cari CSV sudut baru, fallback ke nama lama knee_angle.csv."""
+    base = Path(folder)
+    for name in (JOINT_ANGLE_CSV, LEGACY_KNEE_CSV):
+        path = base / name
+        if path.exists():
+            return path
+    return None
+
+
+def find_angle_plot(folder) -> Optional[Path]:
+    """Cari plot sudut baru, fallback ke nama lama knee_angle.png."""
+    base = Path(folder)
+    for name in (JOINT_ANGLE_PNG, LEGACY_KNEE_PNG):
+        path = base / name
+        if path.exists():
+            return path
+    return None
+
+
 def choose_display_series(
     left_angles: Sequence[Optional[float]],
     right_angles: Sequence[Optional[float]],

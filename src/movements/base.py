@@ -8,6 +8,7 @@ __init__.py — TANPA menyentuh pipeline.py, metrics.py, atau geometry.py.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -25,6 +26,24 @@ class FeedbackRules:
     low_stability: str = (
         "Tubuh terlalu banyak bergoyang. "
         "Fokuskan berat badan di tengah kaki."
+    )
+
+
+@dataclass(frozen=True)
+class MovementControlRules:
+    """Aturan diagnostik kontrol gerakan (bukan validasi klinis).
+
+    Skor kontrol terutama berasal dari konsistensi arah fase; reversal dan
+    normalized jerk hanya indikator pendukung. Nilai default bersifat
+    provisional dan perlu dikalibrasi dengan video berlabel.
+    """
+
+    min_good_control: float = 70.0
+    velocity_deadband_deg_s: float = 5.0
+    max_gap_sec: float = 0.25
+    min_phase_samples: int = 3
+    low_control: str = (
+        "Kontrol gerakan kurang. Jaga fase gerak tetap mulus dan terkendali."
     )
 
 
@@ -69,3 +88,6 @@ class MovementConfig:
 
     # Target durasi tahan (detik) untuk gerakan statis.
     target_duration_sec: float = 0.0
+
+    # Movement control opsional; None = tidak dihitung (perilaku lama).
+    control_rules: Optional[MovementControlRules] = None

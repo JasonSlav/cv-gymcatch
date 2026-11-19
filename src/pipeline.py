@@ -26,6 +26,7 @@ from src.metrics import (
     RepCountResult,
     compute_consistency,
     compute_isometric_score,
+    compute_movement_control,
     compute_rom,
     compute_stability_proxy,
     count_reps,
@@ -39,6 +40,8 @@ from src.pose_estimator import (
     angle_from_landmarks,
 )
 from src.report import (
+    JOINT_ANGLE_CSV,
+    JOINT_ANGLE_PNG,
     choose_display_series,
     format_summary_text,
     write_angles_csv,
@@ -111,6 +114,8 @@ class AnalysisResult:
     movement_type: str = "squat"
     exercise_type: str = "dynamic"
     duration_sec: float = 0.0
+    movement_control: Optional[float] = None
+    movement_control_details: Optional[dict] = None
 
 
 def analyze_side(
@@ -275,6 +280,7 @@ def analyze_video(
 
     left_angles: list = []
     right_angles: list = []
+    timestamps_sec: list = []
     landmarks_history: list = []
 
     try:
@@ -290,6 +296,7 @@ def analyze_video(
                     timestamp_ms = (
                         int(idx / meta.fps * 1000) if meta.fps > 0 else idx * 33
                     )
+                timestamps_sec.append(timestamp_ms / 1000.0)
                 result = estimator.detect(frame, timestamp_ms)
                 landmarks_history.append(result.landmarks)
 
@@ -379,14 +386,35 @@ def analyze_video(
             config.rom_reference,
         )
 
+    # --- Movement control (diagnostik; tidak masuk skor total) ---
+    movement_control = None
+    movement_control_details = None
+    if config.control_rules is not None:
+        primary_angles = (
+            left_angles if primary is left_analysis else right_angles
+        )
+        movement_control_details = compute_movement_control(
+            primary_angles,
+            timestamps_sec,
+            primary.rep_result,
+            config.control_rules,
+            fps=meta.fps,
+        )
+        if movement_control_details is not None:
+            movement_control = movement_control_details["score"]
+            if movement_control < config.control_rules.min_good_control:
+                score_info["feedback_list"].append(
+                    config.control_rules.low_control
+                )
+
     # --- CSV ---
-    csv_path = output_dir / "knee_angle.csv"
+    csv_path = output_dir / JOINT_ANGLE_CSV
     write_angles_csv(csv_path, left_angles, right_angles, joint_name=config.joint_name)
 
     # --- Plot ---
     mode, s1, s2 = choose_display_series(left_angles, right_angles)
     plot_path: Optional[Path] = None
-    png_path = output_dir / "knee_angle.png"
+    png_path = output_dir / JOINT_ANGLE_PNG
     try:
         if mode == "both":
             plot_angle_series(left_angles=s1, right_angles=s2, output_path=png_path)
@@ -438,4 +466,6 @@ def analyze_video(
         movement_type=config.name,
         exercise_type=config.exercise_type,
         duration_sec=duration_sec,
+        movement_control=movement_control,
+        movement_control_details=movement_control_details,
     )

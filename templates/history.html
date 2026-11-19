@@ -1083,6 +1083,12 @@
                         <span class="tile-value">{% if row.consistency is not none %}{{ '%.1f'|format(row.consistency * 100) }}%{% else %}N/A{% endif %}</span>
                     </div>
                     {% endif %}
+                    {% if row.movement_control is not none %}
+                    <div class="metric-tile">
+                        <span class="tile-label" data-id="Kontrol Gerakan" data-en="Movement Control">Kontrol Gerakan</span>
+                        <span class="tile-value">{{ row.movement_control|int }}%</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -1394,6 +1400,8 @@
                 "ROM back extension sudah sangat baik.": { id: "ROM back extension sudah sangat baik.", en: "Back extension ROM is already excellent." },
                 "Gerakan back extension kurang konsisten. Jaga tempo angkat & turun terkontrol.": { id: "Gerakan back extension kurang konsisten. Jaga tempo angkat & turun terkontrol.", en: "Back extension movement is inconsistent. Keep the lifting and lowering tempo controlled." },
                 "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.": { id: "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.", en: "The movement uses swinging momentum. Lift with control using your back muscles." },
+                "Pinggul terlalu banyak bergoyang. Jaga posisi pinggul tetap stabil.": { id: "Pinggul terlalu banyak bergoyang. Jaga posisi pinggul tetap stabil.", en: "Hips are swaying too much. Keep your hip position stable." },
+                "Kontrol gerakan back extension rendah. Jaga fase angkat dan turun tetap mulus dan terkendali.": { id: "Kontrol gerakan back extension rendah. Jaga fase angkat dan turun tetap mulus dan terkendali.", en: "Back extension control is low. Keep the lift and lower phases smooth and controlled." },
                 "Durasi tahan kurang. Tahan posisi lebih lama.": { id: "Durasi tahan kurang. Tahan posisi lebih lama.", en: "Hold duration is too short. Hold the position longer." },
                 "Tubuh bergoyang. Kencangkan otot perut dan punggung.": { id: "Tubuh bergoyang. Kencangkan otot perut dan punggung.", en: "Body sways. Tighten your core and back muscles." }
             };

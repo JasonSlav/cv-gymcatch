@@ -11,7 +11,11 @@ Menambah gerakan baru:
 from __future__ import annotations
 
 from src.movements.back_up import BACK_UP_CONFIG
-from src.movements.base import FeedbackRules, MovementConfig
+from src.movements.base import (
+    FeedbackRules,
+    MovementConfig,
+    MovementControlRules,
+)
 from src.movements.crunch_bicycle import CRUNCH_BICYCLE_CONFIG
 from src.movements.crunch_standard import CRUNCH_STANDARD_CONFIG
 from src.movements.crunch_swimming import CRUNCH_SWIMMING_CONFIG
@@ -60,6 +64,7 @@ def get_movement_config(name: str) -> MovementConfig:
 __all__ = [
     "FeedbackRules",
     "MovementConfig",
+    "MovementControlRules",
     "get_movement_config",
     "SQUAT_STANDARD_CONFIG",
     "SQUAT_SUMO_CONFIG",

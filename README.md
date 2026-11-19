@@ -81,18 +81,21 @@ Hasil analisis (CSV, Grafik, Teks Ringkasan) akan tersimpan di folder `output/`.
   "stability": 41,
   "consistency": 0.915,
   "duration_sec": 12.5,
+  "movement_control": null,
   "side": "left",
   "feedbacks": ["Kedalaman squat kurang. Usahakan turun lebih dalam."],
   "process_sec": 12.8,
   "samples": ["/output/req_xxx/sample_1.jpg", "/output/req_xxx/sample_2.jpg", "/output/req_xxx/sample_3.jpg"],
-  "plot": "/output/req_xxx/knee_angle.png",
+  "plot": "/output/req_xxx/joint_angle.png",
   "video_url": "/output/req_xxx/squat_annotated.webm",
   "is_browser_playable": true,
   "angle_data": {"mode": "both", "left": [170.2, "..."], "right": [169.8, "..."]}
 }
 ```
 - `feedbacks` berisi pesan rule-based (dari `src/movements/`); kosong bila gerakan sudah baik.
+- `movement_control` = diagnostik kontrol gerakan Back Up (0–100), terpisah dari skor total; `null` bila data tidak cukup.
 - `angle_data` = deret sudut per frame untuk grafik interaktif.
+- Output baru memakai `joint_angle.csv`/`joint_angle.png`; hasil lama `knee_angle.*` tetap dibaca.
 - Error: 400 (file tidak valid), 422 (gerakan/pipeline gagal), 500 (kesalahan tak terduga).
 
 ---
@@ -102,7 +105,7 @@ Hasil analisis (CSV, Grafik, Teks Ringkasan) akan tersimpan di folder `output/`.
 ```cmd
 pip install -r requirements-dev.txt
 ```
-- Jalankan seluruh unit test (142 test, folder `tests/`):
+- Jalankan seluruh unit test (167 test, folder `tests/`):
 ```cmd
 pytest tests/ -q
 ```
