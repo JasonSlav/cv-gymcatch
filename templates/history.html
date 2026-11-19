@@ -775,6 +775,29 @@
 
         .btn-save:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); background: #232323; }
 
+        .btn-secondary {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid #383838;
+            color: var(--text-main);
+            border-radius: 999px;
+            padding: 12px 28px;
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: #232323;
+        }
+
+        .print-header { display: none; }
+        .video-placeholder-for-print { display: none; }
+
         .card h3 { font-size: 1rem; font-weight: 700; }
 
         .btn-sm {
@@ -838,6 +861,75 @@
             border-top: 1px solid #1c1c1c;
             color: #555;
             font-size: 0.7rem;
+        }
+
+        /* --- Print --- */
+        @media print {
+            nav, footer, .navbar, .gc-footer,
+            #btn-print, .detail-actions, .back-row, .lang-toggle, .btn-logout,
+            .btn-save-activity, .btn-save-video, .back-links, .logout-btn,
+            .btn-pick, .movement-selection {
+                display: none !important;
+            }
+
+            body, .stApp, .card, .metric-card, .metric-tile, .score-panel,
+            .plot-box, .plot-img, .feedback-box, .panel-pill, .video-meta {
+                background: #FFFFFF !important;
+                color: #000000 !important;
+                border-color: #CCCCCC !important;
+            }
+
+            h1, h2, h3, h4, p, span, div, li {
+                color: #000000 !important;
+            }
+
+            .text-cyan, .m-angle {
+                color: #007BFF !important;
+            }
+
+            canvas, img {
+                max-width: 100% !important;
+                page-break-inside: avoid;
+            }
+
+            .card {
+                page-break-inside: avoid;
+                margin-bottom: 15px !important;
+                box-shadow: none !important;
+            }
+
+            body, .hero, .activity-hero {
+                background-image: none !important;
+                background: #FFFFFF !important;
+            }
+
+            .activity-hero {
+                padding: 0 0 18px !important;
+            }
+
+            .detail-page {
+                padding-top: 0 !important;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            video, .detail-video {
+                display: none !important;
+            }
+
+            .print-header {
+                display: block !important;
+            }
+
+            .video-placeholder-for-print {
+                display: block !important;
+                padding: 10px;
+                border: 1px dashed #999;
+                text-align: center;
+                font-style: italic;
+            }
         }
 
         /* --- Responsive --- */
@@ -913,6 +1005,10 @@
     {% set cls = 'good' if row.score_label == 'Baik' else ('fair' if row.score_label == 'Cukup' else 'bad') %}
     {% set score_val = row.score if row.score is not none else 0 %}
     {% set is_static = (row.exercise_type or '') == 'static' or (row.movement_type or '') == 'vsit_hold' %}
+    <div class="print-header" style="display: none; text-align: center; margin-bottom: 20px;">
+        <h1>Koribantes — Laporan Analisis</h1>
+        <p style="font-size: 12px; color: #666;">Dicetak pada: <span id="print-date"></span></p>
+    </div>
     <header class="activity-hero">
         <div class="container">
             <h1 class="activity-title"
@@ -931,6 +1027,9 @@
                 <span class="panel-pill" data-id="Video Dianalisis" data-en="Analyzed Video">Video Dianalisis</span>
                 {% if files.get('video') %}
                     <video controls src="/output/{{ row.job_id }}/{{ files['video'] }}" class="detail-video"></video>
+                    <p class="video-placeholder-for-print"
+                       data-id="Video tidak dapat dicetak"
+                       data-en="Video cannot be printed">Video tidak dapat dicetak</p>
                 {% else %}
                     <p class="chart-empty" data-id="Video tidak tersedia" data-en="Video not available">Video tidak tersedia</p>
                 {% endif %}
@@ -1028,6 +1127,7 @@
                 <a class="btn-save" href="/download/{{ row.job_id }}/{{ files['video'] }}"
                    data-id="Simpan Video" data-en="Save Video">Simpan Video</a>
             {% endif %}
+            <button type="button" id="btn-print" class="btn-secondary" onclick="window.print()" data-id="Cetak / Simpan PDF" data-en="Print / Save PDF">Cetak / Simpan PDF</button>
         </div>
 
         <div class="back-row">
@@ -1553,6 +1653,17 @@
                     if (emptyMsg) emptyMsg.hidden = visible > 0;
                 });
             }
+
+            /* Cetak / Simpan PDF */
+            const printDate = document.getElementById("print-date");
+            function updatePrintDate() {
+                if (printDate) printDate.textContent = new Date().toLocaleString();
+            }
+            const btnPrint = document.getElementById("btn-print");
+            if (btnPrint) {
+                btnPrint.addEventListener("click", updatePrintDate);
+            }
+            window.addEventListener("beforeprint", updatePrintDate);
 
             /* Toggle bahasa (reload agar semua konten dinamis ikut) */
             document.querySelectorAll(".lang-btn").forEach(btn => {
