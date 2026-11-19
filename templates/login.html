@@ -56,6 +56,14 @@
 
         input:focus { outline: none; border-color: var(--accent-cyan); }
 
+        .forgot-row {
+            text-align: right;
+            margin: -6px 0 18px;
+            font-size: 0.82rem;
+        }
+        .forgot-row a { color: var(--accent-cyan); text-decoration: none; }
+        .forgot-row a:hover { text-decoration: underline; }
+
         .btn-submit {
             width: 100%;
             background: var(--accent-cyan);
@@ -80,6 +88,25 @@
             margin-bottom: 16px;
         }
 
+        .flash {
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
+        .flash.success {
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.45);
+            color: #86efac;
+        }
+
+        .flash.error {
+            background: rgba(220, 38, 38, 0.12);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            color: #fca5a5;
+        }
+
         .auth-links {
             margin-top: 18px;
             text-align: center;
@@ -96,6 +123,12 @@
         <h1 data-id="Masuk ke <span class='text-cyan'>Koribantes</span>"
             data-en="Sign in to <span class='text-cyan'>Koribantes</span>">Masuk ke <span class="text-cyan">Koribantes</span></h1>
 
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+        <div class="flash {{ category }}"
+             data-id="{{ message.id }}"
+             data-en="{{ message.en }}">{{ message.id }}</div>
+        {% endfor %}
+
         {% if error %}<div class="error" data-ekey="{{ error_key or '' }}">{{ error }}</div>{% endif %}
 
         <form method="post" action="/login">
@@ -104,6 +137,11 @@
 
             <label for="password" data-id="Password" data-en="Password">Password</label>
             <input type="password" id="password" name="password" required autocomplete="current-password">
+
+            <div class="forgot-row">
+                <a href="/forgot-password"
+                   data-id="Lupa Password?" data-en="Forgot Password?">Lupa Password?</a>
+            </div>
 
             <button type="submit" class="btn-submit" data-id="Masuk" data-en="Sign In">Masuk</button>
         </form>

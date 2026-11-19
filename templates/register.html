@@ -102,6 +102,9 @@
             <label for="username" data-id="Username" data-en="Username">Username</label>
             <input type="text" id="username" name="username" required autocomplete="username">
 
+            <label for="email" data-id="Email" data-en="Email">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email">
+
             <label for="password" data-id="Password (minimal 4 karakter)" data-en="Password (min 4 characters)">Password (minimal 4 karakter)</label>
             <input type="password" id="password" name="password" required autocomplete="new-password">
 
@@ -127,9 +130,10 @@
             /* Terjemahan pesan error dari backend */
             const ERR = {
                 bad_credentials: { id: "Username atau password salah.", en: "Wrong username or password." },
-                missing_fields: { id: "Username dan password wajib diisi.", en: "Username and password are required." },
+                missing_fields: { id: "Username, email, dan password wajib diisi.", en: "Username, email, and password are required." },
                 password_short: { id: "Password minimal 4 karakter.", en: "Password must be at least 4 characters." },
-                username_taken: { id: "Username sudah dipakai.", en: "Username is already taken." }
+                username_taken: { id: "Username sudah dipakai.", en: "Username is already taken." },
+                email_taken: { id: "Email sudah dipakai.", en: "Email is already taken." }
             };
             const errBox = document.querySelector(".error");
             if (errBox && errBox.dataset.ekey && ERR[errBox.dataset.ekey]) {

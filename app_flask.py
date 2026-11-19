@@ -37,6 +37,7 @@ from pathlib import Path
 from flask import (
     Flask,
     abort,
+    flash,
     jsonify,
     redirect,
     render_template,
@@ -53,6 +54,7 @@ from flask_login import (
     logout_user,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from src.pipeline import DEFAULT_MODEL_PATH, PipelineError, analyze_video
 
@@ -75,6 +77,11 @@ PROGRESS_JOB_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 app = Flask(__name__)
 # Prototype: fallback dev key. Produksi wajib pakai env SECRET_KEY.
 app.secret_key = os.environ.get("SECRET_KEY", "gymcatch-dev-secret-prototype")
+
+RESET_TOKEN_MAX_AGE = 3600
+reset_serializer = URLSafeTimedSerializer(
+    app.secret_key, salt="koribantes-password-reset"
+)
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -124,12 +131,12 @@ class User(UserMixin):
         return User(row[0], row[1])
 
     @staticmethod
-    def create(username: str, password_hash: str) -> "User | None":
+    def create(username: str, password_hash: str, email: str = "") -> "User | None":
         conn = sqlite3.connect(DB_PATH)
         try:
             cur = conn.execute(
-                "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-                (username, password_hash),
+                "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)",
+                (username, password_hash, email),
             )
             conn.commit()
             return User(cur.lastrowid, username)
@@ -195,6 +202,16 @@ def init_db() -> None:
             conn.execute(
                 "ALTER TABLE analyses ADD COLUMN movement_type TEXT DEFAULT 'squat'"
             )
+        # Migrasi profil: kolom full_name & email (default string kosong).
+        user_cols = {r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
+        if "full_name" not in user_cols:
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN full_name TEXT NOT NULL DEFAULT ''"
+            )
+        if "email" not in user_cols:
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN email TEXT NOT NULL DEFAULT ''"
+            )
         conn.commit()
     finally:
         conn.close()
@@ -245,20 +262,34 @@ def register():
     if request.method == "POST":
         username = (request.form.get("username") or "").strip()
         password = request.form.get("password") or ""
-        if not username or not password:
-            error = "Username dan password wajib diisi."
+        email = (request.form.get("email") or "").strip().lower()
+        if not username or not password or not email:
+            error = "Username, email, dan password wajib diisi."
             error_key = "missing_fields"
         elif len(password) < 4:
             error = "Password minimal 4 karakter."
             error_key = "password_short"
         else:
-            user = User.create(username, generate_password_hash(password))
-            if user is None:
-                error = "Username sudah dipakai."
-                error_key = "username_taken"
+            conn = sqlite3.connect(DB_PATH)
+            try:
+                duplicate_email = conn.execute(
+                    "SELECT id FROM users WHERE LOWER(email) = ?", (email,)
+                ).fetchone()
+            finally:
+                conn.close()
+            if duplicate_email:
+                error = "Email sudah dipakai."
+                error_key = "email_taken"
             else:
-                login_user(user)
-                return redirect(url_for("index"))
+                user = User.create(
+                    username, generate_password_hash(password), email=email
+                )
+                if user is None:
+                    error = "Username sudah dipakai."
+                    error_key = "username_taken"
+                else:
+                    login_user(user)
+                    return redirect(url_for("index"))
     return render_template("register.html", error=error, error_key=error_key)
 
 
@@ -266,6 +297,225 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for("index"))
+
+
+def _flash(key_id: str, key_en: str, category: str = "success") -> None:
+    """Pesan flash dwibahasa: template memilih sesuai bahasa aktif."""
+    flash({"id": key_id, "en": key_en}, category)
+
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = (request.form.get("email") or "").strip().lower()
+        if not email:
+            _flash("Email wajib diisi.", "Email is required.", "error")
+            return redirect(url_for("forgot_password"))
+
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            row = conn.execute(
+                "SELECT id, username FROM users WHERE LOWER(email) = ?",
+                (email,),
+            ).fetchone()
+        finally:
+            conn.close()
+
+        if row is None:
+            _flash("Email tidak ditemukan.", "Email not found.", "error")
+            return redirect(url_for("forgot_password"))
+
+        token = reset_serializer.dumps(
+            {"uid": row[0], "email": email, "username": row[1]}
+        )
+        return render_template(
+            "reset_password.html", token=token, email=email, username=row[1]
+        )
+
+    return render_template("forgot_password.html")
+
+
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "GET":
+        return redirect(url_for("forgot_password"))
+
+    token = request.form.get("token") or ""
+    new_password = request.form.get("new_password") or ""
+    confirm_password = request.form.get("confirm_password") or ""
+
+    try:
+        payload = reset_serializer.loads(token, max_age=RESET_TOKEN_MAX_AGE)
+    except SignatureExpired:
+        _flash(
+            "Link reset sudah kedaluwarsa. Silakan minta link baru.",
+            "The reset link has expired. Please request a new one.",
+            "error",
+        )
+        return redirect(url_for("forgot_password"))
+    except BadSignature:
+        _flash(
+            "Link reset tidak valid.",
+            "The reset link is invalid.",
+            "error",
+        )
+        return redirect(url_for("forgot_password"))
+
+    uid = payload.get("uid") if isinstance(payload, dict) else None
+    if not uid:
+        _flash("Link reset tidak valid.", "The reset link is invalid.", "error")
+        return redirect(url_for("forgot_password"))
+
+    if len(new_password) < 4:
+        _flash(
+            "Password baru minimal 4 karakter.",
+            "New password must be at least 4 characters.",
+            "error",
+        )
+        return render_template(
+            "reset_password.html",
+            token=token,
+            email=payload.get("email", ""),
+            username=payload.get("username", ""),
+        )
+    if new_password != confirm_password:
+        _flash(
+            "Konfirmasi password tidak cocok.",
+            "Password confirmation does not match.",
+            "error",
+        )
+        return render_template(
+            "reset_password.html",
+            token=token,
+            email=payload.get("email", ""),
+            username=payload.get("username", ""),
+        )
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        exists = conn.execute(
+            "SELECT id FROM users WHERE id = ?", (uid,)
+        ).fetchone()
+        if exists is None:
+            _flash("Link reset tidak valid.", "The reset link is invalid.", "error")
+            return redirect(url_for("forgot_password"))
+        conn.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (generate_password_hash(new_password), uid),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    _flash(
+        "Password berhasil direset. Silakan masuk.",
+        "Password reset successfully. Please sign in.",
+    )
+    return redirect(url_for("login"))
+
+
+@app.route("/profile")
+@login_required
+def profile():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        user = conn.execute(
+            "SELECT username, full_name, email FROM users WHERE id = ?",
+            (int(current_user.id),),
+        ).fetchone()
+    finally:
+        conn.close()
+    if user is None:
+        return redirect(url_for("logout"))
+    return render_template("profile.html", user=user)
+
+
+@app.route("/profile/update", methods=["POST"])
+@login_required
+def profile_update():
+    username = (request.form.get("username") or "").strip()
+    full_name = (request.form.get("full_name") or "").strip()
+    email = (request.form.get("email") or "").strip()
+
+    if not username:
+        _flash("Username wajib diisi.", "Username is required.", "error")
+        return redirect(url_for("profile"))
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        duplicate = conn.execute(
+            "SELECT id FROM users WHERE username = ? AND id != ?",
+            (username, int(current_user.id)),
+        ).fetchone()
+        if duplicate:
+            _flash(
+                "Username sudah dipakai.",
+                "Username is already taken.",
+                "error",
+            )
+            return redirect(url_for("profile"))
+        conn.execute(
+            "UPDATE users SET username = ?, full_name = ?, email = ? WHERE id = ?",
+            (username, full_name, email, int(current_user.id)),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        _flash("Username sudah dipakai.", "Username is already taken.", "error")
+        return redirect(url_for("profile"))
+    finally:
+        conn.close()
+
+    _flash("Profil berhasil diperbarui.", "Profile updated successfully.")
+    return redirect(url_for("profile"))
+
+
+@app.route("/profile/password", methods=["POST"])
+@login_required
+def profile_password():
+    old_password = request.form.get("old_password") or ""
+    new_password = request.form.get("new_password") or ""
+    confirm_password = request.form.get("confirm_password") or ""
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        row = conn.execute(
+            "SELECT password_hash FROM users WHERE id = ?",
+            (int(current_user.id),),
+        ).fetchone()
+
+        if row is None or not check_password_hash(row[0], old_password):
+            _flash(
+                "Password lama salah.",
+                "Current password is incorrect.",
+                "error",
+            )
+        elif len(new_password) < 4:
+            _flash(
+                "Password baru minimal 4 karakter.",
+                "New password must be at least 4 characters.",
+                "error",
+            )
+        elif new_password != confirm_password:
+            _flash(
+                "Konfirmasi password tidak cocok.",
+                "Password confirmation does not match.",
+                "error",
+            )
+        else:
+            conn.execute(
+                "UPDATE users SET password_hash = ? WHERE id = ?",
+                (generate_password_hash(new_password), int(current_user.id)),
+            )
+            conn.commit()
+            _flash(
+                "Password berhasil diganti.",
+                "Password updated successfully.",
+            )
+    finally:
+        conn.close()
+
+    return redirect(url_for("profile"))
 
 
 @app.route("/analyze", methods=["POST"])
