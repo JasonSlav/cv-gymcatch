@@ -25,6 +25,7 @@ from src.metrics import (
     MIN_REPS_FOR_CONSISTENCY,
     RepCountResult,
     compute_consistency,
+    compute_isometric_score,
     compute_rom,
     compute_stability_proxy,
     count_reps,
@@ -108,6 +109,8 @@ class AnalysisResult:
     feedback_list: list[str]
     sample_frames: list[Path] = field(default_factory=list)
     movement_type: str = "squat"
+    exercise_type: str = "dynamic"
+    duration_sec: float = 0.0
 
 
 def analyze_side(
@@ -354,18 +357,27 @@ def analyze_video(
     stability = compute_stability_proxy(
         landmarks_history, meta.width, meta.height
     )
+    duration_sec = meta.frame_count / meta.fps if meta.fps else 0.0
     primary = (
         left_analysis
         if left_analysis.rep_count >= right_analysis.rep_count
         else right_analysis
     )
-    score_info = generate_rule_based_feedback(
-        primary.rom,
-        primary.consistency,
-        stability,
-        config.feedback_rules,
-        config.rom_reference,
-    )
+    if config.exercise_type == "static":
+        score_info = compute_isometric_score(
+            duration_sec, stability, config.target_duration_sec
+        )
+        for side in (left_analysis, right_analysis):
+            side.rep_count = 0
+            side.consistency = None
+    else:
+        score_info = generate_rule_based_feedback(
+            primary.rom,
+            primary.consistency,
+            stability,
+            config.feedback_rules,
+            config.rom_reference,
+        )
 
     # --- CSV ---
     csv_path = output_dir / "knee_angle.csv"
@@ -424,4 +436,6 @@ def analyze_video(
         feedback_list=score_info["feedback_list"],
         sample_frames=sample_frames,
         movement_type=config.name,
+        exercise_type=config.exercise_type,
+        duration_sec=duration_sec,
     )

@@ -912,6 +912,7 @@
     {% if mode == 'detail' %}
     {% set cls = 'good' if row.score_label == 'Baik' else ('fair' if row.score_label == 'Cukup' else 'bad') %}
     {% set score_val = row.score if row.score is not none else 0 %}
+    {% set is_static = (row.exercise_type or '') == 'static' or (row.movement_type or '') == 'vsit_hold' %}
     <header class="activity-hero">
         <div class="container">
             <h1 class="activity-title"
@@ -958,10 +959,17 @@
                 </div>
 
                 <div class="detail-metrics">
+                    {% if is_static %}
+                    <div class="metric-tile">
+                        <span class="tile-label" data-id="Durasi Tahan" data-en="Hold Duration">Durasi Tahan</span>
+                        <span class="tile-value">{% if row.duration_sec is not none %}{{ '%.1f'|format(row.duration_sec) }} <span data-id="detik" data-en="sec">detik</span>{% else %}N/A{% endif %}</span>
+                    </div>
+                    {% else %}
                     <div class="metric-tile">
                         <span class="tile-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
                         <span class="tile-value">{{ row.reps if row.reps is not none else 'N/A' }}</span>
                     </div>
+                    {% endif %}
                     <div class="metric-tile">
                         <span class="tile-label">ROM</span>
                         <span class="tile-value">{% if row.rom is not none %}{{ '%.1f'|format(row.rom) }}{% else %}N/A{% endif %}</span>
@@ -970,10 +978,12 @@
                         <span class="tile-label" data-id="Stabilitas" data-en="Stability">Stabilitas</span>
                         <span class="tile-value">{% if row.stability is not none %}{{ row.stability|int }}%{% else %}N/A{% endif %}</span>
                     </div>
+                    {% if not is_static %}
                     <div class="metric-tile">
                         <span class="tile-label" data-id="Konsistensi" data-en="Consistency">Konsistensi</span>
                         <span class="tile-value">{% if row.consistency is not none %}{{ '%.1f'|format(row.consistency * 100) }}%{% else %}N/A{% endif %}</span>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -1050,6 +1060,7 @@
             <div class="activity-list">
                 {% for r in rows %}
                     {% set cls = 'good' if r.score_label == 'Baik' else ('fair' if r.score_label == 'Cukup' else 'bad') %}
+                    {% set is_static = (r.exercise_type or '') == 'static' or (r.movement_type or '') == 'vsit_hold' %}
                     <article class="activity-card"
                              data-href="/result/{{ r.job_id }}"
                              data-search="{{ (r.video_name ~ ' ' ~ r.movement_label ~ ' ' ~ r.date_label)|lower }}"
@@ -1066,7 +1077,7 @@
                             <div class="mini-metrics">
                                 <div class="mini-metric">
                                     <span class="mini-label" data-id="Repetisi" data-en="Repetitions">Repetisi</span>
-                                    <span class="mini-value">{{ r.reps if r.reps is not none else 'N/A' }}</span>
+                                    <span class="mini-value">{% if is_static %}<span data-id="Tahan" data-en="Hold">Tahan</span>{% else %}{{ r.reps if r.reps is not none else 'N/A' }}{% endif %}</span>
                                 </div>
                                 <div class="mini-metric">
                                     <span class="mini-label">ROM</span>
@@ -1234,6 +1245,7 @@
                 crunch_swimming: "Swimming Crunch",
                 crunch_bicycle: "Bicycle Crunch",
                 back_up: "Back Extension",
+                vsit_hold: "V-Sit Hold",
                 squat: "Squat",
                 pushup: "Push-up",
                 crunch: "Crunch",
@@ -1281,7 +1293,9 @@
                 "Angkat dada & kaki lebih tinggi saat back extension.": { id: "Angkat dada & kaki lebih tinggi saat back extension.", en: "Lift your chest and legs higher during the back extension." },
                 "ROM back extension sudah sangat baik.": { id: "ROM back extension sudah sangat baik.", en: "Back extension ROM is already excellent." },
                 "Gerakan back extension kurang konsisten. Jaga tempo angkat & turun terkontrol.": { id: "Gerakan back extension kurang konsisten. Jaga tempo angkat & turun terkontrol.", en: "Back extension movement is inconsistent. Keep the lifting and lowering tempo controlled." },
-                "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.": { id: "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.", en: "The movement uses swinging momentum. Lift with control using your back muscles." }
+                "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.": { id: "Gerakan memakai momentum ayunan. Angkat terkontrol dengan otot punggung.", en: "The movement uses swinging momentum. Lift with control using your back muscles." },
+                "Durasi tahan kurang. Tahan posisi lebih lama.": { id: "Durasi tahan kurang. Tahan posisi lebih lama.", en: "Hold duration is too short. Hold the position longer." },
+                "Tubuh bergoyang. Kencangkan otot perut dan punggung.": { id: "Tubuh bergoyang. Kencangkan otot perut dan punggung.", en: "Body sways. Tighten your core and back muscles." }
             };
 
             document.querySelectorAll(".score-tag, .score-label").forEach(el => {

@@ -20,6 +20,7 @@ from src.metrics import (  # noqa: E402
     RepCountResult,
     RepInfo,
     compute_consistency,
+    compute_isometric_score,
     compute_rom,
     compute_stability_proxy,
     count_reps,
@@ -318,3 +319,45 @@ def test_rule_based_feedback_messages_and_none_inputs():
     assert r3["score"] == pytest.approx(0.0)
     assert r3["label"] == "Perlu Perbaikan"
     assert len(r3["feedback_list"]) >= 2
+
+
+def test_isometric_score_formula_and_labels():
+    # Durasi penuh + stabilitas penuh → 100 ("Baik")
+    r = compute_isometric_score(30.0, 100.0, 30.0)
+    assert r["score"] == pytest.approx(100.0)
+    assert r["label"] == "Baik"
+
+    # Durasi setengah + stabilitas 50 → 20 + 30 = 50 ("Perlu Perbaikan")
+    r2 = compute_isometric_score(15.0, 50.0, 30.0)
+    assert r2["score"] == pytest.approx(50.0)
+    assert r2["label"] == "Perlu Perbaikan"
+
+    # Durasi melebihi target tetap dibatasi 40 poin
+    r3 = compute_isometric_score(60.0, 100.0, 30.0)
+    assert r3["score"] == pytest.approx(100.0)
+    assert r3["label"] == "Baik"
+
+
+def test_isometric_score_feedback_messages():
+    # Durasi kurang + stabilitas rendah → kedua pesan muncul
+    r = compute_isometric_score(10.0, 50.0, 30.0)
+    assert any("Durasi tahan kurang" in m for m in r["feedback_list"])
+    assert any("bergoyang" in m for m in r["feedback_list"])
+
+    # Durasi & stabilitas cukup → tidak ada pesan
+    r2 = compute_isometric_score(30.0, 80.0, 30.0)
+    assert r2["feedback_list"] == []
+
+
+def test_isometric_score_edge_cases():
+    # None tidak crash dan dianggap 0
+    r = compute_isometric_score(None, None, None)
+    assert r["score"] == pytest.approx(0.0)
+    assert r["label"] == "Perlu Perbaikan"
+    assert len(r["feedback_list"]) >= 1
+
+    # Target nol tidak membagi nol; komponen durasi 0
+    r2 = compute_isometric_score(30.0, 100.0, 0.0)
+    assert r2["score"] == pytest.approx(60.0)
+    assert r2["label"] == "Cukup"
+    assert r2["feedback_list"] == []

@@ -188,7 +188,9 @@ def init_db() -> None:
                 feedbacks TEXT,
                 folder_path TEXT NOT NULL,
                 user_id INTEGER,
-                movement_type TEXT DEFAULT 'squat'
+                movement_type TEXT DEFAULT 'squat',
+                duration_sec REAL,
+                exercise_type TEXT DEFAULT 'dynamic'
             )
             """
         )
@@ -201,6 +203,15 @@ def init_db() -> None:
         if "movement_type" not in cols:
             conn.execute(
                 "ALTER TABLE analyses ADD COLUMN movement_type TEXT DEFAULT 'squat'"
+            )
+        if "duration_sec" not in cols:
+            conn.execute(
+                "ALTER TABLE analyses ADD COLUMN duration_sec REAL"
+            )
+        if "exercise_type" not in cols:
+            conn.execute(
+                "ALTER TABLE analyses ADD COLUMN exercise_type TEXT"
+                " DEFAULT 'dynamic'"
             )
         # Migrasi profil: kolom full_name & email (default string kosong).
         user_cols = {r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
@@ -615,9 +626,6 @@ def analyze():
     else:
         primary = left
 
-    duration = (
-        result.meta.frame_count / result.meta.fps if result.meta.fps else 0.0
-    )
     samples = [
         _to_output_url(p)
         for p in result.sample_frames
@@ -642,8 +650,9 @@ def analyze():
                 conn.execute(
                     "INSERT INTO analyses (job_id, timestamp, video_name, score,"
                     " score_label, reps, rom, stability, consistency, feedbacks,"
-                    " folder_path, user_id, movement_type)"
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    " folder_path, user_id, movement_type, duration_sec,"
+                    " exercise_type)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         job_id,
                         datetime.now().isoformat(timespec="seconds"),
@@ -662,6 +671,8 @@ def analyze():
                         f"output/{job_id}",
                         current_user.get_id() and int(current_user.get_id()),
                         result.movement_type,
+                        round(result.duration_sec, 1),
+                        result.exercise_type,
                     ),
                 )
                 conn.commit()
@@ -682,9 +693,10 @@ def analyze():
                 if primary.consistency is not None
                 else None
             ),
-            "duration_sec": round(duration, 1),
+            "duration_sec": round(result.duration_sec, 1),
             "side": primary.side,
             "movement_type": result.movement_type,
+            "exercise_type": result.exercise_type,
             "feedbacks": list(result.feedback_list),
             "process_sec": round(result.process_sec, 2),
             "samples": samples,
@@ -743,7 +755,8 @@ def history():
     try:
         rows = conn.execute(
             "SELECT id, job_id, timestamp, video_name, score, score_label, reps,"
-            " rom, consistency, stability, folder_path, movement_type"
+            " rom, consistency, stability, folder_path, movement_type,"
+            " duration_sec, exercise_type"
             " FROM analyses WHERE user_id = ?"
             " ORDER BY timestamp DESC, id DESC LIMIT 50",
             (current_user.get_id(),),

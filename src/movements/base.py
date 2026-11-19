@@ -63,3 +63,9 @@ class MovementConfig:
 
     # Rekomendasi sudut kamera perekaman: "side" (samping) / "front" (depan)
     camera_angle: str = "side"
+
+    # Jenis gerakan: "dynamic" (repetisi) / "static" (tahan posisi).
+    exercise_type: str = "dynamic"
+
+    # Target durasi tahan (detik) untuk gerakan statis.
+    target_duration_sec: float = 0.0

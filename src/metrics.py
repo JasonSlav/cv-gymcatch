@@ -413,3 +413,43 @@ def generate_rule_based_feedback(
         "stability": stab_val,
         "feedback_list": feedback_list,
     }
+
+
+def compute_isometric_score(
+    duration_sec: Optional[float],
+    stability: Optional[float],
+    target_duration: Optional[float],
+) -> dict:
+    """Skor gerakan isometrik: 40% durasi tahan + 60% stabilitas."""
+    duration_val = 0.0 if duration_sec is None else float(duration_sec)
+    stability_val = 0.0 if stability is None else float(stability)
+    target_val = 0.0 if target_duration is None else float(target_duration)
+
+    duration_component = 0.0
+    if target_val > 0:
+        duration_component = min(max(duration_val, 0.0) / target_val, 1.0) * 40.0
+
+    score = duration_component + (stability_val / 100.0) * 60.0
+
+    if score >= SCORE_GOOD_THRESHOLD:
+        label = "Baik"
+    elif score >= SCORE_OK_THRESHOLD:
+        label = "Cukup"
+    else:
+        label = "Perlu Perbaikan"
+
+    feedback_list = []
+    if target_val > 0 and duration_val < target_val:
+        feedback_list.append(
+            "Durasi tahan kurang. Tahan posisi lebih lama."
+        )
+    if stability_val < MIN_GOOD_STABILITY:
+        feedback_list.append(
+            "Tubuh bergoyang. Kencangkan otot perut dan punggung."
+        )
+
+    return {
+        "score": float(score),
+        "label": label,
+        "feedback_list": feedback_list,
+    }

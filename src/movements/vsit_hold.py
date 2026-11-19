@@ -31,6 +31,8 @@ VSIT_HOLD_CONFIG = MovementConfig(
 
     # V-Sit memang ROM kecil karena statis.
     rom_reference=40.0,
+    exercise_type="static",
+    target_duration_sec=30.0,
 
     feedback_rules=FeedbackRules(
         deep_rom_deg=40.0,
