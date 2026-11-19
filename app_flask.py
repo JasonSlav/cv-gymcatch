@@ -725,6 +725,7 @@ _MOVEMENT_LABELS = {
     "crunch_swimming": "Crunch Swimming",
     "crunch_bicycle": "Crunch Bicycle",
     "back_up": "Back Up",
+    "vsit_hold": "V-Sit Hold",
 }
 
 

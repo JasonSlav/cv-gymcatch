@@ -57,5 +57,9 @@ class MovementConfig:
 
     feedback_rules: FeedbackRules
 
+    # Referensi ROM (derajat) untuk normalisasi skor. Default 135° agar
+    # perilaku gerakan lama tidak berubah.
+    rom_reference: float = 135.0
+
     # Rekomendasi sudut kamera perekaman: "side" (samping) / "front" (depan)
     camera_angle: str = "side"

@@ -350,14 +350,17 @@ def generate_rule_based_feedback(
     consistency: Optional[float],
     stability: float,
     rules: Optional[FeedbackRules] = None,
+    rom_reference: float = ROM_REFERENCE_DEG,
 ) -> dict:
     """
     Skor & feedback berbasis aturan (prototype, BUKAN validasi klinis).
 
     Rumus skor (0–100):
-        (min(rom/135, 1) * 40) + (consistency * 30) + (stability/100 * 30)
+        (min(rom/rom_reference, 1) * 40) + (consistency * 30) + (stability/100 * 30)
     - rom None (tidak ada repetisi) → 0.
     - consistency None (<3 repetisi) → 0.
+    - rom_reference default 135° (perilaku lama); gerakan statis dapat
+      meng-override dari MovementConfig.
 
     Label: >=80 "Baik", >=60 "Cukup", selain itu "Perlu Perbaikan".
     feedback_list: SEMUA pesan yang kondisinya terpenuhi (bukan first-match).
@@ -375,9 +378,14 @@ def generate_rule_based_feedback(
     rom_val = 0.0 if rom is None else float(rom)
     cons_val = 0.0 if consistency is None else float(consistency)
     stab_val = float(stability)
+    ref_val = (
+        float(rom_reference)
+        if rom_reference is not None and float(rom_reference) > 0
+        else ROM_REFERENCE_DEG
+    )
 
     score = (
-        min(rom_val / ROM_REFERENCE_DEG, 1.0) * 40.0
+        min(rom_val / ref_val, 1.0) * 40.0
         + cons_val * 30.0
         + (stab_val / 100.0) * 30.0
     )

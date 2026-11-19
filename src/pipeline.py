@@ -360,7 +360,11 @@ def analyze_video(
         else right_analysis
     )
     score_info = generate_rule_based_feedback(
-        primary.rom, primary.consistency, stability, config.feedback_rules
+        primary.rom,
+        primary.consistency,
+        stability,
+        config.feedback_rules,
+        config.rom_reference,
     )
 
     # --- CSV ---

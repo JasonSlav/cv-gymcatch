@@ -22,6 +22,7 @@ from src.movements.pushup_wide import PUSHUP_WIDE_CONFIG
 from src.movements.squat_plie import SQUAT_PLIE_CONFIG
 from src.movements.squat_standard import SQUAT_STANDARD_CONFIG
 from src.movements.squat_sumo import SQUAT_SUMO_CONFIG
+from src.movements.vsit_hold import VSIT_HOLD_CONFIG
 
 _MOVEMENTS = {
     "squat_standard": SQUAT_STANDARD_CONFIG,
@@ -35,6 +36,7 @@ _MOVEMENTS = {
     "crunch_swimming": CRUNCH_SWIMMING_CONFIG,
     "crunch_bicycle": CRUNCH_BICYCLE_CONFIG,
     "back_up": BACK_UP_CONFIG,
+    "vsit_hold": VSIT_HOLD_CONFIG,
 }
 
 
@@ -70,4 +72,5 @@ __all__ = [
     "CRUNCH_SWIMMING_CONFIG",
     "CRUNCH_BICYCLE_CONFIG",
     "BACK_UP_CONFIG",
+    "VSIT_HOLD_CONFIG",
 ]
